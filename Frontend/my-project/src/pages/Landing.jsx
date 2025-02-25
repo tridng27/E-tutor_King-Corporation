@@ -1,4 +1,12 @@
-export const Landing = () => {
+import { useNavigate } from "react-router-dom";
+
+function Landing() {
+  const navigate = useNavigate(); 
+
+  const handleLoginClick = () => {
+    navigate("/login"); 
+  };
+
   return (
     <div>
       {/* Header */}
@@ -12,8 +20,8 @@ export const Landing = () => {
           <a href="#" class="hover:text-gray-900">Contact</a>
           <a href="#" class="hover:text-gray-900">Blog</a>
         </nav>
-        <button class="bg-white text-gray-900 font-semibold py-2 px-4 rounded-full shadow-md hover:bg-gray-100">
-          Sign up
+        <button class="bg-white text-gray-900 font-semibold py-2 px-4 rounded-full shadow-md hover:bg-gray-100" onClick={handleLoginClick}>
+          Login
         </button>
       </header>
 
@@ -252,7 +260,7 @@ export const Landing = () => {
     </div>
 
     {/* Banner */}
-    <section className="bg-[url('/public/banner.png')] bg-cover bg-center h-[874px]"></section>
+    <section className="bg-[url('/banner.png')] bg-cover bg-center h-[874px]"></section>
 
 
       {/* Banner Section */}
@@ -321,4 +329,6 @@ export const Landing = () => {
       </footer>
     </div>
   );
-};
+}
+
+export default Landing;
