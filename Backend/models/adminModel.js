@@ -1,16 +1,11 @@
-const pool = require("../Database");
+const { DataTypes } = require("sequelize");
+const sequelize = require("../config/Database");
 
-async function createAdmin(name, email, password) {
-  const result = await pool.query(
-    "INSERT INTO admins (name, email, password) VALUES ($1, $2, $3) RETURNING *",
-    [name, email, password]
-  );
-  return result.rows[0];
-}
+const Admin = sequelize.define("Admin", {
+  id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  name: { type: DataTypes.STRING, allowNull: false },
+  email: { type: DataTypes.STRING, allowNull: false, unique: true },
+  password: { type: DataTypes.STRING, allowNull: false },
+});
 
-async function getAdminByEmail(email) {
-  const result = await pool.query("SELECT * FROM admins WHERE email = $1", [email]);
-  return result.rows[0];
-}
-
-module.exports = { createAdmin, getAdminByEmail };
+module.exports = Admin;

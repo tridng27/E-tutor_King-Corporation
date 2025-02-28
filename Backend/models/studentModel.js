@@ -1,14 +1,12 @@
-async function createStudent(name, email, password) {
-  const result = await pool.query(
-    "INSERT INTO students (name, email, password) VALUES ($1, $2, $3) RETURNING *",
-    [name, email, password]
-  );
-  return result.rows[0];
-}
+const { DataTypes } = require("sequelize");
+const sequelize = require("../config/Database");
 
-async function getStudentByEmail(email) {
-  const result = await pool.query("SELECT * FROM students WHERE email = $1", [email]);
-  return result.rows[0];
-}
+const Student = sequelize.define("Student", {
+  id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  name: { type: DataTypes.STRING, allowNull: false },
+  email: { type: DataTypes.STRING, allowNull: false, unique: true },
+  password: { type: DataTypes.STRING, allowNull: false },
+  tutorId: { type: DataTypes.INTEGER, allowNull: true }, // Liên kết với Tutor
+});
 
-module.exports = { createStudent, getStudentByEmail };
+module.exports = Student;
