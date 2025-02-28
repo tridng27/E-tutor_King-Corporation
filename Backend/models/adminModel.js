@@ -1,24 +1,16 @@
-const pool = require('../db');
+const pool = require("../Database");
 
-class AdminModel {
-  static async getAllAdmins() {
-    const result = await pool.query('SELECT * FROM Admin');
-    return result.rows;
-  }
-
-  static async getAdminById(id) {
-    const result = await pool.query('SELECT * FROM Admin WHERE "Admin ID" = $1', [id]);
-    return result.rows[0];
-  }
-
-  static async createAdmin(admin) {
-    const { email, password, name, birthdate, enrollDate } = admin;
-    const result = await pool.query(
-      'INSERT INTO Admin (Email, Password, Name, Birthdate, EnrollDate) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [email, password, name, birthdate, enrollDate]
-    );
-    return result.rows[0];
-  }
+async function createAdmin(name, email, password) {
+  const result = await pool.query(
+    "INSERT INTO admins (name, email, password) VALUES ($1, $2, $3) RETURNING *",
+    [name, email, password]
+  );
+  return result.rows[0];
 }
 
-module.exports = AdminModel;
+async function getAdminByEmail(email) {
+  const result = await pool.query("SELECT * FROM admins WHERE email = $1", [email]);
+  return result.rows[0];
+}
+
+module.exports = { createAdmin, getAdminByEmail };
