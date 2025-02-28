@@ -11,7 +11,7 @@ function Signup() {
       
       {/* Right Side - Form */}
       <div className="w-1/2 flex flex-col justify-center items-center px-16">
-        <h1 className="text-3xl font-semibold mb-6">Sign in to your account</h1>
+        <h1 className="text-3xl font-semibold mb-6">Sign up your account</h1>
         
         <form className="w-full max-w-sm">
           <div className="mb-4">
