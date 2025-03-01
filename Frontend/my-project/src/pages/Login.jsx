@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useContext } from "react";
 import { GlobalContext } from "../context/GlobalContext";
 
 function Login() {
@@ -11,8 +10,29 @@ function Login() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  const validatePassword = (password) => {
+    const uppercaseRegex = /[A-Z]/;
+    const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/;
+    
+    if (!uppercaseRegex.test(password)) {
+      return "Password must contain at least one uppercase letter.";
+    }
+    if (!specialCharRegex.test(password)) {
+      return "Password must contain at least one special character.";
+    }
+    return null;
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
+
+    // Kiểm tra validation mật khẩu
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setError(passwordError);
+      return;
+    }
+
     try {
       const response = await axios.post("http://localhost:5000/api/auth/login", {
         email,
@@ -23,22 +43,21 @@ function Login() {
 
       if (user && token) {
         login(user, token);
-        alert("Login successful! Dashboard is under construction.");
-        navigate("/");
+        navigate("/"); // Chuyển hướng về Landing Page
       } else {
         setError("Invalid email or password");
       }
     } catch (err) {
       setError("Something went wrong. Please try again.");
     }
-  };  
+  };
 
   return (
     <div className="flex h-screen">
       {/* Left Side - Illustration */}
       <div className="w-1/2 flex justify-center items-center bg-white">
         <div className="max-w-xl">
-          <img src="/illustation.png" alt="Illustration" className="max-w-full h-auto rounded-xl" />
+          <img src="/illustration.png" alt="Illustration" className="max-w-full h-auto rounded-xl" />
         </div>
       </div>
 
@@ -57,6 +76,7 @@ function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#cbfff3]"
+              required
             />
           </div>
 
@@ -68,13 +88,8 @@ function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#cbfff3]"
+              required
             />
-          </div>
-
-          <div className="flex justify-between items-center mb-4">
-            <label className="flex items-center">
-              <input type="checkbox" className="mr-2" /> Remember me
-            </label>
           </div>
 
           <button
@@ -88,18 +103,6 @@ function Login() {
         <p className="mt-4 text-sm">
           You don't have an account? <a href="/signup" className="text-orange-500 hover:underline">Create Account</a>
         </p>
-
-        <div className="mt-6 w-full max-w-sm text-center">
-          <p className="text-gray-500 mb-2">---------- SIGN IN WITH ----------</p>
-          <div className="flex justify-center space-x-4">
-            <button className="border px-4 py-2 rounded-md flex items-center">
-              <img src="/google-icon.png" className="w-5 h-5 mr-2" /> Google
-            </button>
-            <button className="border px-4 py-2 rounded-md flex items-center">
-              <img src="/facebook-icon.png" className="w-5 h-5 mr-2" /> Facebook
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );

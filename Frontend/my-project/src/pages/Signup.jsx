@@ -1,52 +1,115 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+
 function Signup() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const navigate = useNavigate();
+
+  const validatePassword = (password) => {
+    const uppercaseRegex = /[A-Z]/;
+    const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/;
+
+    if (!uppercaseRegex.test(password)) {
+      return "Password must contain at least one uppercase letter.";
+    }
+    if (!specialCharRegex.test(password)) {
+      return "Password must contain at least one special character.";
+    }
+    if (password.length < 6) {
+      return "Password must be at least 6 characters long.";
+    }
+    return null;
+  };
+
+  const handleSignup = async (e) => {
+    e.preventDefault();
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setError(passwordError);
+      return;
+    }
+
+    try {
+      const response = await axios.post("http://localhost:5000/api/auth/signup", {
+        email,
+        password,
+      });
+
+      if (response.data.success) {
+        setSuccess("Signup successful! Redirecting to login...");
+        setTimeout(() => navigate("/signin"), 2000);
+      } else {
+        setError(response.data.message || "Signup failed.");
+      }
+    } catch (err) {
+      setError("Something went wrong. Please try again.");
+    }
+  };
+
   return (
     <div className="flex h-screen">
       {/* Left Side - Illustration */}
       <div className="w-1/2 flex justify-center items-center bg-white">
         <div className="max-w-xl">
-          <img src="  /illustation.png" alt="Illustration" className="max-w-full h-auto rounded-xl" />
+          <img src="/illustration.png" alt="Illustration" className="max-w-full h-auto rounded-xl" />
         </div>
       </div>
-      
-      
+
       {/* Right Side - Form */}
       <div className="w-1/2 flex flex-col justify-center items-center px-16">
-        <h1 className="text-3xl font-semibold mb-6">Sign up your account</h1>
-        
-        <form className="w-full max-w-sm">
-          <div className="mb-4">
-            <label className="block text-sm font-medium py-1">Username</label>
-            <input
-              type="email"
-              placeholder="Username"
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#cbfff3]"
-            />
-          </div>
+        <h1 className="text-3xl font-semibold mb-6">Create your account</h1>
 
+        {error && <p className="text-red-500">{error}</p>}
+        {success && <p className="text-green-500">{success}</p>}
+
+        <form className="w-full max-w-sm" onSubmit={handleSignup}>
           <div className="mb-4">
             <label className="block text-sm font-medium py-1">Email</label>
             <input
               type="email"
-              placeholder="Email address"
+              placeholder="Enter your email..."
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#cbfff3]"
+              required
             />
           </div>
-          
-          <div className="mb-4 relative">
+
+          <div className="mb-4">
             <label className="block text-sm font-medium py-1">Password</label>
             <input
               type="password"
-              placeholder="Password"
+              placeholder="Enter password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#cbfff3]"
+              required
             />
           </div>
-          
-          <div className="flex justify-between items-center mb-4">
-            <label className="flex items-center text-sm">
-              <input type="checkbox" className="mr-2" /> I Agree to the Terms & Conditions
-            </label>
+
+          <div className="mb-4">
+            <label className="block text-sm font-medium py-1">Confirm Password</label>
+            <input
+              type="password"
+              placeholder="Confirm password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#cbfff3]"
+              required
+            />
           </div>
-          
+
           <button
             type="submit"
             className="w-full bg-[#cbfff3] text-[#252B42] py-2 rounded-xl hover:bg-[#b3ffed] transition"
@@ -56,20 +119,8 @@ function Signup() {
         </form>
 
         <p className="mt-4 text-sm">
-          You have an account? <a href="/login" className="text-orange-500 hover:underline">Sign-In</a>
+          Already have an account? <a href="/signin" className="text-orange-500 hover:underline">Sign in</a>
         </p>
-
-        <div className="mt-6 w-full max-w-sm text-center">
-          <p className="text-gray-500 mb-2">---------- SIGN UP WITH ----------</p>
-          <div className="flex justify-center space-x-4">
-            <button className="border px-4 py-2 rounded-md flex items-center">
-              <img src="/google-icon.png"  className="w-5 h-5 mr-2" /> Google
-            </button>
-            <button className="border px-4 py-2 rounded-md flex items-center">
-              <img src="/facebook-icon.png"  className="w-5 h-5 mr-2" /> Facebook
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );
