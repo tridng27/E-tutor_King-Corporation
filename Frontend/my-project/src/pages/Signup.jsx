@@ -62,7 +62,7 @@ function Signup() {
       {/* Left Side - Illustration */}
       <div className="w-1/2 flex justify-center items-center bg-white">
         <div className="max-w-xl">
-          <img src="/illustration.png" alt="Illustration" className="max-w-full h-auto rounded-xl" />
+          <img src="/illustation.png" alt="Illustration" className="max-w-full h-auto rounded-xl" />
         </div>
       </div>
 
@@ -86,6 +86,7 @@ function Signup() {
             />
           </div>
 
+          {/* Password Input */}
           <div className="mb-4">
             <label className="block text-sm font-medium py-1">Password</label>
             <input
@@ -98,6 +99,7 @@ function Signup() {
             />
           </div>
 
+          {/* Confirm Password Input */}
           <div className="mb-4">
             <label className="block text-sm font-medium py-1">Confirm Password</label>
             <input
@@ -108,6 +110,13 @@ function Signup() {
               className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#cbfff3]"
               required
             />
+            {/* Password Validation Notes */}
+            <p className="text-xxs text-black-500 mt-1">
+              Password must include: <br />
+              - At least 6 characters<br />
+              - One uppercase letter (A-Z)<br />
+              - One special character (!@#$%^&*)
+            </p>
           </div>
 
           <button
