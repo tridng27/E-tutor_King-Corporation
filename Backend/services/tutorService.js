@@ -1,7 +1,13 @@
-const Tutor = require("../models/tutorModel");
+const Tutor = require("../models/tutor");
 
-const getTutorByEmail = async (email) => {
-  return await Tutor.findOne({ where: { email } });
+const getTutorByUserId = async (userId) => {
+  return await Tutor.findOne({ where: { userid: userId } });
 };
 
-module.exports = { getTutorByEmail };
+const updateTutor = async (tutorId, updateData) => {
+  const tutor = await Tutor.findByPk(tutorId);
+  if (!tutor) throw new Error("Tutor không tồn tại");
+  return await tutor.update(updateData);
+};
+
+module.exports = { getTutorByUserId, updateTutor };

@@ -1,8 +1,13 @@
 const express = require("express");
-const { tutorLogin } = require("../controllers/tutorController");
+const { getTutorProfile, updateTutorProfile, getMyStudents } = require("../controllers/tutorController");
+const { authenticateUser, isTutor } = require("../middlewares/roleMiddleware");
 
 const router = express.Router();
 
-router.post("/login", tutorLogin);
+router.use(authenticateUser, isTutor);
+
+router.get("/profile", getTutorProfile);
+router.put("/update", updateTutorProfile);
+router.get("/students", getMyStudents);
 
 module.exports = router;
