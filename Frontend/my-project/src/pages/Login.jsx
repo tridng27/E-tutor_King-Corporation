@@ -20,12 +20,12 @@ function Login() {
 
       if (user && token) {
         login(user, token);
-        setSuccess("Đăng nhập thành công, dashboard đang hoàn thành");
+        setSuccess("Đăng nhập thành công!");
         setError("");
         // Chuyển hướng sau 2 giây
         setTimeout(() => {
-          navigate("/dashboard");
-        }, 2000);
+          navigate("/landing");
+        }, 1000);
       } else {
         setError("Invalid email or password");
       }
