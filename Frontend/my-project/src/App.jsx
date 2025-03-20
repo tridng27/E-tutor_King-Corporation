@@ -7,6 +7,7 @@ import StudentDashboard from "./pages/student/Dashboard"; // Add this import
 import { GlobalProvider } from "./context/GlobalContext";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Timetable from "./pages/admin/Timetable";
+import Social from "./pages/user/Social";
 import ProtectedRoute from "./components/ProtectedRoute"; // Add this import
 import Unauthorized from "./pages/Unauthorized"; // Add this import
 
@@ -59,6 +60,7 @@ function App() {
               </ProtectedRoute>
             } 
           />
+          <Route path="/social" element={<Social />} />
         </Routes>
       </BrowserRouter>
     </GlobalProvider>
