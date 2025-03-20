@@ -1,53 +1,29 @@
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const { Admin, Student, Tutor } = require("../models/index");
-require("dotenv").config();
+// controllers/authController.js
+const { registerUser, loginUser } = require("../services/authService");
 
-const generateToken = (user) => {
-    return jwt.sign(
-        { id: user.id, email: user.email, role: user.role },
-        process.env.JWT_SECRET,
-        { expiresIn: process.env.JWT_EXPIRES_IN }
-    );
-};
-
-// ✅ Đăng ký người dùng (Admin, Student, Tutor)
 const register = async (req, res) => {
-    try {
-        const { name, email, password, role } = req.body;
-        const hashedPassword = await bcrypt.hash(password, 10);
-        let user;
-
-        if (role === "admin") user = await Admin.create({ name, email, password: hashedPassword });
-        else if (role === "student") user = await Student.create({ name, email, password: hashedPassword });
-        else if (role === "tutor") user = await Tutor.create({ name, email, password: hashedPassword });
-        else return res.status(400).json({ message: "Invalid role" });
-
-        const token = generateToken(user);
-        res.status(201).json({ message: "User registered successfully", token });
-    } catch (err) {
-        res.status(500).json({ message: "Error registering user", error: err.message });
-    }
+  try {
+    const { email, password, name } = req.body;
+    // Tạo user mới với Role là null (chờ admin duyệt)
+    const newUser = await registerUser({ email, password, name });
+    res.status(201).json({
+      message: "Đăng ký thành công, tài khoản của bạn đang chờ admin duyệt.",
+      user: newUser,
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
 };
 
-// ✅ Đăng nhập
 const login = async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        let user = await Admin.findOne({ where: { email } }) ||
-                   await Student.findOne({ where: { email } }) ||
-                   await Tutor.findOne({ where: { email } });
-
-        if (!user) return res.status(401).json({ message: "Invalid credentials" });
-
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
-
-        const token = generateToken(user);
-        res.status(200).json({ message: "Login successful", token });
-    } catch (err) {
-        res.status(500).json({ message: "Error logging in", error: err.message });
-    }
+  try {
+    const { email, password } = req.body;
+    // Đăng nhập: nếu tài khoản chưa được admin duyệt, sẽ ném lỗi
+    const { token, user } = await loginUser({ email, password });
+    res.status(200).json({ token, user });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
 };
 
 module.exports = { register, login };

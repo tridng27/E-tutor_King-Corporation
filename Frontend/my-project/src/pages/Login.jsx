@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import apiService from "../services/apiService";
 import { GlobalContext } from "../context/GlobalContext";
 
 function Login() {
@@ -8,49 +8,43 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const navigate = useNavigate();
 
-  const validatePassword = (password) => {
-    const uppercaseRegex = /[A-Z]/;
-    const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/;
-    
-    if (!uppercaseRegex.test(password)) {
-      return "Password must contain at least one uppercase letter.";
+  // In your Login.jsx file, update the handleLogin function
+const handleLogin = async (e) => {
+  e.preventDefault();
+
+  try {
+    const response = await apiService.post("/auth/login", { email, password });
+    const { user, token } = response.data;
+
+    if (user && token) {
+      login(user, token);
+      setSuccess("Login successful, redirecting...");
+      setError("");
+      
+      // Redirect based on user role
+      setTimeout(() => {
+        if (user.Role === 'Admin') {
+          navigate("/admin/dashboard");
+        } else if (user.Role === 'Tutor') {
+          navigate("/tutor/dashboard");
+        } else if (user.Role === 'Student') {
+          navigate("/student/dashboard");
+        } else {
+          navigate("/"); // Default fallback
+        }
+      }, 2000);
+    } else {
+      setError("Invalid email or password");
     }
-    if (!specialCharRegex.test(password)) {
-      return "Password must contain at least one special character.";
-    }
-    return null;
-  };
+  } catch (err) {
+    setError(err.response?.data?.message || "Something went wrong. Please try again.");
+    setSuccess("");
+  }
+};
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-
-    // Kiểm tra validation mật khẩu
-    const passwordError = validatePassword(password);
-    if (passwordError) {
-      setError(passwordError);
-      return;
-    }
-
-    try {
-      const response = await axios.post("http://localhost:5000/api/auth/login", {
-        email,
-        password,
-      });
-
-      const { user, token } = response.data;
-
-      if (user && token) {
-        login(user, token);
-        navigate("/"); // Chuyển hướng về Landing Page
-      } else {
-        setError("Invalid email or password");
-      }
-    } catch (err) {
-      setError("Something went wrong. Please try again.");
-    }
-  };
 
   return (
     <div className="flex h-screen">
@@ -65,7 +59,8 @@ function Login() {
       <div className="w-1/2 flex flex-col justify-center items-center px-16">
         <h1 className="text-3xl font-semibold mb-6">Sign in to your account</h1>
 
-        {error && <p className="text-red-500">{error}</p>}
+        {error && <p className="text-red-500 mb-4">{error}</p>}
+        {success && <p className="text-green-500 mb-4">{success}</p>}
 
         <form className="w-full max-w-sm" onSubmit={handleLogin}>
           <div className="mb-4">
@@ -101,7 +96,10 @@ function Login() {
         </form>
 
         <p className="mt-4 text-sm">
-          You don't have an account? <a href="/signup" className="text-orange-500 hover:underline">Create Account</a>
+          You don't have an account?{" "}
+          <a href="/signup" className="text-orange-500 hover:underline">
+            Create Account
+          </a>
         </p>
       </div>
     </div>

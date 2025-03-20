@@ -1,22 +1,24 @@
+// server.js
 const express = require("express");
-const cors = require("cors");
-const bodyParser = require("body-parser");
-const authRoutes = require("./routes/authRoutes");
-const { authenticateToken } = require("./Middleware/authMiddleware");
-
 require("dotenv").config();
+const cors = require("cors"); // Import cors
+const authRoutes = require("./routes/authRoutes");
 
+// Tạo instance của Express
 const app = express();
-app.use(cors());
-app.use(bodyParser.json());
+const PORT = process.env.PORT || 5000;
 
-// Routes
+// Middleware để parse JSON request body
+app.use(cors()); // Sử dụng cors cho tất cả các route
+app.use(express.json());
 app.use("/api/auth", authRoutes);
 
-// Test route yêu cầu xác thực
-app.get("/api/protected", authenticateToken, (req, res) => {
-    res.json({ message: "You have accessed a protected route", user: req.user });
+// Ví dụ định nghĩa route cơ bản
+app.get("/", (req, res) => {
+  res.send("Hello World! Server is running.");
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Khởi chạy server
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
