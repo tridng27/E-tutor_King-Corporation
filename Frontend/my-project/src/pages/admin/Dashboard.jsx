@@ -9,7 +9,7 @@ function Dashboard() {
                 <Sidebar />
 
                 {/* Nội dung chính */}
-                <div className="flex-1 p-6 ml-16">
+                <div className="flex-1 p-6 ml-16 transition-all duration-300">
                     <div className="bg-white p-6 rounded-lg shadow">
                         <input type="text" placeholder="Search" className="w-full p-2 border rounded-lg" />
                     </div>

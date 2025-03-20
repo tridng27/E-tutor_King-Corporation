@@ -11,36 +11,47 @@ function Login() {
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  // In your Login.jsx file, update the handleLogin function
+const handleLogin = async (e) => {
+  e.preventDefault();
 
-    try {
-      const response = await apiService.post("/auth/login", { email, password });
-      const { user, token } = response.data;
+  try {
+    const response = await apiService.post("/auth/login", { email, password });
+    const { user, token } = response.data;
 
-      if (user && token) {
-        login(user, token);
-        setSuccess("Đăng nhập thành công!");
-        setError("");
-        // Chuyển hướng sau 2 giây
-        setTimeout(() => {
-          navigate("/landing");
-        }, 1000);
-      } else {
-        setError("Invalid email or password");
-      }
-    } catch (err) {
-      setError(err.response?.data?.message || "Something went wrong. Please try again.");
-      setSuccess("");
+    if (user && token) {
+      login(user, token);
+      setSuccess("Login successful, redirecting...");
+      setError("");
+      
+      // Redirect based on user role
+      setTimeout(() => {
+        if (user.Role === 'Admin') {
+          navigate("/admin/dashboard");
+        } else if (user.Role === 'Tutor') {
+          navigate("/tutor/dashboard");
+        } else if (user.Role === 'Student') {
+          navigate("/student/dashboard");
+        } else {
+          navigate("/"); // Default fallback
+        }
+      }, 2000);
+    } else {
+      setError("Invalid email or password");
     }
-  };
+  } catch (err) {
+    setError(err.response?.data?.message || "Something went wrong. Please try again.");
+    setSuccess("");
+  }
+};
+
 
   return (
     <div className="flex h-screen">
       {/* Left Side - Illustration */}
       <div className="w-1/2 flex justify-center items-center bg-white">
         <div className="max-w-xl">
-          <img src="/illustation.png" alt="Illustation" className="max-w-full h-auto rounded-xl" />
+          <img src="/illustration.png" alt="Illustration" className="max-w-full h-auto rounded-xl" />
         </div>
       </div>
 
