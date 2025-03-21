@@ -4,14 +4,21 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 require("dotenv").config();
 
+// Verify JWT_SECRET is available
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  console.error("WARNING: JWT_SECRET is not defined in environment variables!");
+  // In production, you might want to throw an error here
+}
+
 const registerUser = async ({ email, password, name }) => {
   const existingUser = await User.findOne({ where: { Email: email } });
   if (existingUser) {
     throw new Error("Email đã được sử dụng.");
   }
-  
+ 
   const hashedPassword = await bcrypt.hash(password, 10);
-  
+ 
   // Tạo user mới với Role là null (chờ admin duyệt)
   const newUser = await User.create({
     Email: email,
@@ -19,8 +26,12 @@ const registerUser = async ({ email, password, name }) => {
     Name: name,
     Role: null,
   });
+ 
+  // Don't return the password hash
+  const userResponse = newUser.toJSON();
+  delete userResponse.Password;
   
-  return newUser;
+  return userResponse;
 };
 
 const loginUser = async ({ email, password }) => {
@@ -28,20 +39,38 @@ const loginUser = async ({ email, password }) => {
   if (!user) {
     throw new Error("Email hoặc mật khẩu không đúng.");
   }
-  
+ 
   const isMatch = await bcrypt.compare(password, user.Password);
   if (!isMatch) {
     throw new Error("Email hoặc mật khẩu không đúng.");
   }
-  
+ 
   // Nếu tài khoản chưa được admin duyệt, Role là null
   if (!user.Role) {
     throw new Error("Tài khoản của bạn chưa được admin duyệt.");
   }
-  
-  const token = jwt.sign({ id: user.UserID, role: user.Role }, process.env.JWT_SECRET, { expiresIn: "1d" });
-  
-  return { token, user };
+ 
+  // Check if JWT_SECRET is available
+  if (!JWT_SECRET) {
+    throw new Error("Server configuration error. Please contact administrator.");
+  }
+
+  try {
+    const token = jwt.sign(
+      { id: user.UserID, role: user.Role }, 
+      JWT_SECRET, 
+      { expiresIn: "1d" }
+    );
+    
+    // Don't return the password hash
+    const userResponse = user.toJSON();
+    delete userResponse.Password;
+    
+    return { token, user: userResponse };
+  } catch (error) {
+    console.error("JWT signing error:", error);
+    throw new Error("Authentication error. Please try again later.");
+  }
 };
 
 module.exports = { registerUser, loginUser };
