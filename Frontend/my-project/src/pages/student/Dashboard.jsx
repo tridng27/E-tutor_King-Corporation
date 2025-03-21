@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from "../../components/sidebar";
 import { GlobalContext } from "../../context/GlobalContext";
 import { jwtDecode } from "jwt-decode";
+import RightSidebar from "../../components/rightSidebar";
 
 function StudentDashboard() {
     const [selectedTab, setSelectedTab] = useState("dashboard");
@@ -113,59 +114,7 @@ function StudentDashboard() {
                 </div>
 
                 {/* Right sidebar */}
-                <div className="w-1/5 bg-gray-100 p-6">
-                    <div className="flex justify-center items-center mb-20">
-                        <button 
-                            className="bg-white text-black px-6 py-2 rounded-full shadow-md border"
-                            onClick={handleSignOut}
-                        >
-                            Sign Out
-                        </button>
-                    </div>
-                    
-                    <h3 className="text-lg font-bold">Upcoming Classes</h3>
-                    <div className="mt-4 space-y-3">
-                        <div className="flex items-center space-x-3 rounded-lg">
-                            <span className="bg-blue-400 p-2 rounded-full"></span>
-                            <div>
-                                <p className="font-bold text-sm">Mathematics 101</p>
-                                <p className="text-xs">Today, 10:30AM</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center space-x-3 rounded-lg">
-                            <span className="bg-green-400 p-2 rounded-full"></span>
-                            <div>
-                                <p className="font-bold text-sm">Programming Lab</p>
-                                <p className="text-xs">Today, 02:00PM</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <h3 className="text-lg font-bold mt-6">Recent Grades</h3>
-                    <div className="mt-4 space-y-3">
-                        <div className="flex items-center space-x-3">
-                            <span className="bg-purple-300 p-2 rounded-full"></span>
-                            <div>
-                                <p className="font-bold text-sm">Quiz 2: 85%</p>
-                                <p className="text-xs">Mathematics 101</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center space-x-3">
-                            <span className="bg-green-300 p-2 rounded-full"></span>
-                            <div>
-                                <p className="font-bold text-sm">Homework #2: 92%</p>
-                                <p className="text-xs">Programming</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <h3 className="text-lg font-bold mt-6">Study Resources</h3>
-                    <div className="mt-4 space-y-2">
-                        <a href="#" className="block text-blue-500 hover:underline">Mathematics Textbook</a>
-                        <a href="#" className="block text-blue-500 hover:underline">Programming Reference</a>
-                        <a href="#" className="block text-blue-500 hover:underline">Physics Lab Manual</a>
-                    </div>
-                </div>
+                <RightSidebar />
             </div>
         </div>
     );

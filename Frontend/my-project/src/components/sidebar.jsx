@@ -42,6 +42,18 @@ function Sidebar() {
         }
     };
 
+    // Handle navigation to student based on role
+    const handleStudentClick = (e) => {
+        e.preventDefault();
+        if (userRole === 'Admin') {
+            navigate('/admin/dashboard');
+        } else if (userRole === 'Tutor') {
+            navigate('/tutor/student');
+        } else if (userRole === 'Student') {
+            navigate('/student/dashboard');
+        }
+    };
+
     // Handle navigation to landing page
     const handleHomeClick = (e) => {
         e.preventDefault();
