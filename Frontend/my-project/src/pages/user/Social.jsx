@@ -1,21 +1,47 @@
 
 import React from 'react';
-import RightSidebar from '../../components/rightSidebar';
 import Sidebar from "../../components/sidebar";
+import { CircleX, SmilePlus, Mic } from 'lucide-react';
+import SocialSidebar from '../../components/socialSidebar';
 
 function Socials() {
   return (
     <div className="relative">
-      <div className="flex h-screen">
+      <div className="flex h-full">
         <Sidebar />
 
         <div className="flex-1 p-6 ml-16">
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-3xl mx-auto">
+            <div className="">
+              <div className="relative mb-3">
+                  <input
+                    type="text"
+                    placeholder="Search..."
+                    className="w-full px-4 py-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                  <CircleX className="absolute right-3 top-2 text-gray-400 hover:text-gray-700 cursor-pointer"/> 
+              </div>
+            </div>
             <div className="bg-white p-4 rounded-lg shadow-md mb-4">
-                <input type="text" placeholder="What’s on your mind right now?" className="w-full p-2 border rounded-lg focus:outline-none"/>
-                <div className="flex justify-end mt-2">
-                    <button className="bg-blue-500 text-white px-4 py-2 rounded-lg">Post</button>
-                </div>
+
+              {/* Post Input */}
+              <div className="border p-3 rounded-lg flex items-center">
+                <span className="mr-2 text-gray-500">✏️</span>
+                <input
+                  type="text"
+                  placeholder="What’s on your mind right now?"
+                  className="w-full outline-none"
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-end items-center mt-3">
+                <SmilePlus className="mr-2 text-gray-500 hover:text-gray-700" />
+                <Mic className="mr-2 text-gray-500 hover:text-gray-700" />
+                <button className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700">
+                  Post ➤
+                </button>
+              </div>
             </div>
           
             <div className="bg-white p-4 rounded-lg shadow-md mb-4">
@@ -55,7 +81,7 @@ function Socials() {
             </div>
           </div>
 
-        <RightSidebar />
+        <SocialSidebar/>
       </div>
     </div>
   )
