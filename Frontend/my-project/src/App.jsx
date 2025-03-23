@@ -4,12 +4,16 @@ import Signup from "./pages/Signup";
 import AdminDashboard from "./pages/admin/dashboard";
 import TutorDashboard from "./pages/tutor/Dashboard"; // Add this import
 import StudentDashboard from "./pages/student/Dashboard"; // Add this import
+import TutorStudent from "./pages/tutor/Student";
+import AdminStudent from "./pages/admin/Student";
+import StudentStudent from "./pages/student/Student";
 import { GlobalProvider } from "./context/GlobalContext";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Timetable from "./pages/admin/Timetable";
 import Social from "./pages/user/Social";
 import ProtectedRoute from "./components/ProtectedRoute"; // Add this import
 import Unauthorized from "./pages/Unauthorized"; // Add this import
+import Student from "./pages/admin/Student";
 
 function App() {
   return (
@@ -40,6 +44,15 @@ function App() {
               </ProtectedRoute>
             } 
           />
+
+          <Route 
+            path="/admin/student" 
+            element={
+              <ProtectedRoute allowedRoles={['Admin']}>
+                <AdminStudent />
+              </ProtectedRoute>
+            } 
+          />
           
           {/* Protected Tutor Routes */}
           <Route 
@@ -50,6 +63,15 @@ function App() {
               </ProtectedRoute>
             } 
           />
+
+          <Route
+            path="/tutor/student"
+            element={
+              <ProtectedRoute allowedRoles={['Tutor', 'Admin']}>
+                <TutorStudent />
+              </ProtectedRoute>
+            }
+          />
           
           {/* Protected Student Routes */}
           <Route 
@@ -57,6 +79,15 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['Student']}>
                 <StudentDashboard />
+              </ProtectedRoute>
+            } 
+          />
+
+          <Route 
+            path="/student/student" 
+            element={
+              <ProtectedRoute allowedRoles={['Student']}>
+                <StudentStudent />
               </ProtectedRoute>
             } 
           />
