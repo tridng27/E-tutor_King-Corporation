@@ -1,4 +1,3 @@
-// src/services/apiService.jsx
 import axios from 'axios';
 
 // Sử dụng import.meta.env cho Vite; hãy đảm bảo trong file .env của bạn có biến: VITE_API_BASE_URL
@@ -36,5 +35,16 @@ const apiService = {
   put: (url, data, config = {}) => apiClient.put(url, data, config),
   delete: (url, config = {}) => apiClient.delete(url, config),
 };
+
+// API để lấy điểm số và điểm danh của học sinh
+getStudentScores: async (studentId) => {
+  try {
+    const response = await apiClient.get(`/subject/scores/${studentId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi khi lấy điểm số và điểm danh:", error);
+    return [];
+  }
+}
 
 export default apiService;
