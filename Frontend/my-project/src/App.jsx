@@ -10,6 +10,7 @@ import Timetable from "./pages/admin/Timetable";
 import Social from "./pages/user/Social";
 import ProtectedRoute from "./components/ProtectedRoute"; // Add this import
 import Unauthorized from "./pages/Unauthorized"; // Add this import
+import MeetingPage from "./pages/meeting/MeetingPage";
 
 function App() {
   return (
@@ -21,7 +22,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
-          
+          <Route path="/meeting/:meetingId" element={<MeetingPage />} />
+
           {/* Protected Admin Routes */}
           <Route 
             path="/admin/dashboard" 

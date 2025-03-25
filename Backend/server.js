@@ -1,24 +1,16 @@
-// server.js
 const express = require("express");
-require("dotenv").config();
-const cors = require("cors"); // Import cors
-const authRoutes = require("./routes/authRoutes");
+const http = require("http");
+const cors = require("cors");
+const setupMeetingService = require("./services/meetingService");
 
-// Tạo instance của Express
 const app = express();
-const PORT = process.env.PORT || 5000;
+const server = http.createServer(app);
 
-// Middleware để parse JSON request body
-app.use(cors()); // Sử dụng cors cho tất cả các route
-app.use(express.json());
-app.use("/api/auth", authRoutes);
+app.use(cors());
 
-// Ví dụ định nghĩa route cơ bản
-app.get("/", (req, res) => {
-  res.send("Hello World! Server is running.");
-});
+// Khởi động dịch vụ Meeting
+setupMeetingService(server);
 
-// Khởi chạy server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+server.listen(5000, () => {
+  console.log("Server is running on port 5000");
 });
