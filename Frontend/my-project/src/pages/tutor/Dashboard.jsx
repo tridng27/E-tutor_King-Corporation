@@ -1,24 +1,15 @@
-import { useState } from "react";
-import Sidebar from "../../components/sidebar";
 import RightSidebar from "../../components/rightSidebar";
+import Sidebar from "../../components/sidebar";
 
 
 function Dashboard() {
-    const [selectedTab, setSelectedTab] = useState("dashboard");
-
     return (
         <div className="relative">
-             {/* Overlay khi sidebar mở */}
-             {isSidebarOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity"></div>
-            )}
-
-            <div className="flex h-screen"> 
-                <Sidebar setSelectedTab={setSelectedTab} />
+            <div className="flex h-screen">
+                <Sidebar />
 
                 {/* Nội dung chính */}
-                <div className="flex-1 p-6 ml-16">
-                    
+                <div className="flex-1 p-6 ml-16 transition-all duration-300">
                     <div className="bg-white p-6 rounded-lg shadow">
                         <input type="text" placeholder="Search" className="w-full p-2 border rounded-lg" />
                     </div>
@@ -46,7 +37,7 @@ function Dashboard() {
                     </div>
                 </div>
 
-                {/* Sidebar phải */}
+                {/* Right sidebar */}
                 <RightSidebar />
             </div>
         </div>

@@ -1,19 +1,15 @@
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { GlobalProvider } from "./context/GlobalContext";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import AdminDashboard from "./pages/admin/dashboard";
-import TutorDashboard from "./pages/tutor/Dashboard"; // Add this import
-import StudentDashboard from "./pages/student/Dashboard"; // Add this import
-import TutorStudent from "./pages/tutor/Student";
-import AdminStudent from "./pages/admin/Student";
-import StudentStudent from "./pages/student/Student";
-import { GlobalProvider } from "./context/GlobalContext";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import AdminDashboard from "./pages/admin/Dashboard";
+import TutorDashboard from "./pages/tutor/Dashboard";
+import StudentDashboard from "./pages/student/Dashboard";
 import Timetable from "./pages/admin/Timetable";
 import Social from "./pages/user/Social";
-import ProtectedRoute from "./components/ProtectedRoute"; // Add this import
-import Unauthorized from "./pages/Unauthorized"; // Add this import
-import Student from "./pages/admin/Student";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Unauthorized from "./pages/Unauthorized";
 
 function App() {
   return (
@@ -44,33 +40,15 @@ function App() {
               </ProtectedRoute>
             } 
           />
-
-          <Route 
-            path="/admin/student" 
-            element={
-              <ProtectedRoute allowedRoles={['Admin']}>
-                <AdminStudent />
-              </ProtectedRoute>
-            } 
-          />
           
           {/* Protected Tutor Routes */}
           <Route 
             path="/tutor/dashboard" 
             element={
-              <ProtectedRoute allowedRoles={['Tutor', 'Admin']}>
+              <ProtectedRoute allowedRoles={['Tutor']}>
                 <TutorDashboard />
               </ProtectedRoute>
             } 
-          />
-
-          <Route
-            path="/tutor/student"
-            element={
-              <ProtectedRoute allowedRoles={['Tutor', 'Admin']}>
-                <TutorStudent />
-              </ProtectedRoute>
-            }
           />
           
           {/* Protected Student Routes */}
@@ -82,20 +60,22 @@ function App() {
               </ProtectedRoute>
             } 
           />
-
+          
           <Route 
-            path="/student/student" 
+            path="/social" 
             element={
-              <ProtectedRoute allowedRoles={['Student']}>
-                <StudentStudent />
+              <ProtectedRoute allowedRoles={[]}>
+                <Social />
               </ProtectedRoute>
             } 
           />
-          <Route path="/social" element={<Social />} />
+          
+          {/* 404 Route */}
+          <Route path="*" element={<div>Page not found</div>} />
         </Routes>
       </BrowserRouter>
     </GlobalProvider>
-  )
+  );
 }
 
 export default App;

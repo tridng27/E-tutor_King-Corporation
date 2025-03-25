@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { LayoutDashboard, Calendar, Users, User, MessageSquare, PhoneCall, Home, LogOut, Earth } from "lucide-react";
+import { LayoutDashboard, Calendar, Users, User, MessageSquare, PhoneCall, Home, LogOut, BookHeart, Earth } from "lucide-react";
 import { GlobalContext } from "../context/GlobalContext";
 import { jwtDecode } from "jwt-decode";
 
@@ -67,6 +67,22 @@ function Sidebar() {
         navigate('/login');
     };
 
+    const handleSocialClick = (e) => {
+        e.preventDefault();
+        navigate('/social');
+    };
+
+    const handleTTableClick = (e) => {
+        e.preventDefault();
+        if (userRole === 'Admin') {
+            navigate('/admin/Timetable');
+        } else if (userRole === 'Tutor') {
+            navigate('/tutor/Timetable');
+        } else if (userRole === 'Student') {
+            navigate('/student/Timetable');
+        }
+    };
+
     return (
         <div>
             {/* Overlay when sidebar is open */}
@@ -114,12 +130,30 @@ function Sidebar() {
                         </span>
                     </a>
 
-                    <a href="#" className="flex items-center space-x-3 rounded-lg hover:bg-gray-200 p-2">
+                    <a
+                        href="#"
+                        className="flex items-center space-x-3 rounded-lg hover:bg-gray-200 p-2"
+                        onClick={handleTTableClick}
+                    >
+                        {/* Add min-width and center the icon when sidebar is collapsed */}
                         <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>
-                            <Calendar className="w-6 h-6 text-gray-600 min-w-[24px]" />
+                            <Calendar className="w-6 h-6 text-teal-500 min-w-[24px]" />
                         </div>
                         <span className={`text-gray-700 transition-all duration-300 ${isSidebarOpen ? "block" : "hidden"}`}>
-                            Timetable
+                            Time Table
+                        </span>
+                    </a>
+
+                    <a
+                        href="#"
+                        className="flex items-center space-x-3 rounded-lg hover:bg-gray-200 p-2"
+                        onClick={handleSocialClick}
+                    >
+                        <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>
+                            <BookHeart className="w-6 h-6 text-teal-500 min-w-[24px]" />
+                        </div>
+                        <span className={`text-gray-700 transition-all duration-300 ${isSidebarOpen ? "block" : "hidden"}`}>
+                            Social
                         </span>
                     </a>
 
