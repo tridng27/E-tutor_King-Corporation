@@ -1,50 +1,83 @@
-import { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useContext, useEffect, useRef } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import apiService from "../services/apiService";
 import { GlobalContext } from "../context/GlobalContext";
 
 function Login() {
-  const { login } = useContext(GlobalContext);
+  const { login, isAuthenticated, user } = useContext(GlobalContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const redirectAttempted = useRef(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // In your Login.jsx file, update the handleLogin function
-const handleLogin = async (e) => {
-  e.preventDefault();
-
-  try {
-    const response = await apiService.post("/auth/login", { email, password });
-    const { user, token } = response.data;
-
-    if (user && token) {
-      login(user, token);
-      setSuccess("Login successful, redirecting...");
-      setError("");
+  // Check if already authenticated
+  useEffect(() => {
+    console.log("Login effect - Auth state:", isAuthenticated);
+    console.log("Login effect - User:", user);
+    console.log("Login effect - Redirect attempted:", redirectAttempted.current);
+    
+    // Only redirect if authenticated AND not already redirected
+    if (isAuthenticated && user && !redirectAttempted.current) {
+      console.log("User is authenticated, preparing to redirect");
+      redirectAttempted.current = true; // Mark that we've attempted a redirect
       
-      // Redirect based on user role
+      // Determine where to redirect based on role
+      const redirectPath = user.Role === 'Admin' 
+        ? "/admin/dashboard" 
+        : user.Role === 'Tutor' 
+          ? "/tutor/dashboard" 
+          : "/student/dashboard";
+      
+      console.log("Redirecting to:", redirectPath);
+      
+      // Use setTimeout to ensure this happens after render
       setTimeout(() => {
-        if (user.Role === 'Admin') {
-          navigate("/admin/dashboard");
-        } else if (user.Role === 'Tutor') {
-          navigate("/tutor/dashboard");
-        } else if (user.Role === 'Student') {
-          navigate("/student/dashboard");
-        } else {
-          navigate("/"); // Default fallback
-        }
-      }, 2000);
-    } else {
-      setError("Invalid email or password");
+        navigate(redirectPath, { replace: true });
+      }, 100);
     }
-  } catch (err) {
-    setError(err.response?.data?.message || "Something went wrong. Please try again.");
-    setSuccess("");
-  }
-};
+  }, [isAuthenticated, user, navigate]);
 
+  // Reset redirect flag when component unmounts
+  useEffect(() => {
+    return () => {
+      console.log("Login component unmounting, resetting redirect flag");
+      redirectAttempted.current = false;
+    };
+  }, []);
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    console.log("Login attempt with email:", email);
+    redirectAttempted.current = false; // Reset redirect flag on new login attempt
+
+    try {
+      const response = await apiService.post("/auth/login", { email, password });
+      console.log("Login response:", response.data);
+      
+      const { user } = response.data;
+
+      if (user) {
+        // Call the login function from context
+        login(user);
+        console.log("Login function called with user");
+        
+        setSuccess("Login successful, redirecting...");
+        setError("");
+        
+        // The redirect will be handled by the useEffect above
+      } else {
+        console.error("Invalid response format:", response.data);
+        setError("Invalid response from server");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      setError(err.response?.data?.message || "Something went wrong. Please try again.");
+      setSuccess("");
+    }
+  };
 
   return (
     <div className="flex h-screen">
@@ -58,6 +91,15 @@ const handleLogin = async (e) => {
       {/* Right Side - Form */}
       <div className="w-1/2 flex flex-col justify-center items-center px-16">
         <h1 className="text-3xl font-semibold mb-6">Sign in to your account</h1>
+
+        {/* Debug info */}
+        <div className="w-full max-w-sm mb-4 p-3 bg-yellow-50 rounded-md text-xs">
+          <p><strong>isAuthenticated:</strong> {isAuthenticated ? 'Yes' : 'No'}</p>
+          <p><strong>User:</strong> {user ? user.Name : 'None'}</p>
+          <p><strong>Role:</strong> {user ? user.Role : 'None'}</p>
+          <p><strong>Redirect attempted:</strong> {redirectAttempted.current ? 'Yes' : 'No'}</p>
+          <p><strong>Current path:</strong> {location.pathname}</p>
+        </div>
 
         {error && <p className="text-red-500 mb-4">{error}</p>}
         {success && <p className="text-green-500 mb-4">{success}</p>}
@@ -89,9 +131,10 @@ const handleLogin = async (e) => {
 
           <button
             type="submit"
-            className="w-full bg-[#cbfff3] text-[#252B42] py-2 rounded-xl hover:bg-[#b3ffed] transition"
+            disabled={redirectAttempted.current}
+            className={`w-full ${redirectAttempted.current ? 'bg-gray-300' : 'bg-[#cbfff3] hover:bg-[#b3ffed]'} text-[#252B42] py-2 rounded-xl transition`}
           >
-            Sign In →
+            {redirectAttempted.current ? 'Redirecting...' : 'Sign In →'}
           </button>
         </form>
 

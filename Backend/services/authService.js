@@ -56,8 +56,14 @@ const loginUser = async ({ email, password }) => {
   }
 
   try {
+    // Update the token payload to match what the middleware expects
     const token = jwt.sign(
-      { id: user.UserID, role: user.Role }, 
+      { 
+        UserID: user.UserID, // Changed from id to UserID
+        role: user.Role,
+        name: user.Name,
+        email: user.Email
+      }, 
       JWT_SECRET, 
       { expiresIn: "1d" }
     );

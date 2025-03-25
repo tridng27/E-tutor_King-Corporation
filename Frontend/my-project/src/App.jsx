@@ -1,7 +1,7 @@
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import AdminDashboard from "./pages/admin/dashboard";
+import AdminDashboard from "./pages/admin/Dashboard";
 import TutorDashboard from "./pages/tutor/Dashboard"; // Add this import
 import StudentDashboard from "./pages/student/Dashboard"; // Add this import
 import { GlobalProvider } from "./context/GlobalContext";
