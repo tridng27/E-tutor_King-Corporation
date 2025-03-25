@@ -1,5 +1,4 @@
-const User = require("../models/user.js");
-const Post = require("../models/post.js");
+const { User, Post } = require("../models");
 
 // Get all posts (visible to all authenticated users)
 exports.getAllPosts = async (req, res) => {

@@ -2,16 +2,23 @@ const jwt = require("jsonwebtoken");
 const { User } = require("../models");
 
 // Middleware xác thực JWT và lấy thông tin user từ token
+// Middleware xác thực JWT và lấy thông tin user từ token
 const authenticateUser = async (req, res, next) => {
     try {
-        const token = req.header("Authorization")?.split(" ")[1]; // Lấy token từ header
+        // Update to check for cookie first, then header for backward compatibility
+        let token = req.cookies.token;
+        if (!token) {
+            // Fallback to header for backward compatibility
+            token = req.header("Authorization")?.split(" ")[1];
+        }
+        
         if (!token) {
             return res.status(401).json({ message: "Access Denied! No token provided." });
         }
 
         // Giải mã token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const user = await User.findByPk(decoded.id);
+        const user = await User.findByPk(decoded.UserID); // Changed from decoded.id to decoded.UserID
 
         if (!user) {
             return res.status(404).json({ message: "User not found!" });
@@ -23,6 +30,7 @@ const authenticateUser = async (req, res, next) => {
         return res.status(401).json({ message: "Invalid or expired token!", error: error.message });
     }
 };
+
 
 // Middleware kiểm tra quyền Admin
 const isAdmin = (req, res, next) => {

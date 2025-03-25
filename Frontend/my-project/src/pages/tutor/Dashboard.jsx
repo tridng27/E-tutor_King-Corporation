@@ -37,6 +37,7 @@ function Dashboard() {
                     </div>
                 </div>
 
+                {/* Right sidebar */}
                 <RightSidebar />
             </div>
         </div>

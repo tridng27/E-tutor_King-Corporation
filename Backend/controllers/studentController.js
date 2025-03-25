@@ -1,55 +1,101 @@
-const Student = require("../models/student");
+const StudentSubject = require("../models/studentsubject");
+const Subject = require("../models/subject");
+const User = require("../models/user");
 
-const getAllStudents = async (req, res) => {
+// 📌 Lấy thông tin hồ sơ của học sinh
+const getStudentProfile = async (req, res) => {
   try {
-    const students = await Student.findAll();
-    res.json(students);
-  } catch (error) {
-    res.status(500).json({ error: "Lỗi lấy danh sách sinh viên" });
-  }
-};
+    const student = await User.findByPk(req.user.id, {
+      attributes: ["id", "name", "email"]
+    });
 
-const getStudentById = async (req, res) => {
-  try {
-    const student = await Student.findByPk(req.params.id);
-    if (!student) return res.status(404).json({ error: "Không tìm thấy sinh viên" });
+    if (!student) {
+      return res.status(404).json({ message: "Không tìm thấy hồ sơ học sinh." });
+    }
+
     res.json(student);
   } catch (error) {
-    res.status(500).json({ error: "Lỗi lấy thông tin sinh viên" });
+    console.error("Lỗi khi lấy hồ sơ:", error);
+    res.status(500).json({ error: "Lỗi server" });
   }
 };
 
-const createStudent = async (req, res) => {
+// 📌 Cập nhật hồ sơ học sinh
+const updateStudentProfile = async (req, res) => {
   try {
-    const student = await Student.create(req.body);
-    res.status(201).json(student);
+    const { name, email } = req.body;
+
+    const student = await User.findByPk(req.user.id);
+    if (!student) {
+      return res.status(404).json({ message: "Không tìm thấy hồ sơ học sinh." });
+    }
+
+    student.name = name || student.name;
+    student.email = email || student.email;
+    await student.save();
+
+    res.json({ message: "Cập nhật hồ sơ thành công!", student });
   } catch (error) {
-    res.status(500).json({ error: "Lỗi tạo sinh viên" });
+    console.error("Lỗi khi cập nhật hồ sơ:", error);
+    res.status(500).json({ error: "Lỗi server" });
   }
 };
 
-const updateStudent = async (req, res) => {
+// 📌 Lấy điểm số của học sinh
+const getScores = async (req, res) => {
+  const { studentId } = req.params;
+
   try {
-    const student = await Student.findByPk(req.params.id);
-    if (!student) return res.status(404).json({ error: "Không tìm thấy sinh viên" });
+    const scores = await StudentSubject.findAll({
+      where: { StudentID: studentId },
+      include: [{ model: Subject, attributes: ["SubjectName"] }]
+    });
 
-    await student.update(req.body);
-    res.json(student);
+    if (!scores.length) {
+      return res.status(404).json({ message: "Không tìm thấy dữ liệu điểm số." });
+    }
+
+    const formattedScores = scores.map((item) => ({
+      subject: item.Subject.SubjectName,
+      score: item.score // 🛠 Hiển thị điểm số
+    }));
+
+    res.json(formattedScores);
   } catch (error) {
-    res.status(500).json({ error: "Lỗi cập nhật sinh viên" });
+    console.error("Lỗi khi lấy điểm số:", error);
+    res.status(500).json({ error: "Lỗi server" });
   }
 };
 
-const deleteStudent = async (req, res) => {
+// 📌 Lấy phần trăm điểm danh của học sinh
+const getAttendance = async (req, res) => {
+  const { studentId } = req.params;
+
   try {
-    const student = await Student.findByPk(req.params.id);
-    if (!student) return res.status(404).json({ error: "Không tìm thấy sinh viên" });
+    const attendanceRecords = await StudentSubject.findAll({
+      where: { StudentID: studentId },
+      include: [{ model: Subject, attributes: ["SubjectName"] }]
+    });
 
-    await student.destroy();
-    res.json({ message: "Xóa thành công" });
+    if (!attendanceRecords.length) {
+      return res.status(404).json({ message: "Không tìm thấy dữ liệu điểm danh." });
+    }
+
+    const formattedAttendance = attendanceRecords.map((item) => ({
+      subject: item.Subject.SubjectName,
+      attendance: `${item.AttendancePercentage}%` // 🛠 Hiển thị theo định dạng phần trăm
+    }));
+
+    res.json(formattedAttendance);
   } catch (error) {
-    res.status(500).json({ error: "Lỗi xóa sinh viên" });
+    console.error("Lỗi khi lấy điểm danh:", error);
+    res.status(500).json({ error: "Lỗi server" });
   }
 };
 
-module.exports = { getAllStudents, getStudentById, createStudent, updateStudent, deleteStudent };
+module.exports = {
+  getStudentProfile,
+  updateStudentProfile,
+  getScores,
+  getAttendance
+};

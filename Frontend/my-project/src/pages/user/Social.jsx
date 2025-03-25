@@ -197,7 +197,7 @@ function Socials() {
 
   return (
     <div className="relative">
-      <div className="flex h-screen">
+      <div className="flex h-full">
         <Sidebar />
 
         <div 
@@ -361,8 +361,6 @@ function Socials() {
             )}
           </div>
         </div>
-
-        <RightSidebar />
       </div>
     </div>
   );

@@ -3,22 +3,30 @@ require("dotenv").config();
 
 const verifyToken = (roles = []) => {
     return (req, res, next) => {
-        // Get token from cookie instead of Authorization header
-        const token = req.cookies.token;
+        // Try to get token from cookie first
+        let token = req.cookies.token;
+        
+        // If no cookie token, try Authorization header
+        if (!token) {
+            const authHeader = req.header("Authorization");
+            if (authHeader && authHeader.startsWith('Bearer ')) {
+                token = authHeader.split(' ')[1];
+                console.log("Using token from Authorization header");
+            }
+        }
         
         if (!token) {
-            console.log("No token cookie found");
+            console.log("No token found (checked both cookie and Authorization header)");
             return res.status(401).json({ message: "Unauthorized: No token provided" });
         }
 
         try {
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            console.log("Token verified, decoded payload:", decoded);
+            console.log("Token verified for user:", decoded.UserID);
             
             // Set the user object on the request
-            // The token payload already has UserID, role, name, and email
             req.user = {
-                UserID: decoded.UserID, // This matches the token payload
+                UserID: decoded.UserID,
                 role: decoded.role,
                 name: decoded.name,
                 email: decoded.email

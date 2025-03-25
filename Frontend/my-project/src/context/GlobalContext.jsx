@@ -1,5 +1,4 @@
 import { createContext, useState, useEffect } from "react";
-import axios from "axios";
 import apiService from "../services/apiService";
 
 export const GlobalContext = createContext(null);
@@ -39,25 +38,24 @@ export const GlobalProvider = ({ children }) => {
       }
     };
     
+    // Execute the check
     checkAuthStatus();
   }, []);
   
   // Hàm đăng nhập - now uses cookies instead of JWT in localStorage
-const login = (userData) => {
-  try {
-    console.log("Setting user data after login:", userData);
-    setUser(userData);
-    setUserRole(userData.Role);
-    setIsAuthenticated(true);
-    localStorage.setItem("user", JSON.stringify(userData));
-    
-    // No need to set Authorization header - cookies are sent automatically
-    console.log("Login successful for user:", userData.Name);
-  } catch (error) {
-    console.error("Error processing login:", error);
-    setAuthError("Failed to process login");
-  }
-};
+  const login = (userData) => {
+    try {
+      console.log("Setting user data after login:", userData);
+      setUser(userData);
+      setUserRole(userData.Role);
+      setIsAuthenticated(true);
+      localStorage.setItem("user", JSON.stringify(userData));
+      setAuthError(null);
+    } catch (error) {
+      console.error("Error processing login:", error);
+      setAuthError("Failed to process login");
+    }
+  };
 
   // Hàm đăng xuất - now clears the cookie via API call
   const logout = async () => {
@@ -66,13 +64,14 @@ const login = (userData) => {
       await apiService.post("/auth/logout");
     } catch (error) {
       console.error("Error during logout API call:", error);
+    } finally {
+      // Always clear local state even if API call fails
+      setUser(null);
+      setUserRole(null);
+      setIsAuthenticated(false);
+      localStorage.removeItem("user");
+      console.log("User logged out");
     }
-    
-    setUser(null);
-    setUserRole(null);
-    setIsAuthenticated(false);
-    localStorage.removeItem("user");
-    console.log("User logged out");
   };
 
   // Check if user has specific role
@@ -106,45 +105,42 @@ const login = (userData) => {
   };
 
   // Create a new post
-  // Create a new post
-const createPost = async (postData) => {
-  try {
-    console.log("Creating post with data:", postData);
-    
-    const response = await apiService.post("/posts", postData);
-    
-    console.log("Post creation successful:", response.data);
-    
-    // Add the new post to the state
-    setPosts(prevPosts => [response.data.post, ...prevPosts]);
-    return response.data;
-  } catch (error) {
-    console.error("Error creating post:", error);
-    console.error("Response data:", error.response?.data);
-    
-    if (error.response && error.response.status === 401) {
-      console.log("Authentication error when creating post");
-      setAuthError("Please log in to create posts");
+  const createPost = async (postData) => {
+    try {
+      console.log("Creating post with data:", postData);
       
-      // Instead of logging the user out, we'll check if they're still authenticated
-      try {
-        // Try to verify authentication status
-        await apiService.get("/auth/me");
-        // If this succeeds, the user is still authenticated
-        console.log("User is still authenticated despite 401 error");
-      } catch (authError) {
-        // Only if this verification also fails, we'll reset authentication
-        console.log("Authentication verification failed, user is not authenticated");
-        setUser(null);
-        setUserRole(null);
-        setIsAuthenticated(false);
-        localStorage.removeItem("user");
+      const response = await apiService.post("/posts", postData);
+      
+      console.log("Post creation successful:", response.data);
+      
+      // Add the new post to the state
+      setPosts(prevPosts => [response.data.post, ...prevPosts]);
+      return response.data;
+    } catch (error) {
+      console.error("Error creating post:", error);
+      console.error("Response data:", error.response?.data);
+      
+      if (error.response && error.response.status === 401) {
+        console.log("Authentication error when creating post");
+        setAuthError("Please log in to create posts");
+        
+        // Check if we're still authenticated
+        try {
+          await apiService.get("/auth/me");
+          console.log("User is still authenticated despite 401 error");
+        } catch (authError) {
+          if (authError.response && [401, 404].includes(authError.response.status)) {
+            console.log("Authentication verification failed, user is not authenticated");
+            setUser(null);
+            setUserRole(null);
+            setIsAuthenticated(false);
+            localStorage.removeItem("user");
+          }
+        }
       }
+      throw error;
     }
-    throw error;
-  }
-};
-
+  };
 
   // Delete a post
   const deletePost = async (postId) => {
@@ -194,6 +190,19 @@ const createPost = async (postData) => {
       if (error.response && error.response.status === 401) {
         setAuthError("Please log in to like posts");
       }
+      throw error;
+    }
+  };
+
+  // Test authentication status - useful for debugging
+  const testAuth = async () => {
+    try {
+      console.log("Testing authentication status...");
+      const response = await apiService.get("/auth/me");
+      console.log("Auth test result:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Auth test failed:", error);
       throw error;
     }
   };
@@ -270,7 +279,8 @@ const createPost = async (postData) => {
         fetchPosts,
         createPost,
         deletePost,
-        likePost
+        likePost,
+        testAuth
       }}
     >
       {children}

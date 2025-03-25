@@ -64,6 +64,13 @@ function Login() {
         login(user);
         console.log("Login function called with user");
         
+        // Also store the token in localStorage as a fallback
+        // You'll need to modify your backend to return the token as well
+        if (response.data.token) {
+          localStorage.setItem('token', response.data.token);
+          console.log("Token stored in localStorage as fallback");
+        }
+        
         setSuccess("Login successful, redirecting...");
         setError("");
         
@@ -77,7 +84,7 @@ function Login() {
       setError(err.response?.data?.message || "Something went wrong. Please try again.");
       setSuccess("");
     }
-  };
+}
 
   return (
     <div className="flex h-screen">

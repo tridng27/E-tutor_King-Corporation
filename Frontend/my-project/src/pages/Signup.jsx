@@ -67,7 +67,7 @@ function Signup() {
       {/* Left Side - Illustration */}
       <div className="w-1/2 flex justify-center items-center bg-white">
         <div className="max-w-xl">
-          <img src="/illustation.png" alt="Illustation" className="max-w-full h-auto rounded-xl" />
+          <img src="/illustration.png" alt="Illustation" className="max-w-full h-auto rounded-xl" />
         </div>
       </div>
 
@@ -115,7 +115,7 @@ function Signup() {
               className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#cbfff3]"
               required
             />
-            <p className="text-xs text-gray-600 mt-1">
+            <p className="text-xxs text-gray-600 mt-1">
               Password must include: <br />
               - At least 6 characters<br />
               - One uppercase letter (A-Z)<br />

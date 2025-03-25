@@ -17,4 +17,15 @@ const apiService = {
   delete: (url, config = {}) => apiClient.delete(url, { ...config, withCredentials: true }),
 };
 
+// API để lấy điểm số và điểm danh của học sinh
+getStudentScores: async (studentId) => {
+  try {
+    const response = await apiClient.get(`/subject/scores/${studentId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi khi lấy điểm số và điểm danh:", error);
+    return [];
+  }
+}
+
 export default apiService;
