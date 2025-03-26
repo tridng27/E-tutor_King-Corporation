@@ -10,6 +10,7 @@ const Discussion = require('./discussion');
 const Homework = require('./homework');
 const LiveChat = require('./livechat');
 const Meeting = require('./meeting');
+const Post = require('./post');
 const Resource = require('./resource');
 const Student = require('./student');
 const Subject = require('./subject');
@@ -27,6 +28,7 @@ module.exports = {
   Homework,
   LiveChat,
   Meeting,
+  Post,
   Resource,
   Student,
   Subject,

@@ -28,6 +28,7 @@ const Subject = sequelize.define("Subject", {
     type: DataTypes.CHAR(255),
     allowNull: true
   }
+
 }, {
   tableName: "Subject",
   timestamps: false

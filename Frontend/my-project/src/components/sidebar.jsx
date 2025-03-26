@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { LayoutDashboard, Calendar, Users, User, MessageSquare, PhoneCall, Home, LogOut } from "lucide-react";
+import { LayoutDashboard, Calendar, Users, User, MessageSquare, PhoneCall, Home, LogOut, BookHeart, Earth } from "lucide-react";
 import { GlobalContext } from "../context/GlobalContext";
 import { jwtDecode } from "jwt-decode";
 import { v4 as uuidv4 } from "uuid";
@@ -44,6 +44,18 @@ function Sidebar() {
         }
     };
 
+    // Handle navigation to student based on role
+    const handleStudentClick = (e) => {
+        e.preventDefault();
+        if (userRole === 'Admin') {
+            navigate('/admin/dashboard');
+        } else if (userRole === 'Tutor') {
+            navigate('/tutor/student');
+        } else if (userRole === 'Student') {
+            navigate('/student/dashboard');
+        }
+    };
+
     // Handle navigation to landing page
     const handleHomeClick = (e) => {
         e.preventDefault();
@@ -55,6 +67,22 @@ function Sidebar() {
         e.preventDefault();
         logout();
         navigate('/login');
+    };
+
+    const handleSocialClick = (e) => {
+        e.preventDefault();
+        navigate('/social');
+    };
+
+    const handleTTableClick = (e) => {
+        e.preventDefault();
+        if (userRole === 'Admin') {
+            navigate('/admin/Timetable');
+        } else if (userRole === 'Tutor') {
+            navigate('/tutor/Timetable');
+        } else if (userRole === 'Student') {
+            navigate('/student/Timetable');
+        }
     };
 
     return (
@@ -104,12 +132,30 @@ function Sidebar() {
                         </span>
                     </a>
 
-                    <a href="#" className="flex items-center space-x-3 rounded-lg hover:bg-gray-200 p-2">
+                    <a
+                        href="#"
+                        className="flex items-center space-x-3 rounded-lg hover:bg-gray-200 p-2"
+                        onClick={handleTTableClick}
+                    >
+                        {/* Add min-width and center the icon when sidebar is collapsed */}
                         <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>
-                            <Calendar className="w-6 h-6 text-gray-600 min-w-[24px]" />
+                            <Calendar className="w-6 h-6 text-teal-500 min-w-[24px]" />
                         </div>
                         <span className={`text-gray-700 transition-all duration-300 ${isSidebarOpen ? "block" : "hidden"}`}>
-                            Timetable
+                            Time Table
+                        </span>
+                    </a>
+
+                    <a
+                        href="#"
+                        className="flex items-center space-x-3 rounded-lg hover:bg-gray-200 p-2"
+                        onClick={handleSocialClick}
+                    >
+                        <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>
+                            <BookHeart className="w-6 h-6 text-teal-500 min-w-[24px]" />
+                        </div>
+                        <span className={`text-gray-700 transition-all duration-300 ${isSidebarOpen ? "block" : "hidden"}`}>
+                            Social
                         </span>
                     </a>
 
@@ -128,6 +174,15 @@ function Sidebar() {
                         </div>
                         <span className={`text-gray-700 transition-all duration-300 ${isSidebarOpen ? "block" : "hidden"}`}>
                             Tutor
+                        </span>
+                    </a>
+
+                    <a href="#" className="flex items-center space-x-3 rounded-lg hover:bg-gray-200 p-2">
+                        <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>
+                            <Earth className="w-6 h-6 text-gray-600 min-w-[24px]" />
+                        </div>
+                        <span className={`text-gray-700 transition-all duration-300 ${isSidebarOpen ? "block" : "hidden"}`}>
+                            Social
                         </span>
                     </a>
 
