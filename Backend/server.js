@@ -4,6 +4,7 @@ const setupMeetingService = require("./services/meetingService");
 require("dotenv").config();
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const path = require("path"); // Add this line to import path module
 
 // Import models first to ensure they're registered
 const db = require("./models");
@@ -14,6 +15,7 @@ const authRoutes = require("./routes/authRoutes");
 const studentRoutes = require("./routes/studentRoutes");
 const sequelize = require("./config/Database"); // Import database
 const postRoutes = require("./routes/postRoute");
+const uploadRoutes = require("./routes/uploadRoutes"); // Add this line to import upload routes
 
 // Create Express instance
 const app = express();
@@ -31,6 +33,9 @@ app.use(
 );
 app.use(express.json());
 
+// Serve static files from uploads directory
+app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // Add this line for static file serving
+
 // Debug middleware to log all requests
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.url}`);
@@ -43,6 +48,7 @@ app.use((req, res, next) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/students", studentRoutes);
+app.use("/api/upload", uploadRoutes); // Add this line to register upload routes
 
 // Basic route
 app.get("/", (req, res) => {
