@@ -3,8 +3,6 @@ import { GlobalContext } from '../../context/GlobalContext';
 import RightSidebar from '../../components/rightSidebar';
 import Sidebar from "../../components/sidebar";
 import apiService from '../../services/apiService';
-
-// Import new components
 import DebugPanel from '../../components/social/DebugPanel';
 import CreatePostForm from '../../components/social/CreatePostForm';
 import PostList from '../../components/social/PostList';
