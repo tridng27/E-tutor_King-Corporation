@@ -198,16 +198,19 @@ function Sidebar() {
                                 Message
                             </span>
                         </a>
-                        <a href="#" className="flex items-center space-x-3 rounded-lg hover:bg-gray-200 p-2">
+                        
+                        {/* FIXED: Changed from nested <a> and <Link> to just <Link> */}
+                        <Link 
+                            to={`/meeting/${uuidv4()}`} 
+                            className="flex items-center space-x-3 rounded-lg hover:bg-gray-200 p-2"
+                        >
                             <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>
                                 <PhoneCall className="w-6 h-6 text-gray-600 min-w-[24px]" />
                             </div>
                             <span className={`text-gray-700 transition-all duration-300 ${isSidebarOpen ? "block" : "hidden"}`}>
-                <Link to={`/meeting/${uuidv4()}`} >
-                    Meeting
-          </Link>
-</span>
-                        </a>
+                                Meeting
+                            </span>
+                        </Link>
                     </div>
 
                     {/* Logout button at the bottom */}
