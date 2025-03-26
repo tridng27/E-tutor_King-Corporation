@@ -8,6 +8,7 @@ import TutorDashboard from "./pages/tutor/Dashboard";
 import StudentDashboard from "./pages/student/Dashboard";
 import Timetable from "./pages/admin/Timetable";
 import Social from "./pages/user/Social";
+import MeetingPage from "./pages/meeting/MeetingPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Unauthorized from "./pages/Unauthorized";
 
@@ -21,7 +22,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
-          
+          <Route path="/meeting/:meetingId" element={<MeetingPage />} />
+
           {/* Protected Admin Routes */}
           <Route 
             path="/admin/dashboard" 

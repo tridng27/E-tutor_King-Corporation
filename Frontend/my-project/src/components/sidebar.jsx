@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { LayoutDashboard, Calendar, Users, User, MessageSquare, PhoneCall, Home, LogOut, BookHeart, Earth } from "lucide-react";
 import { GlobalContext } from "../context/GlobalContext";
 import { jwtDecode } from "jwt-decode";
+import { v4 as uuidv4 } from "uuid";
+import { Link } from "react-router-dom";
 
 function Sidebar() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -201,8 +203,10 @@ function Sidebar() {
                                 <PhoneCall className="w-6 h-6 text-gray-600 min-w-[24px]" />
                             </div>
                             <span className={`text-gray-700 transition-all duration-300 ${isSidebarOpen ? "block" : "hidden"}`}>
-                                Meeting
-                            </span>
+                <Link to={`/meeting/${uuidv4()}`} >
+                    Meeting
+          </Link>
+</span>
                         </a>
                     </div>
 
