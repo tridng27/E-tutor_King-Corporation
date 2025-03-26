@@ -15,17 +15,15 @@ const apiService = {
   post: (url, data, config = {}) => apiClient.post(url, data, { ...config, withCredentials: true }),
   put: (url, data, config = {}) => apiClient.put(url, data, { ...config, withCredentials: true }),
   delete: (url, config = {}) => apiClient.delete(url, { ...config, withCredentials: true }),
-};
 
-// API để lấy điểm số và điểm danh của học sinh
-getStudentScores: async (studentId) => {
+getStudentPerformance: async (studentID) => {
   try {
-    const response = await apiClient.get(`/subject/scores/${studentId}`);
+    const response = await apiClient.get(`/students/${studentID}/performance`);
     return response.data;
   } catch (error) {
-    console.error("Lỗi khi lấy điểm số và điểm danh:", error);
-    return [];
+    console.error("Lỗi khi lấy dữ liệu điểm số:", error);
+    return null;
   }
 }
-
+};
 export default apiService;
