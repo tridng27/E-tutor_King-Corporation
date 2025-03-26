@@ -7,7 +7,7 @@ import AdminDashboard from "./pages/admin/Dashboard";
 import TutorDashboard from "./pages/tutor/Dashboard";
 import StudentDashboard from "./pages/student/Dashboard";
 import Timetable from "./pages/admin/Timetable";
-import Social from "./pages/user/Social";
+import Social from "./pages/user/social";
 import MeetingPage from "./pages/meeting/MeetingPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Unauthorized from "./pages/Unauthorized";
