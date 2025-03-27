@@ -40,11 +40,11 @@ function Landing() {
 
   const handleDashboardClick = () => {
     if (userRole === 'Admin') {
-      navigate('/admin-dashboard');
+      navigate('/admin/dashboard');
     } else if (userRole === 'Tutor') {
-      navigate('/tutor-dashboard');
+      navigate('/tutor/dashboard');
     } else if (userRole === 'Student') {
-      navigate('/student-dashboard');
+      navigate('/student/dashboard');
     }
   };
 
