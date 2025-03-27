@@ -1,13 +1,17 @@
-import  React from 'react';
-import Sidebar from '../../components/sidebar';
-import RightSidebar from '../../components/rightSidebar';
+import React, { useState } from 'react';
+import Sidebar from '../components/sidebar';
+import RightSidebar from '../components/rightSidebar';
 import { Search, Plus } from 'lucide-react';
+import StudentInformation from '../components/studentInformation'; 
+import TutorInformation from '../components/tutorInformation';
 
+function Class() {
+    const [showStudentInfo, setShowStudentInfo] = useState(false);
+    const [showTutorInfo, setShowTutorInfo] = useState(false);
 
-function Student() {
-  return (
-    <div className="relative">
-        <div className="flex h-full">
+    return (
+      <div className="relative">
+        <div className="flex h-full ">
             <Sidebar/>
               
             <div className="flex-1 p-6 ml-16">
@@ -15,7 +19,10 @@ function Student() {
               <div className="flex items-center gap-2 mb-4 border rounded-lg p-2 shadow-sm">
                 <input type="text" placeholder="Value" className="flex-1 p-2 outline-none" />
                 <Search className="text-gray-500 cursor-pointer" />
-                <Plus className="text-gray-500 cursor-pointer" />
+                <Plus 
+                  className="text-gray-500 cursor-pointer" 
+                  onClick={() => setShowStudentInfo(true)} 
+                />
               </div>
 
               {/* Student Item */}
@@ -60,15 +67,29 @@ function Student() {
                         </div>
                     </div>
                 </div>
-                <button className="mt-4 px-6 py-2 bg-gray-800 text-white rounded-lg shadow-md hover:bg-gray-700">Edit Course</button>
+                <button className="mt-4 px-6 py-2 bg-gray-800 text-white rounded-lg shadow-md hover:bg-gray-700"
+                        onClick={() => setShowTutorInfo(true)}
+                >Edit Tutor</button>
               </div>
-              
+
             </div>
 
             <RightSidebar/>
         </div>
+
+        {showStudentInfo && (
+          <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-50">
+            <StudentInformation onClose={() => setShowStudentInfo(false)} />
+          </div>
+        )}
+
+        {showTutorInfo && (
+          <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-50">
+            <TutorInformation onClose={() => setShowTutorInfo(false)} />
+          </div>
+        )}
       </div>
-  );
+    );
 }
 
-export default Student;
+export default Class;
