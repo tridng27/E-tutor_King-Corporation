@@ -12,7 +12,6 @@ const setupMeetingService = (server) => {
   });
 
   io.on("connection", (socket) => {
-    console.log("User connected:", socket.id);
 
     // Xử lý tin nhắn chat
     socket.on("send-message", ({ roomId, message }) => {
@@ -76,7 +75,6 @@ const setupMeetingService = (server) => {
 
     // Xử lý khi người dùng mất kết nối
     socket.on("disconnect", () => {
-      console.log("User disconnected:", socket.id);
       Object.keys(meetings).forEach((meetingId) => {
         if (meetings[meetingId].participants[socket.id]) {
           delete meetings[meetingId].participants[socket.id];
