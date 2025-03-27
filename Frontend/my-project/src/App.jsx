@@ -6,7 +6,9 @@ import Signup from "./pages/Signup";
 import AdminDashboard from "./pages/admin/Dashboard";
 import TutorDashboard from "./pages/tutor/Dashboard";
 import StudentDashboard from "./pages/student/Dashboard";
-import TutorStudent from "./pages/tutor/Student";
+import Lesson from "./pages/tutor/Lesson"
+import Class from "./pages/Class";
+import Course from "./pages/Course";
 import Timetable from "./pages/admin/Timetable";
 import Social from "./pages/user/social";
 import MeetingPage from "./pages/meeting/MeetingPage";
@@ -53,12 +55,21 @@ function App() {
               </ProtectedRoute>
             } 
           />
-          
+
           <Route 
-            path="/tutor/student" 
+            path="/tutor/lesson" 
             element={
               <ProtectedRoute allowedRoles={['Tutor']}>
-                <TutorStudent />
+                <Lesson />
+              </ProtectedRoute>
+            } 
+          />
+          
+          <Route 
+            path="/class" 
+            element={
+              <ProtectedRoute allowedRoles={[]}>
+                <Class />
               </ProtectedRoute>
             } 
           />
@@ -81,6 +92,15 @@ function App() {
               </ProtectedRoute>
             } 
           />
+
+          <Route 
+            path="/course" 
+            element={
+              <ProtectedRoute allowedRoles={[]}>
+                <Course />
+              </ProtectedRoute>
+            } 
+          /> 
           
           {/* 404 Route */}
           <Route path="*" element={<div>Page not found</div>} />
