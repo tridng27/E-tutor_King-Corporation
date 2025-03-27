@@ -22,7 +22,7 @@ function Course() {
                       <button class="bg-green-100 text-green-600 px-3 py-1 rounded-md w-fit">Enroll Now</button>
                   </div>
 
-                  <div class="bg-white p-4 rounded-lg border shadow-md flex flex-col space-y-2">
+                  <div class="bg-white p-4 rounded-lg shadow-md flex flex-col space-y-2">
                       <div class="flex items-center space-x-2">
                           <span class="text-xl">ℹ️</span>
                           <h2 class="font-bold text-lg">COMPTiA A+</h2>
@@ -31,7 +31,7 @@ function Course() {
                       <button class="bg-green-100 text-green-600 px-3 py-1 rounded-md w-fit">Enroll Now</button>
                   </div>
 
-                  <div class="bg-white p-4 rounded-lg border shadow-md flex flex-col space-y-2">
+                  <div class="bg-white p-4 rounded-lg shadow-md flex flex-col space-y-2">
                       <div class="flex items-center space-x-2">
                           <span class="text-xl">ℹ️</span>
                           <h2 class="font-bold text-lg">Unity Dev Starter Pack</h2>
@@ -40,7 +40,7 @@ function Course() {
                       <button class="bg-green-100 text-green-600 px-3 py-1 rounded-md w-fit">Enroll Now</button>
                   </div>
 
-                  <div class="bg-white p-4 rounded-lg border shadow-md flex flex-col space-y-2">
+                  <div class="bg-white p-4 rounded-lg shadow-md flex flex-col space-y-2">
                       <div class="flex items-center space-x-2">
                           <span class="text-xl">ℹ️</span>
                           <h2 class="font-bold text-lg">COMPTiA Generalist Course</h2>
