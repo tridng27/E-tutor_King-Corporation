@@ -6,6 +6,7 @@ import Signup from "./pages/Signup";
 import AdminDashboard from "./pages/admin/Dashboard";
 import TutorDashboard from "./pages/tutor/Dashboard";
 import StudentDashboard from "./pages/student/Dashboard";
+import TutorStudent from "./pages/tutor/Student";
 import Timetable from "./pages/admin/Timetable";
 import Social from "./pages/user/social";
 import MeetingPage from "./pages/meeting/MeetingPage";
@@ -53,6 +54,15 @@ function App() {
             } 
           />
           
+          <Route 
+            path="/tutor/student" 
+            element={
+              <ProtectedRoute allowedRoles={['Tutor']}>
+                <TutorStudent />
+              </ProtectedRoute>
+            } 
+          />
+
           {/* Protected Student Routes */}
           <Route 
             path="/student/dashboard" 

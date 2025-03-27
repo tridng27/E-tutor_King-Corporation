@@ -142,7 +142,7 @@ function Sidebar() {
                             <Calendar className="w-6 h-6 text-teal-500 min-w-[24px]" />
                         </div>
                         <span className={`text-gray-700 transition-all duration-300 ${isSidebarOpen ? "block" : "hidden"}`}>
-                            Time Table
+                            TimeTable
                         </span>
                     </a>
 
