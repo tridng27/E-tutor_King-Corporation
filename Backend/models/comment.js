@@ -1,8 +1,8 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/Database");
-const Discussion = require("./discussion");
 const User = require("./user");
 
+// Define the Comment model first without relationships
 const Comment = sequelize.define("Comment", {
   CommentID: {
     type: DataTypes.BIGINT,
@@ -11,15 +11,15 @@ const Comment = sequelize.define("Comment", {
   },
   DiscID: {
     type: DataTypes.BIGINT,
-    allowNull: true,
-    references: {
-      model: Discussion,
-      key: "DiscID"
-    }
+    allowNull: true
   },
-  Author: {
+  PostID: {
     type: DataTypes.BIGINT,
-    allowNull: true,
+    allowNull: true
+  },
+  UserID: {  // Changed from Author to UserID for consistency
+    type: DataTypes.BIGINT,
+    allowNull: false,
     references: {
       model: User,
       key: "UserID"
@@ -36,13 +36,35 @@ const Comment = sequelize.define("Comment", {
 }, {
   tableName: "Comment",
   timestamps: false
+  // Removed the validation block entirely
 });
 
-// Quan hệ
-Discussion.hasMany(Comment, { foreignKey: "DiscID" });
-Comment.belongsTo(Discussion, { foreignKey: "DiscID" });
+// User relationship
+User.hasMany(Comment, { foreignKey: "UserID" });
+Comment.belongsTo(User, { foreignKey: "UserID" });
 
-User.hasMany(Comment, { foreignKey: "Author" });
-Comment.belongsTo(User, { foreignKey: "Author" });
-
+// Export the model
 module.exports = Comment;
+
+// Import Discussion and Post models after exporting Comment to avoid circular dependencies
+const Discussion = require("./discussion");
+const Post = require("./post");
+
+// Set up foreign key references after import
+Comment.belongsTo(Discussion, { 
+  foreignKey: "DiscID",
+  constraints: false  // Disable constraint to allow null values
+});
+Discussion.hasMany(Comment, { 
+  foreignKey: "DiscID",
+  constraints: false
+});
+
+Comment.belongsTo(Post, { 
+  foreignKey: "PostID",
+  constraints: false
+});
+Post.hasMany(Comment, { 
+  foreignKey: "PostID",
+  constraints: false
+});

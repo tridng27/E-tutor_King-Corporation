@@ -142,6 +142,40 @@ export const GlobalProvider = ({ children }) => {
     }
   };
 
+  // Edit a post
+  const editPost = async (postId, postData) => {
+    try {
+      console.log("Editing post:", postId, "with data:", postData);
+      
+      const response = await apiService.put(`/posts/${postId}`, postData);
+      
+      console.log("Post edit response:", response.data);
+      
+      // Update the post in state - handle both possible response structures
+      setPosts(prevPosts => 
+        prevPosts.map(post => 
+          post.PostID === postId 
+            ? (response.data.post || response.data)  // Handle both response structures
+            : post
+        )
+      );
+      
+      return response.data;
+    } catch (error) {
+      console.error("Error editing post:", error);
+      console.error("Response data:", error.response?.data);
+      
+      if (error.response && error.response.status === 401) {
+        console.log("Authentication error when editing post");
+        setAuthError("Please log in to edit posts");
+      } else if (error.response && error.response.status === 403) {
+        setAuthError("You can only edit your own posts");
+      }
+      
+      throw error;
+    }
+  };
+
   // Delete a post
   const deletePost = async (postId) => {
     try {
@@ -153,12 +187,15 @@ export const GlobalProvider = ({ children }) => {
       
       // Remove the deleted post from state
       setPosts(prevPosts => prevPosts.filter(post => post.PostID !== postId));
+      return true; // Return something for promise chaining
     } catch (error) {
       console.error("Error deleting post:", error);
       console.error("Response data:", error.response?.data);
       
       if (error.response && error.response.status === 401) {
         setAuthError("Please log in to delete posts");
+      } else if (error.response && error.response.status === 403) {
+        setAuthError("You can only delete your own posts");
       }
       throw error;
     }
@@ -174,10 +211,10 @@ export const GlobalProvider = ({ children }) => {
       console.log(`Post ${postId} liked successfully, new likes: ${response.data.likes}`);
       
       // Update the post likes in state
-      setPosts(prevPosts => 
-        prevPosts.map(post => 
-          post.PostID === postId 
-            ? { ...post, Likes: response.data.likes } 
+      setPosts(prevPosts =>
+        prevPosts.map(post =>
+          post.PostID === postId
+            ? { ...post, Likes: response.data.likes }
             : post
         )
       );
@@ -190,6 +227,123 @@ export const GlobalProvider = ({ children }) => {
       if (error.response && error.response.status === 401) {
         setAuthError("Please log in to like posts");
       }
+      throw error;
+    }
+  };
+
+  // Add a comment to a post
+  const commentOnPost = async (postId, commentText) => {
+    try {
+      console.log("Commenting on post:", postId, "with text:", commentText);
+      
+      const response = await apiService.post(`/posts/${postId}/comments`, {
+        content: commentText
+      });
+      
+      console.log(`Comment added to post ${postId} successfully:`, response.data);
+      
+      // Update the post comments in state
+      setPosts(prevPosts =>
+        prevPosts.map(post =>
+          post.PostID === postId
+            ? {
+                ...post,
+                Comments: [...(post.Comments || []), response.data]
+              }
+            : post
+        )
+      );
+      
+      return response.data;
+    } catch (error) {
+      console.error("Error commenting on post:", error);
+      console.error("Response data:", error.response?.data);
+      
+      if (error.response && error.response.status === 401) {
+        setAuthError("Please log in to comment on posts");
+      }
+      throw error;
+    }
+  };
+
+  // Edit a comment - UPDATED to use CommentID instead of id
+  const editComment = async (postId, commentId, content) => {
+    try {
+      console.log("Editing comment:", commentId, "with content:", content);
+      
+      const response = await apiService.put(`/posts/${postId}/comments/${commentId}`, {
+        content
+      });
+      
+      console.log("Comment edit response:", response.data);
+      
+      // Update the comment in state - use CommentID instead of id
+      setPosts(prevPosts => 
+        prevPosts.map(post => {
+          if (post.PostID === parseInt(postId)) {
+            return {
+              ...post,
+              Comments: post.Comments?.map(comment => 
+                comment.CommentID === parseInt(commentId)  // Use CommentID instead of id
+                  ? (response.data.comment || response.data)  // Handle both response structures
+                  : comment
+              ) || []
+            };
+          }
+          return post;
+        })
+      );
+      
+      return response.data;
+    } catch (error) {
+      console.error("Error editing comment:", error);
+      console.error("Response data:", error.response?.data);
+      
+      if (error.response && error.response.status === 401) {
+        setAuthError("Please log in to edit comments");
+      } else if (error.response && error.response.status === 403) {
+        setAuthError("You can only edit your own comments");
+      }
+      
+      throw error;
+    }
+  };
+
+  // Delete a comment - UPDATED to use CommentID instead of id
+  const deleteComment = async (postId, commentId) => {
+    try {
+      console.log("Deleting comment:", commentId, "from post:", postId);
+      
+      await apiService.delete(`/posts/${postId}/comments/${commentId}`);
+      
+      console.log(`Comment ${commentId} deleted successfully`);
+      
+      // Remove the deleted comment from state - use CommentID instead of id
+      setPosts(prevPosts => 
+        prevPosts.map(post => {
+          if (post.PostID === parseInt(postId)) {
+            return {
+              ...post,
+              Comments: post.Comments?.filter(comment => 
+                comment.CommentID !== parseInt(commentId)  // Use CommentID instead of id
+              ) || []
+            };
+          }
+          return post;
+        })
+      );
+      
+      return true; // Return something for promise chaining
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+      console.error("Response data:", error.response?.data);
+      
+      if (error.response && error.response.status === 401) {
+        setAuthError("Please log in to delete comments");
+      } else if (error.response && error.response.status === 403) {
+        setAuthError("You can only delete your own comments");
+      }
+      
       throw error;
     }
   };
@@ -278,8 +432,12 @@ export const GlobalProvider = ({ children }) => {
         fetchDocuments,
         fetchPosts,
         createPost,
+        editPost,        
         deletePost,
         likePost,
+        commentOnPost,
+        editComment,      
+        deleteComment,    
         testAuth
       }}
     >

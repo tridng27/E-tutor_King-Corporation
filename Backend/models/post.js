@@ -32,6 +32,10 @@ const Post = sequelize.define("Post", {
     type: DataTypes.INTEGER,
     defaultValue: 0
   },
+  LikedBy: {
+    type: DataTypes.ARRAY(DataTypes.BIGINT),
+    defaultValue: []
+  },
   Shares: {
     type: DataTypes.INTEGER,
     defaultValue: 0
