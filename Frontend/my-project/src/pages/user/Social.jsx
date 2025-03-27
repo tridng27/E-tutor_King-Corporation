@@ -3,7 +3,6 @@ import { GlobalContext } from '../../context/GlobalContext';
 import RightSidebar from '../../components/rightSidebar';
 import Sidebar from "../../components/sidebar";
 import apiService from '../../services/apiService';
-import DebugPanel from '../../components/social/DebugPanel';
 import CreatePostForm from '../../components/social/CreatePostForm';
 import PostList from '../../components/social/PostList';
 import SearchBar from '../../components/social/SearchBar';
@@ -16,42 +15,36 @@ function Socials() {
     isLoadingPosts,
     fetchPosts,
     createPost,
+    editPost,        
+    deletePost,      
     likePost,
+    commentOnPost,    
+    editComment,      
+    deleteComment,    
     authError
   } = useContext(GlobalContext);
 
   const [error, setError] = useState(null);
-  const [debugInfo, setDebugInfo] = useState({});
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [initialLoadDone, setInitialLoadDone] = useState(false);
-  
+ 
   // Add search state variables
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
  
+  // Add local posts state to manage updates without fetching from server
+  const [localPosts, setLocalPosts] = useState([]);
+ 
   const contentRef = useRef(null);
 
-  // Debug: Log context values
+  // Update local posts when context posts change
   useEffect(() => {
-    console.log("Context values:", {
-      isAuthenticated,
-      postsCount: posts?.length,
-      isLoadingPosts,
-      user: user ? `${user.Name} (${user.Role})` : 'Not logged in',
-      authError
-    });
-   
-    // Update debug info
-    setDebugInfo({
-      isAuthenticated,
-      postsCount: posts?.length,
-      isLoadingPosts,
-      user: user ? `${user.Name} (${user.Role})` : 'Not logged in',
-      authError: authError || 'None'
-    });
-  }, [isAuthenticated, posts, isLoadingPosts, user, authError]);
+    if (posts && posts.length > 0) {
+      setLocalPosts(posts);
+    }
+  }, [posts]);
 
   // Initial load of posts - only once when authenticated
   useEffect(() => {
@@ -61,11 +54,9 @@ function Socials() {
         try {
           await fetchPosts();
           setInitialLoadDone(true);
-          setDebugInfo(prev => ({...prev, initialLoad: 'Success'}));
         } catch (err) {
           console.error("Error in initial post loading:", err);
           setError('Failed to load posts. Please try again.');
-          setDebugInfo(prev => ({...prev, initialLoadError: err.message}));
         }
       }
     };
@@ -75,39 +66,39 @@ function Socials() {
 
   // Filter posts based on hashtag search
   useEffect(() => {
-    if (!posts || posts.length === 0) {
+    if (!localPosts || localPosts.length === 0) {
       setFilteredPosts([]);
       return;
     }
 
     if (!searchTerm.trim()) {
-      setFilteredPosts(posts);
+      setFilteredPosts(localPosts);
       return;
     }
 
     setIsSearching(true);
-    
+   
     // Search for hashtags in post hashtags array
     const searchTermLower = searchTerm.toLowerCase().replace(/^#/, ''); // Remove # if present
-    
-    const filtered = posts.filter(post => {
+   
+    const filtered = localPosts.filter(post => {
       // Check if post has hashtags array
       if (!post.Hashtags || !Array.isArray(post.Hashtags)) {
         return false;
       }
-      
+     
       // Check if any hashtag in the array matches the search term
-      return post.Hashtags.some(tag => 
+      return post.Hashtags.some(tag =>
         tag.toLowerCase() === searchTermLower
       );
     });
-    
+   
     console.log("Search term:", searchTermLower);
     console.log("Filtered posts:", filtered);
-    
+   
     setFilteredPosts(filtered);
     setIsSearching(false);
-  }, [posts, searchTerm]);
+  }, [localPosts, searchTerm]);
 
   // Handle scroll events for pull-to-refresh
   useEffect(() => {
@@ -137,19 +128,18 @@ function Socials() {
     };
   }, [lastScrollY, isRefreshing, isLoadingPosts]);
 
+  // Enhanced refresh function that can be called from child components
   const handleRefresh = async () => {
     if (isRefreshing || !isAuthenticated) return;
    
     setIsRefreshing(true);
-    setDebugInfo(prev => ({...prev, refreshStatus: 'Refreshing...'}));
    
     try {
+      console.log("Refreshing posts from server...");
       await fetchPosts();
-      setDebugInfo(prev => ({...prev, refreshStatus: 'Success', lastRefresh: new Date().toLocaleTimeString()}));
     } catch (err) {
       console.error("Error refreshing posts:", err);
       setError('Failed to refresh posts. Please try again.');
-      setDebugInfo(prev => ({...prev, refreshError: err.message}));
     } finally {
       setIsRefreshing(false);
     }
@@ -160,54 +150,113 @@ function Socials() {
     handleRefresh();
   };
 
+  // Handle post updates (for edits, likes, comments, etc.)
+  const handlePostUpdate = (updatedPost) => {
+    console.log("Post update received:", updatedPost);
+   
+    // Check if the post was deleted
+    if (updatedPost._deleted) {
+      setLocalPosts(prevPosts => prevPosts.filter(post => post.PostID !== updatedPost.PostID));
+      return;
+    }
+   
+    // Update the post in the local state
+    setLocalPosts(prevPosts =>
+      prevPosts.map(post =>
+        post.PostID === updatedPost.PostID ? updatedPost : post
+      )
+    );
+  };
+
+  // Like post handler - UPDATED with proper promise handling
   const handleLikePost = async (postId) => {
     console.log("Liking post with ID:", postId);
     try {
       const result = await likePost(postId);
       console.log("Like post result:", result);
+      return result; // Return for promise chaining
     } catch (error) {
       console.error('Error liking post:', error);
       setError(`Failed to like post: ${error.message || 'Unknown error'}`);
+      throw error; // Re-throw for promise chaining
     }
   };
 
-  // Test authentication function
-  const handleTestAuth = async () => {
+  // Add comment handler - UPDATED with proper promise handling
+  const handleCommentOnPost = async (postId, commentText) => {
+    console.log("Commenting on post with ID:", postId);
     try {
-      setDebugInfo(prev => ({...prev, authTestStatus: 'Testing...'}));
-      const response = await apiService.get('/auth/me');
-      console.log("Auth test result:", response.data);
-      setDebugInfo(prev => ({
-        ...prev,
-        authTestStatus: 'Success',
-        authTestResult: JSON.stringify(response.data)
-      }));
+      const result = await commentOnPost(postId, commentText);
+      console.log("Comment result:", result);
+      return result; // Return for promise chaining
     } catch (error) {
-      console.error("Auth test failed:", error);
-      setDebugInfo(prev => ({
-        ...prev,
-        authTestStatus: 'Failed',
-        authTestError: error.message
-      }));
+      console.error('Error commenting on post:', error);
+      setError(`Failed to comment on post: ${error.message || 'Unknown error'}`);
+      throw error; // Re-throw for promise chaining
     }
   };
 
-  // Function to check cookie
-  const checkCookie = () => {
-    setDebugInfo(prev => ({
-      ...prev,
-      cookieCheck: 'Cookies are HttpOnly and cannot be accessed via JavaScript. Check Network tab in DevTools.'
-    }));
+  // Edit post handler - UPDATED with proper promise handling
+  const handleEditPost = async (postId, postData) => {
+    console.log("Editing post with ID:", postId, "with data:", postData);
+    try {
+      const result = await editPost(postId, postData);
+      console.log("Edit post result:", result);
+      // After successful edit, refresh the posts to get the latest data
+      await handleRefresh();
+      return result; // Return for promise chaining
+    } catch (error) {
+      console.error('Error editing post:', error);
+      setError(`Failed to edit post: ${error.message || 'Unknown error'}`);
+      throw error; // Re-throw for promise chaining
+    }
   };
 
-  // Debug function to check post structure
-  const debugPostStructure = () => {
-    if (posts && posts.length > 0) {
-      console.log("First post structure:", posts[0]);
-      setDebugInfo(prev => ({
-        ...prev,
-        postStructure: JSON.stringify(posts[0], null, 2)
-      }));
+  // Delete post handler - UPDATED with proper promise handling
+  const handleDeletePost = async (postId) => {
+    console.log("Deleting post with ID:", postId);
+    try {
+      await deletePost(postId);
+      console.log("Post deleted successfully");
+      // After successful deletion, refresh the posts to get the latest data
+      await handleRefresh();
+      return true; // Return something for promise chaining
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      setError(`Failed to delete post: ${error.message || 'Unknown error'}`);
+      throw error; // Re-throw for promise chaining
+    }
+  };
+
+  // Edit comment handler - UPDATED with proper promise handling
+  const handleEditComment = async (postId, commentId, content) => {
+    console.log("Editing comment with ID:", commentId, "on post:", postId);
+    try {
+      const result = await editComment(postId, commentId, content);
+      console.log("Edit comment result:", result);
+      // After successful edit, refresh the posts to get the latest data
+      await handleRefresh();
+      return result; // Return for promise chaining
+    } catch (error) {
+      console.error('Error editing comment:', error);
+      setError(`Failed to edit comment: ${error.message || 'Unknown error'}`);
+      throw error; // Re-throw for promise chaining
+    }
+  };
+
+  // Delete comment handler - UPDATED with proper promise handling
+  const handleDeleteComment = async (postId, commentId) => {
+    console.log("Deleting comment with ID:", commentId, "from post:", postId);
+    try {
+      await deleteComment(postId, commentId);
+      console.log("Comment deleted successfully");
+      // After successful deletion, refresh the posts to get the latest data
+      await handleRefresh();
+      return true; // Return something for promise chaining
+    } catch (error) {
+      console.error('Error deleting comment:', error);
+      setError(`Failed to delete comment: ${error.message || 'Unknown error'}`);
+      throw error; // Re-throw for promise chaining
     }
   };
 
@@ -219,7 +268,7 @@ function Socials() {
         <div className="flex-1 ml-16 flex flex-col">
           {/* Sticky search bar at the top */}
           {isAuthenticated && (
-            <SearchBar 
+            <SearchBar
               searchTerm={searchTerm}
               setSearchTerm={setSearchTerm}
               isSearching={isSearching}
@@ -241,22 +290,6 @@ function Socials() {
             )}
            
             <div className="max-w-2xl mx-auto">
-              {/* Debug panel component */}
-              <DebugPanel
-                debugInfo={debugInfo}
-                error={error}
-                isAuthenticated={isAuthenticated}
-                user={user}
-                posts={posts}
-                isLoadingPosts={isLoadingPosts}
-                isRefreshing={isRefreshing}
-                authError={authError}
-                handleTestAuth={handleTestAuth}
-                checkCookie={checkCookie}
-                handleRefresh={handleManualRefresh}
-                debugPostStructure={debugPostStructure}
-              />
-
               {/* Post creation form */}
               {isAuthenticated ? (
                 <CreatePostForm createPost={createPost} />
@@ -276,37 +309,45 @@ function Socials() {
                       isRefreshing || isLoadingPosts
                         ? 'bg-gray-400'
                         : 'bg-blue-500 hover:bg-blue-600'
-                    }`}
-                  >
-                    {isRefreshing ? 'Refreshing...' : 'Refresh Posts'}
-                  </button>
-                  <p className="text-gray-500 text-sm mt-2">
-                    Or scroll up to refresh posts
-                  </p>
-                </div>
-              )}
-
-              {/* Post list component */}
-              {isAuthenticated && (
-                <>
-                  {!initialLoadDone && isLoadingPosts ? (
-                    <div className="text-center py-4">Loading posts for the first time...</div>
-                  ) : (
-                    <PostList
-                      posts={searchTerm ? filteredPosts : posts}
-                      isLoadingPosts={isLoadingPosts}
-                      isRefreshing={isRefreshing}
-                      onLikePost={handleLikePost}
-                    />
+                      }`}
+                      >
+                        {isRefreshing ? 'Refreshing...' : 'Refresh Posts'}
+                      </button>
+                      <p className="text-gray-500 text-sm mt-2">
+                        Or scroll up to refresh posts
+                      </p>
+                    </div>
                   )}
-                </>
-              )}
+    
+                  {/* Post list component */}
+                  {isAuthenticated && (
+                    <>
+                      {!initialLoadDone && isLoadingPosts ? (
+                        <div className="text-center py-4">Loading posts for the first time...</div>
+                      ) : (
+                        <PostList
+                          posts={searchTerm ? filteredPosts : localPosts}
+                          isLoadingPosts={isLoadingPosts}
+                          isRefreshing={isRefreshing}
+                          onLikePost={handleLikePost}
+                          onCommentPost={handleCommentOnPost}
+                          onEditPost={handleEditPost}
+                          onDeletePost={handleDeletePost}
+                          onEditComment={handleEditComment}
+                          onDeleteComment={handleDeleteComment}
+                          onPostUpdate={handlePostUpdate}
+                          refreshData={handleRefresh} // Pass the refresh function to PostList
+                          currentUser={user}
+                        />
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  );
-}
-
-export default Socials;
+      );
+    }
+    
+    export default Socials;

@@ -11,8 +11,20 @@ function DebugPanel({
   authError,
   handleTestAuth,
   checkCookie,
-  handleRefresh
+  handleRefresh,
+  debugPostStructure
 }) {
+  // Helper function to safely stringify values
+  const safeStringify = (value) => {
+    if (value === null || value === undefined) {
+      return String(value);
+    }
+    if (typeof value === 'object') {
+      return JSON.stringify(value);
+    }
+    return String(value);
+  };
+
   return (
     <div className="bg-yellow-100 p-4 mb-4 rounded text-xs">
       <h3 className="font-bold text-sm mb-2">Debug Panel</h3>
@@ -37,6 +49,14 @@ function DebugPanel({
         >
           {isRefreshing ? 'Refreshing...' : 'Refresh Posts'}
         </button>
+        {debugPostStructure && (
+          <button
+            onClick={debugPostStructure}
+            className="px-2 py-1 bg-orange-500 text-white rounded text-xs"
+          >
+            Debug Post
+          </button>
+        )}
       </div>
       
       <div className="grid grid-cols-2 gap-2">
@@ -50,7 +70,12 @@ function DebugPanel({
         </div>
         <div>
           {Object.entries(debugInfo).map(([key, value]) => (
-            <p key={key}><strong>{key}:</strong> {value}</p>
+            <p key={key}><strong>{key}:</strong> {
+              // Use the helper function to safely stringify objects
+              typeof value === 'object' ? 
+                <span className="text-xs italic">[Object]</span> : 
+                safeStringify(value)
+            }</p>
           ))}
         </div>
       </div>
