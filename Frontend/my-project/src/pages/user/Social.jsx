@@ -2,8 +2,12 @@ import React, { useState, useEffect, useContext, useRef } from 'react';
 import { GlobalContext } from '../../context/GlobalContext';
 import RightSidebar from '../../components/rightSidebar';
 import Sidebar from "../../components/sidebar";
-import { formatDistanceToNow } from 'date-fns';
 import apiService from '../../services/apiService';
+
+// Import new components
+import DebugPanel from '../../components/social/DebugPanel';
+import CreatePostForm from '../../components/social/CreatePostForm';
+import PostList from '../../components/social/PostList';
 
 function Socials() {
   const {
@@ -17,13 +21,11 @@ function Socials() {
     authError
   } = useContext(GlobalContext);
 
-  const [postContent, setPostContent] = useState('');
-  const [hashtags, setHashtags] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [debugInfo, setDebugInfo] = useState({});
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
   
   const contentRef = useRef(null);
 
@@ -47,23 +49,25 @@ function Socials() {
     });
   }, [isAuthenticated, posts, isLoadingPosts, user, authError]);
 
-  // Fetch posts when component mounts
+  // Initial load of posts - only once when authenticated
   useEffect(() => {
-    console.log("useEffect triggered, isAuthenticated:", isAuthenticated);
-    if (isAuthenticated) {
-      console.log("Fetching posts...");
-      fetchPosts()
-        .then(result => {
-          console.log("Posts fetched successfully:", result);
-          setDebugInfo(prev => ({...prev, fetchResult: 'Success', postsCount: result.length}));
-        })
-        .catch(err => {
-          console.error("Error fetching posts in component:", err);
+    const loadInitialPosts = async () => {
+      if (isAuthenticated && !initialLoadDone) {
+        console.log("Loading posts for the first time...");
+        try {
+          await fetchPosts();
+          setInitialLoadDone(true);
+          setDebugInfo(prev => ({...prev, initialLoad: 'Success'}));
+        } catch (err) {
+          console.error("Error in initial post loading:", err);
           setError('Failed to load posts. Please try again.');
-          setDebugInfo(prev => ({...prev, fetchError: err.message}));
-        });
-    }
-  }, [isAuthenticated, fetchPosts]);
+          setDebugInfo(prev => ({...prev, initialLoadError: err.message}));
+        }
+      }
+    };
+
+    loadInitialPosts();
+  }, [isAuthenticated, initialLoadDone, fetchPosts]);
 
   // Handle scroll events for pull-to-refresh
   useEffect(() => {
@@ -111,48 +115,9 @@ function Socials() {
     }
   };
 
-  const handleSubmitPost = async (e) => {
-    e.preventDefault();
-    console.log("Submit post triggered with content:", postContent);
-    if (!postContent.trim()) {
-      console.log("Post content is empty, not submitting");
-      return;
-    }
-
-    setIsSubmitting(true);
-    setError(null);
-    try {
-      // Process hashtags from input (e.g., "#learning #coding" -> ["learning", "coding"])
-      const hashtagArray = hashtags
-        .split(' ')
-        .filter(tag => tag.startsWith('#'))
-        .map(tag => tag.substring(1));
-     
-      console.log("Processed hashtags:", hashtagArray);
-
-      // Create post data
-      const postData = {
-        content: postContent,
-        hashtags: hashtagArray
-      };
-     
-      console.log("Submitting post data:", postData);
-      const result = await createPost(postData);
-      console.log("Post creation result:", result);
-     
-      // Reset form
-      setPostContent('');
-      setHashtags('');
-      setDebugInfo(prev => ({...prev, lastPostResult: 'Success', lastPostId: result?.post?.PostID}));
-     
-      // No need to manually fetch posts again - the createPost function should update the state
-    } catch (error) {
-      console.error('Error creating post:', error);
-      setError(`Failed to create post: ${error.message || 'Unknown error'}`);
-      setDebugInfo(prev => ({...prev, lastPostError: error.message}));
-    } finally {
-      setIsSubmitting(false);
-    }
+  // Manual refresh button handler
+  const handleManualRefresh = () => {
+    handleRefresh();
   };
 
   const handleLikePost = async (postId) => {
@@ -213,151 +178,64 @@ function Socials() {
           )}
           
           <div className="max-w-2xl mx-auto">
-            {/* Debug panel */}
-            <div className="bg-yellow-100 p-4 mb-4 rounded text-xs">
-              <h3 className="font-bold text-sm mb-2">Debug Panel</h3>
-             
-              <div className="flex space-x-2 mb-2">
-                <button
-                  onClick={handleTestAuth}
-                  className="px-2 py-1 bg-blue-500 text-white rounded text-xs"
-                >
-                  Test Auth
-                </button>
-                <button
-                  onClick={checkCookie}
-                  className="px-2 py-1 bg-green-500 text-white rounded text-xs"
-                >
-                  Check Cookie
-                </button>
-                <button
-                  onClick={handleRefresh}
-                  disabled={isRefreshing}
-                  className={`px-2 py-1 ${isRefreshing ? 'bg-gray-400' : 'bg-purple-500'} text-white rounded text-xs`}
-                >
-                  {isRefreshing ? 'Refreshing...' : 'Refresh Posts'}
-                </button>
-              </div>
-             
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <p><strong>Auth:</strong> {isAuthenticated ? '✅ Yes' : '❌ No'}</p>
-                  <p><strong>User:</strong> {user ? `${user.Name} (${user.Role})` : 'Not logged in'}</p>
-                  <p><strong>Posts:</strong> {posts?.length || 0}</p>
-                  <p><strong>Loading:</strong> {isLoadingPosts ? '⏳ Yes' : '✅ No'}</p>
-                  <p><strong>Refreshing:</strong> {isRefreshing ? '⏳ Yes' : '✅ No'}</p>
-                  {authError && <p className="text-red-600"><strong>Auth Error:</strong> {authError}</p>}
-                </div>
-                <div>
-                  {Object.entries(debugInfo).map(([key, value]) => (
-                    <p key={key}><strong>{key}:</strong> {value}</p>
-                  ))}
-                </div>
-              </div>
-             
-              {error && (
-                <div className="mt-2 p-2 bg-red-100 border border-red-300 rounded">
-                  <p className="text-red-700"><strong>Error:</strong> {error}</p>
-                </div>
-              )}
-            </div>
+            {/* Debug panel component */}
+            <DebugPanel 
+              debugInfo={debugInfo}
+              error={error}
+              isAuthenticated={isAuthenticated}
+              user={user}
+              posts={posts}
+              isLoadingPosts={isLoadingPosts}
+              isRefreshing={isRefreshing}
+              authError={authError}
+              handleTestAuth={handleTestAuth}
+              checkCookie={checkCookie}
+              handleRefresh={handleManualRefresh}
+            />
 
-            {isAuthenticated && (
-              <div className="bg-white p-4 rounded-lg shadow-md mb-4">
-                <form onSubmit={handleSubmitPost}>
-                  <input
-                    type="text"
-                    value={postContent}
-                    onChange={(e) => setPostContent(e.target.value)}
-                    placeholder="What's on your mind right now?"
-                    className="w-full p-2 border rounded-lg focus:outline-none"
-                  />
-                  <input
-                    type="text"
-                    value={hashtags}
-                    onChange={(e) => setHashtags(e.target.value)}
-                    placeholder="Add hashtags (e.g. #learning #coding)"
-                    className="w-full p-2 border rounded-lg focus:outline-none mt-2"
-                  />
-                  <div className="flex justify-end mt-2">
-                    <button
-                      type="submit"
-                      disabled={isSubmitting || !postContent.trim()}
-                      className={`px-4 py-2 rounded-lg text-white ${
-                        isSubmitting || !postContent.trim()
-                          ? 'bg-blue-300'
-                          : 'bg-blue-500 hover:bg-blue-600'
-                      }`}
-                    >
-                      {isSubmitting ? 'Posting...' : 'Post'}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            )}
-
-            {!isAuthenticated && (
+            {/* Post creation form */}
+            {isAuthenticated ? (
+              <CreatePostForm createPost={createPost} />
+            ) : (
               <div className="bg-yellow-50 p-4 rounded-lg shadow-md mb-4 text-center">
                 <p className="text-yellow-700">Please log in to create and view posts.</p>
               </div>
             )}
 
-            {/* Pull to refresh instruction */}
-            {isAuthenticated && posts.length > 0 && (
-              <div className="text-center text-gray-500 text-sm mb-4">
-                Scroll up to refresh posts
+            {/* Manual refresh button */}
+            {isAuthenticated && (
+              <div className="text-center mb-4">
+                <button
+                  onClick={handleManualRefresh}
+                  disabled={isRefreshing || isLoadingPosts}
+                  className={`px-4 py-2 rounded-lg text-white ${
+                    isRefreshing || isLoadingPosts
+                      ? 'bg-gray-400'
+                      : 'bg-blue-500 hover:bg-blue-600'
+                  }`}
+                >
+                  {isRefreshing ? 'Refreshing...' : 'Refresh Posts'}
+                </button>
+                <p className="text-gray-500 text-sm mt-2">
+                  Or scroll up to refresh posts
+                </p>
               </div>
             )}
 
-            {isLoadingPosts && !isRefreshing ? (
-              <div className="text-center py-4">Loading posts...</div>
-            ) : posts.length === 0 ? (
-              <div className="text-center py-4">No posts yet. Be the first to post!</div>
-            ) : (
-              posts.map((post) => (
-                <div key={post.PostID} className="bg-white p-4 rounded-lg shadow-md mb-4">
-                  <div className="flex items-center mb-2">
-                    <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
-                    <div className="ml-2">
-                      <p className="font-semibold">{post.User?.Name || 'Unknown User'}</p>
-                      <p className="text-gray-500 text-sm">
-                        {post.User?.Role || 'User'} • {
-                          post.CreatedAt
-                            ? formatDistanceToNow(new Date(post.CreatedAt), { addSuffix: true })
-                            : 'recently'
-                        }
-                      </p>
-                    </div>
-                  </div>
-                 
-                  <p className="text-gray-700">{post.Content}</p>
-                 
-                  {Array.isArray(post.Hashtags) && post.Hashtags.length > 0 && (
-                    <p className="text-blue-500 text-sm mt-1">
-                      {post.Hashtags.map(tag => `#${tag}`).join(' ')}
-                    </p>
-                  )}
-                 
-                  {post.ImageURL && (
-                    <img
-                      src={post.ImageURL}
-                      alt="Post"
-                      className="w-full h-48 object-cover mt-2 rounded-lg"
-                    />
-                  )}
-                 
-                  <div className="flex justify-between text-gray-500 text-sm mt-3">
-                    <button
-                      onClick={() => handleLikePost(post.PostID)}
-                      className="flex items-center hover:text-blue-500"
-                    >
-                      ❤️ {post.Likes || 0} Likes
-                    </button>
-                    <div className="flex items-center">💬 {post.Comments?.length || 0} Comments</div>
-                    <div className="flex items-center">🔁 {post.Shares || 0} Shares</div>
-                  </div>
-                </div>
-              ))
+            {/* Post list component */}
+            {isAuthenticated && (
+              <>
+                {!initialLoadDone && isLoadingPosts ? (
+                  <div className="text-center py-4">Loading posts for the first time...</div>
+                ) : (
+                  <PostList 
+                    posts={posts} 
+                    isLoadingPosts={isLoadingPosts} 
+                    isRefreshing={isRefreshing}
+                    onLikePost={handleLikePost}
+                  />
+                )}
+              </>
             )}
           </div>
         </div>

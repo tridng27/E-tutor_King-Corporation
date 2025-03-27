@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { LayoutDashboard, Calendar, Users, User, MessageSquare, PhoneCall, Home, LogOut, BookHeart, Earth } from "lucide-react";
 import { GlobalContext } from "../context/GlobalContext";
 import { jwtDecode } from "jwt-decode";
+import { v4 as uuidv4 } from "uuid";
+import { Link } from "react-router-dom";
 
 function Sidebar() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -196,14 +198,19 @@ function Sidebar() {
                                 Message
                             </span>
                         </a>
-                        <a href="#" className="flex items-center space-x-3 rounded-lg hover:bg-gray-200 p-2">
+                        
+                        {/* FIXED: Changed from nested <a> and <Link> to just <Link> */}
+                        <Link 
+                            to={`/meeting/${uuidv4()}`} 
+                            className="flex items-center space-x-3 rounded-lg hover:bg-gray-200 p-2"
+                        >
                             <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>
                                 <PhoneCall className="w-6 h-6 text-gray-600 min-w-[24px]" />
                             </div>
                             <span className={`text-gray-700 transition-all duration-300 ${isSidebarOpen ? "block" : "hidden"}`}>
                                 Meeting
                             </span>
-                        </a>
+                        </Link>
                     </div>
 
                     {/* Logout button at the bottom */}
