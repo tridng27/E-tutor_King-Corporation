@@ -66,7 +66,6 @@ function Students() {
                     </div>
                 </div>
                 <button className="mt-4 px-6 py-2 bg-gray-800 text-white rounded-lg shadow-md hover:bg-gray-700">Edit Course</button>
-                <h1>hihi</h1>
               </div>
               
             </div>
