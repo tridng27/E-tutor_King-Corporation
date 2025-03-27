@@ -1,6 +1,6 @@
 const express = require("express");
-const { authenticateUser, isStudent, isAdminOrTutor } = require("../Middleware/roleMiddleware");
-const { getStudentProfile, updateStudentProfile, getScores, getAttendance } = require("../controllers/studentController");
+const { authenticateUser, isStudent, isAdminOrTutor } = require("../middleware/roleMiddleware");
+const { getStudentProfile, updateStudentProfile, getScores, getAttendance, getStudentPerformance } = require("../controllers/studentController");
 
 const router = express.Router();
 
@@ -10,6 +10,11 @@ router.use(authenticateUser);
 // 📌 Student tự xem thông tin của mình
 router.get("/profile", isStudent, getStudentProfile);
 router.put("/update", isStudent, updateStudentProfile);
+
+// 📌 Student có thể xem điểm số & điểm danh của mình
+router.get("/scores", isStudent, getScores);
+router.get("/attendance", isStudent, getAttendance);
+router.get("/:id/performance", isStudent, getStudentPerformance);
 
 // 📌 Admin hoặc Tutor có thể xem điểm số & điểm danh của học sinh
 router.get("/:studentId/scores", isAdminOrTutor, (req, res, next) => {

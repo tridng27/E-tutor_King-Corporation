@@ -9,78 +9,19 @@ const apiClient = axios.create({
 });
 
 const apiService = {
-  get: (url, config = {}) => 
-    apiClient.get(url, { ...config, withCredentials: true }),
-  
-  post: (url, data, config = {}) => {
-    // Check if we're sending FormData
-    if (data instanceof FormData) {
-      // For FormData, don't set Content-Type - axios will set it correctly with boundary
-      return apiClient.post(url, data, { 
-        ...config, 
-        withCredentials: true,
-        headers: {
-          ...config.headers,
-          // Remove Content-Type so browser can set it with proper boundary
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-    }
-    
-    // For regular JSON data
-    return apiClient.post(url, data, { 
-      ...config, 
-      withCredentials: true,
-      headers: {
-        'Content-Type': 'application/json',
-        ...config.headers
-      }
-    });
-  },
-  
-  put: (url, data, config = {}) => {
-    // Similar logic for put requests
-    if (data instanceof FormData) {
-      return apiClient.put(url, data, { 
-        ...config, 
-        withCredentials: true,
-        headers: {
-          ...config.headers,
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-    }
-    
-    return apiClient.put(url, data, { 
-      ...config, 
-      withCredentials: true,
-      headers: {
-        'Content-Type': 'application/json',
-        ...config.headers
-      }
-    });
-  },
-  
-  delete: (url, config = {}) => 
-    apiClient.delete(url, { 
-      ...config, 
-      withCredentials: true,
-      headers: {
-        'Content-Type': 'application/json',
-        ...config.headers
-      }
-    }),
+  get: (url, config = {}) => apiClient.get(url, { ...config, withCredentials: true }),
+  post: (url, data, config = {}) => apiClient.post(url, data, { ...config, withCredentials: true }),
+  put: (url, data, config = {}) => apiClient.put(url, data, { ...config, withCredentials: true }),
+  delete: (url, config = {}) => apiClient.delete(url, { ...config, withCredentials: true }),
 
-  // API để lấy điểm số và điểm danh của học sinh
-  getStudentScores: async (studentId) => {
-    try {
-      const response = await apiClient.get(`/subject/scores/${studentId}`);
-      return response.data;
-    } catch (error) {
-      console.error("Lỗi khi lấy điểm số và điểm danh:", error);
-      return [];
-    }
+getStudentPerformance: async (studentID) => {
+  try {
+    const response = await apiClient.get(`/students/${studentID}/performance`);
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi khi lấy dữ liệu điểm số:", error);
+    return null;
   }
+}
 };
-
 export default apiService;
