@@ -3,9 +3,11 @@ import Sidebar from '../../components/sidebar';
 import RightSidebar from '../../components/rightSidebar';
 import { Search, Plus } from 'lucide-react';
 import StudentInformation from '../../components/studentInformation'; 
+import TutorInformation from '../../components/tutorInformation';
 
 function Students() {
     const [showStudentInfo, setShowStudentInfo] = useState(false);
+    const [showTutorInfo, setShowTutorInfo] = useState(false);
 
     return (
       <div className="relative">
@@ -65,6 +67,9 @@ function Students() {
                         </div>
                     </div>
                 </div>
+                <button className="mt-4 px-6 py-2 bg-gray-800 text-white rounded-lg shadow-md hover:bg-gray-700"
+                        onClick={() => setShowTutorInfo(true)}
+                >Edit Tutor</button>
               </div>
 
             </div>
@@ -75,6 +80,12 @@ function Students() {
         {showStudentInfo && (
           <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-50">
             <StudentInformation onClose={() => setShowStudentInfo(false)} />
+          </div>
+        )}
+
+        {showTutorInfo && (
+          <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-50">
+            <TutorInformation onClose={() => setShowTutorInfo(false)} />
           </div>
         )}
       </div>
