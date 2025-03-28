@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { GlobalContext } from '../../context/GlobalContext';
-import RightSidebar from '../../components/rightSidebar';
 import Sidebar from "../../components/sidebar";
-import apiService from '../../services/apiService';
 import CreatePostForm from '../../components/social/CreatePostForm';
 import PostList from '../../components/social/PostList';
 import SearchBar from '../../components/social/SearchBar';
