@@ -1,4 +1,4 @@
-import RightSidebar from "../../components/rightSidebar";
+import AdminSidebar from "../../components/admin/adminSidebar";
 import Sidebar from "../../components/sidebar";
 
 
@@ -37,7 +37,7 @@ function Dashboard() {
                     </div>
                 </div>
 
-                <RightSidebar />
+                <AdminSidebar />
             </div>
         </div>
     );

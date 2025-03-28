@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { LayoutDashboard, Calendar, Users, User, MessageSquare, PhoneCall, Home, LogOut, BookHeart, Earth } from "lucide-react";
+import { LayoutDashboard, Calendar, MessageSquare, PhoneCall, Home, LogOut, BookHeart, Earth } from "lucide-react";
 import { GlobalContext } from "../context/GlobalContext";
 import { jwtDecode } from "jwt-decode";
 import { v4 as uuidv4 } from "uuid";
@@ -146,40 +146,22 @@ function Sidebar() {
                         </span>
                     </a>
 
+                    <a href="#" className="flex items-center space-x-3 rounded-lg hover:bg-gray-200 p-2">
+                        <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>
+                            <BookHeart className="w-6 h-6 text-gray-600 min-w-[24px]" />
+                        </div>
+                        <span className={`text-gray-700 transition-all duration-300 ${isSidebarOpen ? "block" : "hidden"}`}>
+                            Course
+                        </span>
+                    </a>
+
                     <a
                         href="#"
                         className="flex items-center space-x-3 rounded-lg hover:bg-gray-200 p-2"
                         onClick={handleSocialClick}
                     >
                         <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>
-                            <BookHeart className="w-6 h-6 text-teal-500 min-w-[24px]" />
-                        </div>
-                        <span className={`text-gray-700 transition-all duration-300 ${isSidebarOpen ? "block" : "hidden"}`}>
-                            Social
-                        </span>
-                    </a>
-
-                    <a href="#" className="flex items-center space-x-3 rounded-lg hover:bg-gray-200 p-2">
-                        <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>
-                            <Users className="w-6 h-6 text-gray-600 min-w-[24px]" />
-                        </div>
-                        <span className={`text-gray-700 transition-all duration-300 ${isSidebarOpen ? "block" : "hidden"}`}>
-                            Students
-                        </span>
-                    </a>
-
-                    <a href="#" className="flex items-center space-x-3 rounded-lg hover:bg-gray-200 p-2">
-                        <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>
-                            <User className="w-6 h-6 text-gray-600 min-w-[24px]" />
-                        </div>
-                        <span className={`text-gray-700 transition-all duration-300 ${isSidebarOpen ? "block" : "hidden"}`}>
-                            Tutor
-                        </span>
-                    </a>
-
-                    <a href="#" className="flex items-center space-x-3 rounded-lg hover:bg-gray-200 p-2">
-                        <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>
-                            <Earth className="w-6 h-6 text-gray-600 min-w-[24px]" />
+                            <Earth className="w-6 h-6 text-teal-500 min-w-[24px]" />
                         </div>
                         <span className={`text-gray-700 transition-all duration-300 ${isSidebarOpen ? "block" : "hidden"}`}>
                             Social
@@ -205,7 +187,7 @@ function Sidebar() {
                             className="flex items-center space-x-3 rounded-lg hover:bg-gray-200 p-2"
                         >
                             <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>
-                                <PhoneCall className="w-6 h-6 text-gray-600 min-w-[24px]" />
+                                <PhoneCall className="w-6 h-6 text-teal-500 min-w-[24px]" />
                             </div>
                             <span className={`text-gray-700 transition-all duration-300 ${isSidebarOpen ? "block" : "hidden"}`}>
                                 Meeting

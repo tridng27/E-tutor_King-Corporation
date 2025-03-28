@@ -670,7 +670,7 @@ function MeetingPage() {
 
     if (isJoining) {
         return (
-            <div className="flex flex-col items-center justify-center h-screen bg-gray-900 text-white">
+            <div className="flex flex-col items-center justify-center h-screen bg-white text-black">
                 <h1 className="text-2xl font-bold mb-4">Join or Create a Meeting</h1>
                 <div className="mb-4">
                     <input type="text" placeholder="Enter Meeting ID" value={meetingInput} onChange={(e) => setMeetingInput(e.target.value)} className="p-2 border rounded bg-gray-700 text-white" />
