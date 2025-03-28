@@ -2,6 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import { v4 as uuidv4 } from "uuid";
+import { Autoplay } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/css';
+
 
 const socket = io("http://localhost:5000");
 
@@ -25,6 +29,9 @@ function MeetingPage() {
     const screenStream = useRef(null);
     const chatContainerRef = useRef(null);
     
+    const [copied, setCopied] = useState(false);
+
+
     // Camera, microphone, and pinning
     const [isCameraOn, setIsCameraOn] = useState(true);
     const [isMicrophoneOn, setIsMicrophoneOn] = useState(true);
@@ -670,20 +677,70 @@ function MeetingPage() {
 
     if (isJoining) {
         return (
-            <div className="flex flex-col items-center justify-center h-screen bg-white text-black">
-                <h1 className="text-2xl font-bold mb-4">Join or Create a Meeting</h1>
-                <div className="mb-4">
-                    <input type="text" placeholder="Enter Meeting ID" value={meetingInput} onChange={(e) => setMeetingInput(e.target.value)} className="p-2 border rounded bg-gray-700 text-white" />
-                    <button onClick={joinMeeting} className="ml-2 bg-blue-500 px-4 py-2 rounded">Join</button>
+            <div className="flex flex-row items-center justify-between h-screen bg-white text-black px-10">
+            <div className="w-1/3 flex justify-center">
+                <div className="w-full max-w-xs max-h-xs">
+                    <Swiper
+                        modules={[Autoplay]}
+                        spaceBetween={50}
+                        slidesPerView={1}
+                        loop={true}
+                        autoplay={{ delay: 2000, disableOnInteraction: false }}
+                    >
+                        <SwiperSlide>
+                            <img src="/img/img1.png" alt="Slide 1" className="w-full h-auto" />
+                        </SwiperSlide>
+                        <SwiperSlide>
+                            <img src="/img/img2.png" alt="Slide 2" className="w-full h-auto" />
+                        </SwiperSlide>
+                        <SwiperSlide>
+                            <img src="/img/img3.png" alt="Slide 3" className="w-full h-auto" />
+                        </SwiperSlide>
+                    </Swiper>
                 </div>
-                <button onClick={createMeeting} className="mb-4 bg-green-500 px-6 py-2 rounded-lg">Create New Meeting</button>
-                {meetingId && (
-                    <>
-                        <p className="mb-2">Meeting ID: {meetingId}</p>
-                        <button onClick={startCall} className="bg-green-500 px-6 py-2 rounded-lg">Join Now</button>
-                    </>
-                )}
             </div>
+        
+            {/* Cột phải - Nội dung */}
+            <div className="w-2/3 flex flex-col items-center">
+                <h1 className="text-5xl mb-4 text-center">Secure video conferencing <br />for everyone</h1>
+                <p className="text-xl mb-8">Connect, collaborate and celebrate from anywhere with LX Meet</p>
+                <div className="mb-4">
+                    <input
+                        type="text"
+                        placeholder="Enter Meeting ID"
+                        value={meetingInput}
+                        onChange={(e) => setMeetingInput(e.target.value)}
+                        className="p-2 border rounded bg-white text-black"
+                    />
+                    <button onClick={joinMeeting} className="ml-2 bg-blue-600 px-4 py-2 rounded text-white hover:bg-blue-500">
+                        Join
+                    </button>
+                </div>
+                    {meetingId && (
+                        <>
+                            <div className="flex items-center gap-2 mb-2">
+                                <p className="font-semibold">Meeting ID: {meetingId}</p>
+                                <button
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(meetingId);
+                                        setCopied(true);
+                                        setTimeout(() => setCopied(false), 1500);
+                                    }}
+                                    className="bg-gray-300 hover:bg-gray-200 px-6 py-2 rounded-lg text-sm"
+                                >
+                                    {copied ? "Copied!" : "Copy"}
+                                </button>
+                            </div>
+                            <button onClick={createMeeting} className="mb-4 bg-blue-600 hover:bg-blue-500 px-6 py-2 rounded-lg text-white">
+                                Create New Meeting
+                            </button>
+                            <button onClick={startCall} className="bg-green-500 px-6 py-2 rounded-lg">
+                                Join Now
+                            </button>
+                        </>
+                    )}
+            </div>
+        </div>
         );
     }
 
