@@ -13,7 +13,9 @@ import Timetable from "./pages/admin/Timetable";
 import Social from "./pages/user/social";
 import MeetingPage from "./pages/meeting/MeetingPage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Notfound from "./pages/Notfound";
 import Unauthorized from "./pages/Unauthorized";
+import CourseDetail from "./components/Course/CourseDetail";
 
 function App() {
   return (
@@ -101,9 +103,22 @@ function App() {
               </ProtectedRoute>
             } 
           /> 
+
+          <Route 
+            path="/coursedetail" 
+            element={
+              <ProtectedRoute allowedRoles={[]}>
+                <CourseDetail />
+              </ProtectedRoute>
+            } 
+          /> 
           
           {/* 404 Route */}
-          <Route path="*" element={<div>Page not found</div>} />
+          <Route path="*" element={
+            <ProtectedRoute allowedRoles={[]}>
+              <Notfound/>
+            </ProtectedRoute>
+          } />
         </Routes>
       </BrowserRouter>
     </GlobalProvider>
