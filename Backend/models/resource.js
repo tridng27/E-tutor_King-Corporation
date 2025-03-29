@@ -24,6 +24,10 @@ const Resource = sequelize.define("Resource", {
     type: DataTypes.TEXT,
     allowNull: false
   },
+  FilePath: {
+    type: DataTypes.STRING(255),
+    allowNull: true
+  },
   UploadDate: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW

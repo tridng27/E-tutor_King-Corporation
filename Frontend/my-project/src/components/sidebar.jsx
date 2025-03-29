@@ -85,6 +85,12 @@ function Sidebar() {
         }
     };
 
+    // Handle navigation to course page
+    const handleCourseClick = (e) => {
+        e.preventDefault();
+        navigate('/course');
+    };
+
     return (
         <div>
             {/* Overlay when sidebar is open */}
@@ -146,9 +152,14 @@ function Sidebar() {
                         </span>
                     </a>
 
-                    <a href="#" className="flex items-center space-x-3 rounded-lg hover:bg-gray-200 p-2">
+                    {/* Course button - Updated to use handleCourseClick */}
+                    <a 
+                        href="#" 
+                        className="flex items-center space-x-3 rounded-lg hover:bg-gray-200 p-2"
+                        onClick={handleCourseClick}
+                    >
                         <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>
-                            <BookHeart className="w-6 h-6 text-gray-600 min-w-[24px]" />
+                            <BookHeart className="w-6 h-6 text-teal-500 min-w-[24px]" />
                         </div>
                         <span className={`text-gray-700 transition-all duration-300 ${isSidebarOpen ? "block" : "hidden"}`}>
                             Course
