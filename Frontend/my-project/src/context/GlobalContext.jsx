@@ -1,447 +1,86 @@
-import { createContext, useState, useEffect } from "react";
-import apiService from "../services/apiService";
+import { createContext, useContext } from "react";
+import { AuthProvider, useAuth } from "./AuthContext";
+import { PostProvider, usePost } from "./PostContext";
+import { ResourceProvider, useResource } from "./ResourceContext";
+import { DataProvider, useData } from "./DataContext";
 
+// Create a combined context
 export const GlobalContext = createContext(null);
 
+// Combined provider component
 export const GlobalProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userRole, setUserRole] = useState(null);
-  const [students, setStudents] = useState([]);
-  const [tutors, setTutors] = useState([]);
-  const [notifications, setNotifications] = useState([]);
-  const [documents, setDocuments] = useState([]);
-  const [posts, setPosts] = useState([]); // Add this for social posts
-  const [isLoadingPosts, setIsLoadingPosts] = useState(false); // Add this for loading state
-  const [authError, setAuthError] = useState(null);
+  return (
+    <AuthProvider>
+      <PostProvider>
+        <ResourceProvider>
+          <DataProvider>
+            <CombinedProvider>{children}</CombinedProvider>
+          </DataProvider>
+        </ResourceProvider>
+      </PostProvider>
+    </AuthProvider>
+  );
+};
 
-  // Check for user authentication on initial load
-  useEffect(() => {
-    const checkAuthStatus = async () => {
-      try {
-        console.log("Checking authentication status...");
-        const response = await apiService.get("/auth/me");
-        const userData = response.data.user;
-        
-        console.log("User authenticated:", userData);
-        setUser(userData);
-        setUserRole(userData.Role);
-        setIsAuthenticated(true);
-        localStorage.setItem("user", JSON.stringify(userData));
-      } catch (error) {
-        console.log("Not authenticated or error:", error.message);
-        // If the request fails, the user is not authenticated
-        setUser(null);
-        setUserRole(null);
-        setIsAuthenticated(false);
-        localStorage.removeItem("user");
-      }
-    };
-    
-    // Execute the check
-    checkAuthStatus();
-  }, []);
-  
-  // Hàm đăng nhập - now uses cookies instead of JWT in localStorage
-  const login = (userData) => {
-    try {
-      console.log("Setting user data after login:", userData);
-      setUser(userData);
-      setUserRole(userData.Role);
-      setIsAuthenticated(true);
-      localStorage.setItem("user", JSON.stringify(userData));
-      setAuthError(null);
-    } catch (error) {
-      console.error("Error processing login:", error);
-      setAuthError("Failed to process login");
-    }
-  };
+// Component that combines all context values
+const CombinedProvider = ({ children }) => {
+  // Get values from all contexts
+  const authContext = useAuth();
+  const postContext = usePost();
+  const resourceContext = useResource();
+  const dataContext = useData();
 
-  // Hàm đăng xuất - now clears the cookie via API call
-  const logout = async () => {
-    try {
-      console.log("Logging out...");
-      await apiService.post("/auth/logout");
-    } catch (error) {
-      console.error("Error during logout API call:", error);
-    } finally {
-      // Always clear local state even if API call fails
-      setUser(null);
-      setUserRole(null);
-      setIsAuthenticated(false);
-      localStorage.removeItem("user");
-      console.log("User logged out");
-    }
-  };
-
-  // Check if user has specific role
-  const hasRole = (requiredRole) => {
-    return userRole === requiredRole;
-  };
-
-  // Fetch all posts
-  const fetchPosts = async () => {
-    try {
-      setIsLoadingPosts(true);
-      console.log("Fetching posts...");
-      
-      const response = await apiService.get("/posts");
-      
-      console.log(`Fetched ${response.data.length} posts`);
-      setPosts(response.data);
-      return response.data;
-    } catch (error) {
-      console.error("Error fetching posts:", error);
-      console.error("Response data:", error.response?.data);
-      
-      if (error.response && error.response.status === 401) {
-        console.log("Authentication error when fetching posts");
-        setAuthError("Please log in to view posts");
-      }
-      throw error;
-    } finally {
-      setIsLoadingPosts(false);
-    }
-  };
-
-  // Create a new post
-  const createPost = async (postData) => {
-    try {
-      console.log("Creating post with data:", postData);
-      
-      const response = await apiService.post("/posts", postData);
-      
-      console.log("Post creation successful:", response.data);
-      
-      // Add the new post to the state
-      setPosts(prevPosts => [response.data.post, ...prevPosts]);
-      return response.data;
-    } catch (error) {
-      console.error("Error creating post:", error);
-      console.error("Response data:", error.response?.data);
-      
-      if (error.response && error.response.status === 401) {
-        console.log("Authentication error when creating post");
-        setAuthError("Please log in to create posts");
-        
-        // Check if we're still authenticated
-        try {
-          await apiService.get("/auth/me");
-          console.log("User is still authenticated despite 401 error");
-        } catch (authError) {
-          if (authError.response && [401, 404].includes(authError.response.status)) {
-            console.log("Authentication verification failed, user is not authenticated");
-            setUser(null);
-            setUserRole(null);
-            setIsAuthenticated(false);
-            localStorage.removeItem("user");
-          }
-        }
-      }
-      throw error;
-    }
-  };
-
-  // Edit a post
-  const editPost = async (postId, postData) => {
-    try {
-      console.log("Editing post:", postId, "with data:", postData);
-      
-      const response = await apiService.put(`/posts/${postId}`, postData);
-      
-      console.log("Post edit response:", response.data);
-      
-      // Update the post in state - handle both possible response structures
-      setPosts(prevPosts => 
-        prevPosts.map(post => 
-          post.PostID === postId 
-            ? (response.data.post || response.data)  // Handle both response structures
-            : post
-        )
-      );
-      
-      return response.data;
-    } catch (error) {
-      console.error("Error editing post:", error);
-      console.error("Response data:", error.response?.data);
-      
-      if (error.response && error.response.status === 401) {
-        console.log("Authentication error when editing post");
-        setAuthError("Please log in to edit posts");
-      } else if (error.response && error.response.status === 403) {
-        setAuthError("You can only edit your own posts");
-      }
-      
-      throw error;
-    }
-  };
-
-  // Delete a post
-  const deletePost = async (postId) => {
-    try {
-      console.log("Deleting post:", postId);
-      
-      await apiService.delete(`/posts/${postId}`);
-      
-      console.log(`Post ${postId} deleted successfully`);
-      
-      // Remove the deleted post from state
-      setPosts(prevPosts => prevPosts.filter(post => post.PostID !== postId));
-      return true; // Return something for promise chaining
-    } catch (error) {
-      console.error("Error deleting post:", error);
-      console.error("Response data:", error.response?.data);
-      
-      if (error.response && error.response.status === 401) {
-        setAuthError("Please log in to delete posts");
-      } else if (error.response && error.response.status === 403) {
-        setAuthError("You can only delete your own posts");
-      }
-      throw error;
-    }
-  };
-
-  // Like a post
-  const likePost = async (postId) => {
-    try {
-      console.log("Liking post:", postId);
-      
-      const response = await apiService.post(`/posts/${postId}/like`);
-      
-      console.log(`Post ${postId} liked successfully, new likes: ${response.data.likes}`);
-      
-      // Update the post likes in state
-      setPosts(prevPosts =>
-        prevPosts.map(post =>
-          post.PostID === postId
-            ? { ...post, Likes: response.data.likes }
-            : post
-        )
-      );
-      
-      return response.data;
-    } catch (error) {
-      console.error("Error liking post:", error);
-      console.error("Response data:", error.response?.data);
-      
-      if (error.response && error.response.status === 401) {
-        setAuthError("Please log in to like posts");
-      }
-      throw error;
-    }
-  };
-
-  // Add a comment to a post
-  const commentOnPost = async (postId, commentText) => {
-    try {
-      console.log("Commenting on post:", postId, "with text:", commentText);
-      
-      const response = await apiService.post(`/posts/${postId}/comments`, {
-        content: commentText
-      });
-      
-      console.log(`Comment added to post ${postId} successfully:`, response.data);
-      
-      // Update the post comments in state
-      setPosts(prevPosts =>
-        prevPosts.map(post =>
-          post.PostID === postId
-            ? {
-                ...post,
-                Comments: [...(post.Comments || []), response.data]
-              }
-            : post
-        )
-      );
-      
-      return response.data;
-    } catch (error) {
-      console.error("Error commenting on post:", error);
-      console.error("Response data:", error.response?.data);
-      
-      if (error.response && error.response.status === 401) {
-        setAuthError("Please log in to comment on posts");
-      }
-      throw error;
-    }
-  };
-
-  // Edit a comment - UPDATED to use CommentID instead of id
-  const editComment = async (postId, commentId, content) => {
-    try {
-      console.log("Editing comment:", commentId, "with content:", content);
-      
-      const response = await apiService.put(`/posts/${postId}/comments/${commentId}`, {
-        content
-      });
-      
-      console.log("Comment edit response:", response.data);
-      
-      // Update the comment in state - use CommentID instead of id
-      setPosts(prevPosts => 
-        prevPosts.map(post => {
-          if (post.PostID === parseInt(postId)) {
-            return {
-              ...post,
-              Comments: post.Comments?.map(comment => 
-                comment.CommentID === parseInt(commentId)  // Use CommentID instead of id
-                  ? (response.data.comment || response.data)  // Handle both response structures
-                  : comment
-              ) || []
-            };
-          }
-          return post;
-        })
-      );
-      
-      return response.data;
-    } catch (error) {
-      console.error("Error editing comment:", error);
-      console.error("Response data:", error.response?.data);
-      
-      if (error.response && error.response.status === 401) {
-        setAuthError("Please log in to edit comments");
-      } else if (error.response && error.response.status === 403) {
-        setAuthError("You can only edit your own comments");
-      }
-      
-      throw error;
-    }
-  };
-
-  // Delete a comment - UPDATED to use CommentID instead of id
-  const deleteComment = async (postId, commentId) => {
-    try {
-      console.log("Deleting comment:", commentId, "from post:", postId);
-      
-      await apiService.delete(`/posts/${postId}/comments/${commentId}`);
-      
-      console.log(`Comment ${commentId} deleted successfully`);
-      
-      // Remove the deleted comment from state - use CommentID instead of id
-      setPosts(prevPosts => 
-        prevPosts.map(post => {
-          if (post.PostID === parseInt(postId)) {
-            return {
-              ...post,
-              Comments: post.Comments?.filter(comment => 
-                comment.CommentID !== parseInt(commentId)  // Use CommentID instead of id
-              ) || []
-            };
-          }
-          return post;
-        })
-      );
-      
-      return true; // Return something for promise chaining
-    } catch (error) {
-      console.error("Error deleting comment:", error);
-      console.error("Response data:", error.response?.data);
-      
-      if (error.response && error.response.status === 401) {
-        setAuthError("Please log in to delete comments");
-      } else if (error.response && error.response.status === 403) {
-        setAuthError("You can only delete your own comments");
-      }
-      
-      throw error;
-    }
-  };
-
-  // Test authentication status - useful for debugging
-  const testAuth = async () => {
-    try {
-      console.log("Testing authentication status...");
-      const response = await apiService.get("/auth/me");
-      console.log("Auth test result:", response.data);
-      return response.data;
-    } catch (error) {
-      console.error("Auth test failed:", error);
-      throw error;
-    }
-  };
-
-  // Other methods remain the same but use apiService instead of direct axios calls
-  const fetchStudents = async () => {
-    try {
-      const response = await apiService.get("/students");
-      setStudents(response.data);
-    } catch (error) {
-      console.error("Error fetching students:", error);
-      if (error.response && error.response.status === 401) {
-        setAuthError("Please log in to view students");
-      }
-    }
-  };
-
-  const fetchTutors = async () => {
-    try {
-      const response = await apiService.get("/tutors");
-      setTutors(response.data);
-    } catch (error) {
-      console.error("Error fetching tutors:", error);
-      if (error.response && error.response.status === 401) {
-        setAuthError("Please log in to view tutors");
-      }
-    }
-  };
-
-  const fetchNotifications = async () => {
-    try {
-      const response = await apiService.get("/notifications");
-      setNotifications(response.data);
-    } catch (error) {
-      console.error("Error fetching notifications:", error);
-      if (error.response && error.response.status === 401) {
-        setAuthError("Please log in to view notifications");
-      }
-    }
-  };
-
-  const fetchDocuments = async () => {
-    try {
-      const response = await apiService.get("/documents");
-      setDocuments(response.data);
-    } catch (error) {
-      console.error("Error fetching documents:", error);
-      if (error.response && error.response.status === 401) {
-        setAuthError("Please log in to view documents");
-      }
-    }
+  // Combine all context values
+  const combinedValue = {
+    // Auth context values
+    user: authContext.user,
+    isAuthenticated: authContext.isAuthenticated,
+    userRole: authContext.userRole,
+    authError: authContext.authError,
+    login: authContext.login,
+    logout: authContext.logout,
+    hasRole: authContext.hasRole,
+    getTutorId: authContext.getTutorId,
+    testAuth: authContext.testAuth,
+    setAuthError: authContext.setAuthError, // Make sure this is included
+   
+    // Post context values
+    posts: postContext.posts,
+    isLoadingPosts: postContext.isLoadingPosts,
+    fetchPosts: postContext.fetchPosts,
+    createPost: postContext.createPost,
+    editPost: postContext.editPost,
+    deletePost: postContext.deletePost,
+    likePost: postContext.likePost,
+    commentOnPost: postContext.commentOnPost,
+    editComment: postContext.editComment,
+    deleteComment: postContext.deleteComment,
+   
+    // Resource context values
+    fetchResources: resourceContext.fetchResources,
+    getResourceById: resourceContext.getResourceById,
+    createResource: resourceContext.createResource,
+    updateResource: resourceContext.updateResource,
+    deleteResource: resourceContext.deleteResource,
+    downloadResource: resourceContext.downloadResource,
+   
+    // Data context values
+    students: dataContext.students,
+    tutors: dataContext.tutors,
+    notifications: dataContext.notifications,
+    documents: dataContext.documents,
+    fetchStudents: dataContext.fetchStudents,
+    fetchTutors: dataContext.fetchTutors,
+    fetchNotifications: dataContext.fetchNotifications,
+    fetchDocuments: dataContext.fetchDocuments
   };
 
   return (
-    <GlobalContext.Provider
-      value={{
-        user,
-        isAuthenticated,
-        userRole,
-        students,
-        tutors,
-        notifications,
-        documents,
-        posts,
-        isLoadingPosts,
-        authError,
-        login,
-        logout,
-        hasRole,
-        fetchStudents,
-        fetchTutors,
-        fetchNotifications,
-        fetchDocuments,
-        fetchPosts,
-        createPost,
-        editPost,        
-        deletePost,
-        likePost,
-        commentOnPost,
-        editComment,      
-        deleteComment,    
-        testAuth
-      }}
-    >
+    <GlobalContext.Provider value={combinedValue}>
       {children}
     </GlobalContext.Provider>
   );
 };
+
+// Export a custom hook to use the global context
+export const useGlobal = () => useContext(GlobalContext);

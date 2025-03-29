@@ -1,7 +1,6 @@
 const jwt = require("jsonwebtoken");
-const { User, Student } = require("../models");
+const { User, Student, Tutor, Resource } = require("../models");
 
-// Middleware xác thực JWT và lấy thông tin user từ token
 // Middleware xác thực JWT và lấy thông tin user từ token
 const authenticateUser = async (req, res, next) => {
     try {
@@ -46,11 +45,30 @@ const isAdmin = (req, res, next) => {
 };
 
 // Middleware kiểm tra quyền Tutor
-const isTutor = (req, res, next) => {
-    if (req.user.role !== "Tutor") {
-        return res.status(403).json({ message: "Unauthorized! Tutors only." });
+const isTutor = async (req, res, next) => {
+    try {
+        console.log("User object in isTutor middleware:", req.user);
+
+        if (!req.user || req.user.dataValues.Role !== "Tutor") {
+            console.log("Access Denied! User role:", req.user?.dataValues?.Role);
+            return res.status(403).json({ message: "Unauthorized! Tutors only." });
+        }
+
+        // Tìm TutorID từ bảng Tutors
+        const tutor = await Tutor.findOne({ where: { UserID: req.user.dataValues.UserID } });
+        if (!tutor) {
+            return res.status(403).json({ message: "No tutor record found!" });
+        }
+
+        // Gán `TutorID` vào `req.user`
+        req.user.TutorID = tutor.TutorID;
+
+        console.log("Access Granted! TutorID:", req.user.TutorID);
+        next();
+    } catch (error) {
+        console.error("Error in isTutor middleware:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
     }
-    next();
 };
 
 // Middleware kiểm tra quyền Student
@@ -82,10 +100,60 @@ const isStudent = async (req, res, next) => {
 
 // Middleware chỉ cho phép Admin & Tutor
 const isAdminOrTutor = (req, res, next) => {
-    if (req.user.role !== "Admin" && req.user.role !== "Tutor") {
+    if (req.user.dataValues.Role !== "Admin" && req.user.dataValues.Role !== "Tutor") {
         return res.status(403).json({ message: "Unauthorized! Only Admins and Tutors can access this." });
     }
     next();
 };
 
-module.exports = { authenticateUser, isAdmin, isTutor, isStudent, isAdminOrTutor };
+// Middleware kiểm tra quyền chỉnh sửa resource
+const canModifyResource = async (req, res, next) => {
+    try {
+        const resourceId = req.params.id;
+        const userRole = req.user.dataValues.Role;
+        
+        // Admin có thể chỉnh sửa mọi resource
+        if (userRole === "Admin") {
+            return next();
+        }
+        
+        // Nếu không phải Admin, kiểm tra xem user có phải là Tutor không
+        if (userRole !== "Tutor") {
+            return res.status(403).json({ message: "Unauthorized! Only Admins and Tutors can modify resources." });
+        }
+        
+        // Lấy TutorID của user hiện tại
+        const tutor = await Tutor.findOne({ where: { UserID: req.user.dataValues.UserID } });
+        if (!tutor) {
+            return res.status(403).json({ message: "No tutor record found!" });
+        }
+        
+        // Lấy thông tin resource
+        const resource = await Resource.findByPk(resourceId);
+        if (!resource) {
+            return res.status(404).json({ message: "Resource not found!" });
+        }
+        
+        // Kiểm tra xem Tutor có phải là người tạo resource không
+        if (resource.TutorID !== tutor.TutorID) {
+            return res.status(403).json({ message: "Unauthorized! You can only modify your own resources." });
+        }
+        
+        // Gán TutorID vào req.user để sử dụng trong controller
+        req.user.TutorID = tutor.TutorID;
+        
+        next();
+    } catch (error) {
+        console.error("Error in canModifyResource middleware:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+module.exports = { 
+    authenticateUser, 
+    isAdmin, 
+    isTutor, 
+    isStudent, 
+    isAdminOrTutor,
+    canModifyResource
+};

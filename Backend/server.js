@@ -16,6 +16,7 @@ const studentRoutes = require("./routes/studentRoutes");
 const sequelize = require("./config/Database"); // Import database
 const postRoutes = require("./routes/postRoute");
 const uploadRoutes = require("./routes/uploadRoutes"); // Add this line to import upload routes
+const resourceRoutes = require("./routes/resourceRoutes");
 
 // Create Express instance
 const app = express();
@@ -49,6 +50,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/upload", uploadRoutes); // Add this line to register upload routes
+app.use("/api/resources", resourceRoutes);
 
 // Basic route
 app.get("/", (req, res) => {

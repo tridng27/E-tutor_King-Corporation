@@ -15,7 +15,8 @@ import MeetingPage from "./pages/meeting/MeetingPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Notfound from "./pages/Notfound";
 import Unauthorized from "./pages/Unauthorized";
-import CourseDetail from "./components/Course/CourseDetail";
+import ResourceDetail from "./components/course/ResourceDetail";
+import ResourceForm from "./components/course/ResourceForm";
 
 function App() {
   return (
@@ -30,88 +31,107 @@ function App() {
           <Route path="/meeting/:meetingId" element={<MeetingPage />} />
 
           {/* Protected Admin Routes */}
-          <Route 
-            path="/admin/dashboard" 
+          <Route
+            path="/admin/dashboard"
             element={
               <ProtectedRoute allowedRoles={['Admin']}>
                 <AdminDashboard />
               </ProtectedRoute>
-            } 
+            }
           />
           
-          <Route 
-            path="/admin/timetable" 
+          <Route
+            path="/admin/timetable"
             element={
               <ProtectedRoute allowedRoles={['Admin']}>
                 <Timetable />
               </ProtectedRoute>
-            } 
+            }
           />
           
           {/* Protected Tutor Routes */}
-          <Route 
-            path="/tutor/dashboard" 
+          <Route
+            path="/tutor/dashboard"
             element={
               <ProtectedRoute allowedRoles={['Tutor']}>
                 <TutorDashboard />
               </ProtectedRoute>
-            } 
+            }
           />
 
-          <Route 
-            path="/tutor/lesson" 
+          <Route
+            path="/tutor/lesson"
             element={
               <ProtectedRoute allowedRoles={['Tutor']}>
                 <Lesson />
               </ProtectedRoute>
-            } 
+            }
           />
           
-          <Route 
-            path="/class" 
+          <Route
+            path="/class"
             element={
               <ProtectedRoute allowedRoles={[]}>
                 <Class />
               </ProtectedRoute>
-            } 
+            }
           />
 
           {/* Protected Student Routes */}
-          <Route 
-            path="/student/dashboard" 
+          <Route
+            path="/student/dashboard"
             element={
               <ProtectedRoute allowedRoles={['Student']}>
                 <StudentDashboard />
               </ProtectedRoute>
-            } 
+            }
           />
           
-          <Route 
-            path="/social" 
+          <Route
+            path="/social"
             element={
               <ProtectedRoute allowedRoles={[]}>
                 <Social />
               </ProtectedRoute>
-            } 
+            }
           />
 
-          <Route 
-            path="/course" 
+          <Route
+            path="/course"
             element={
               <ProtectedRoute allowedRoles={[]}>
                 <Course />
               </ProtectedRoute>
-            } 
-          /> 
+            }
+          />
+          
+          {/* Resource Routes */}
+          <Route
+            path="/resource/add"
+            element={
+              <ProtectedRoute allowedRoles={['Admin', 'Tutor']}>
+                <ResourceForm />
+              </ProtectedRoute>
+            }
+          />
 
-          <Route 
-            path="/coursedetail" 
+          <Route
+            path="/resource/edit/:id"
+            element={
+              <ProtectedRoute allowedRoles={['Admin', 'Tutor']}>
+                <ResourceForm />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/resource/:id"
             element={
               <ProtectedRoute allowedRoles={[]}>
-                <CourseDetail />
+                <ResourceDetail />
               </ProtectedRoute>
-            } 
-          /> 
+            }
+          />
           
           {/* 404 Route */}
           <Route path="*" element={

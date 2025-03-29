@@ -30,4 +30,8 @@ const Tutor = sequelize.define("Tutor", {
 User.hasOne(Tutor, { foreignKey: "UserID" });
 Tutor.belongsTo(User, { foreignKey: "UserID" });
 
+// Note: The association with Resource is defined here,
+// but the actual Resource model is imported and the association is established
+// in the index.js file to avoid circular dependencies
+
 module.exports = Tutor;
