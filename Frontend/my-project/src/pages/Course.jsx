@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/sidebar';
 import AdminSidebar from '../components/admin/adminSidebar';
 import { GlobalContext } from '../context/GlobalContext';
+import { BadgeCheck } from 'lucide-react';
 
 function Course() {
   const [resources, setResources] = useState([]);
@@ -99,30 +100,35 @@ function Course() {
               )}
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="grid grid-cols-3 gap-4 p-4">
               {filteredResources.map(resource => (
-                <div key={resource.id} className="bg-white p-4 rounded-lg border shadow-md flex flex-col space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-xl">📚</span>
-                    <h2 className="font-bold text-lg">{resource.title || 'Untitled'}</h2>
+                <div key={resource.id} className="rounded-lg border-[1px] border-black hover:-translate-y-1 hover:translate-x-1 hover:border-l-4 hover:border-b-4 transition-all duration-300 shadow-md">
+                  <div className="bg-[#EAFDC6] rounded-t-md">
+                    <h4 className="text-xl font-bold mb-2 p-2">{resource.title || 'Untitled'}</h4>
                   </div>
-                  <p className="text-gray-600 text-sm">
-                    {resource.description 
-                      ? (resource.description.length > 150 
-                          ? `${resource.description.substring(0, 150)}...` 
-                          : resource.description)
-                      : 'No description available'}
-                  </p>
-                  <div className="flex justify-between items-center">
-                    <button 
-                      className="bg-green-100 text-green-600 px-3 py-1 rounded-md w-fit"
-                      onClick={() => navigate(`/resource/${resource.id}`)}
-                    >
-                      View Details
-                    </button>
-                    <span className="text-xs text-gray-500">
-                      {new Date(resource.uploadDate).toLocaleDateString()}
-                    </span>
+                  <div className="p-4">
+                    <p className="text-gray-600 text-sm">
+                      {resource.description 
+                        ? (resource.description.length > 150 
+                            ? `${resource.description.substring(0, 150)}...` 
+                            : resource.description)
+                        : 'No description available'}
+                    </p>
+                    <div className="flex justify-between items-center mt-2">
+                      <span className="text-xs text-gray-500">
+                        {new Date(resource.uploadDate).toLocaleDateString()}
+                      </span>
+                      <button 
+                        className="bg-green-100 text-green-600 px-3 py-1 rounded-md w-fit"
+                        onClick={() => navigate(`/resource/${resource.id}`)}
+                      >
+                        View Details
+                      </button>
+                    </div>
+                    <div className="border-t border-b border-dotted border-black mt-2 flex items-center space-x-2 p-1">
+                      <BadgeCheck size={20} strokeWidth={1.25} className="text-sm"/>
+                      <p>With <span className="font-semibold">Certificate</span></p>
+                    </div>
                   </div>
                 </div>
               ))}

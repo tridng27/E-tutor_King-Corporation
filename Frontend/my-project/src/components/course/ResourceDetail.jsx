@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { GlobalContext } from '../../context/GlobalContext';
 import Sidebar from '../sidebar';
 import RightSidebar from '../rightSidebar';
+import { BadgeCheck, BookCheck, FileCheck, Bot, CircleCheckBig } from 'lucide-react';
 
 function ResourceDetail() {
   const { id } = useParams();
@@ -97,26 +98,75 @@ function ResourceDetail() {
             </div>
           )}
           
-          <div className="max-w-2xl mx-auto p-4 space-y-2">
-            {/* Description */}
-            <h2 className="font-semibold text-lg">Description: </h2>
-            <div className="border p-4 rounded-lg">
-              <p className="w-full p-2">{resource?.description || 'No description available'}</p>
+          <div className="mx-auto p-4 space-y-2">
+            <div className="p-8 flex flex-col md:flex-row items-start justify-between rounded-lg">
+              <div className="max-w-lg">
+                <p className="uppercase text-sm font-semibold tracking-wide text-gray-700">Course</p>
+                <h1 className="text-4xl font-bold text-gray-900 mt-2">Learn Explainable AI</h1>
+                <p className="text-gray-700 mt-4">Uploaded by: {resource?.tutorId === null ? "Admin (System)" : resource?.tutorName}</p>
+                <p className="text-gray-700 text-sm">{resource?.uploadDate ? new Date(resource.uploadDate).toLocaleDateString() : 'Unknown'}</p>
+                <button className="mt-6 bg-indigo-600 text-white px-6 py-3 rounded-md text-lg font-semibold hover:bg-indigo-700 transition">
+                  Start
+                </button>
+              </div>
+
+              <div className="border border-gray-500 p-6 mt-8 md:mt-0 md:ml-12 rounded-lg relative">
+                <h3 className="text-lg font-bold mb-4">This course includes</h3>
+                <ul className="space-y-4">
+                  <li className="flex items-center space-x-2 border-b pb-2">
+                    <Bot />
+                    <p>AI assistance for guided coding help</p>
+                  </li>
+                  <li className="flex items-center space-x-2 border-b pb-2">
+                    <FileCheck />
+                    <p>Projects to apply new skills</p>
+                  </li>
+                  <li className="flex items-center space-x-2 border-b pb-2">
+                    <BookCheck />
+                    <p>Quizzes to test your knowledge</p>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <BadgeCheck />
+                    <p>A <span className="font-bold">certificate</span> of completion</p>
+                  </li>
+                </ul>
+              </div>
             </div>
 
-            {/* Requirement Input */}
-            <h5 className="font-semibold">Uploaded by:</h5>
-            <div className="border p-4 rounded-lg">
-              <p className="w-full p-2">{resource?.tutorId === null ? "Admin (System)" : resource?.tutorName}</p>
+            {/* Description */}
+            <div className="flex">
+              <div className="basis-2/3">
+                <h2 className="font-semibold text-2xl">About this course</h2>
+                <p className="pr-20">{resource?.description || 'No description available'}</p>
+              </div>
+              <div className="basis-1/3">
+                <h2 className="font-semibold text-2xl mb-2">Your Skills your gain</h2>
+                <ul>
+                  <li className="flex items-center gap-x-2 space-x-2 pb-2">
+                    <CircleCheckBig size={20} />
+                    <p>Problem-Solving Skills</p>
+                  </li>
+                  <li className="flex items-center gap-x-2 space-x-2 pb-2">
+                    <CircleCheckBig size={20} />
+                    <p>Project-Based Learning </p>
+                  </li>
+                  <li className="flex items-center gap-x-2 space-x-2 pb-2">
+                    <CircleCheckBig size={20} />
+                    <p>Hands-on Experience</p>
+                  </li>
+                  <li className="flex items-center gap-x-2 space-x-2 pb-2">
+                   <CircleCheckBig size={20} />
+                    <p>System Design & Architecture</p>
+                  </li>
+                  <li className="flex items-center gap-x-2 space-x-2 pb-2">
+                   <CircleCheckBig size={20} />
+                    <p>Version Control (Git & GitHub)</p>
+                  </li>
+                </ul>
+              </div>
             </div>
             
-            {/* Date Input */}
-            <h5 className="font-semibold">Date:</h5>
-            <div className="flex gap-4 items-center">
-              <p className="border p-2 rounded-lg w-1/3">
-                {resource?.uploadDate ? new Date(resource.uploadDate).toLocaleDateString() : 'Unknown'}
-              </p>
-              
+            <div className="flex gap-4 items-center">      
               {/* Download Button */}
               {resource?.filePath && (
                 <button 
