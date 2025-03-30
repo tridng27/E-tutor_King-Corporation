@@ -128,6 +128,47 @@ const apiService = {
       console.error(`Error downloading resource ${id}:`, error);
       throw error;
     }
+  },
+
+  // Admin user management
+  getAllUsers: async () => {
+    try {
+      const response = await apiClient.get('/admin/users');
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching all users:", error);
+      throw error;
+    }
+  },
+
+  getPendingUsers: async () => {
+    try {
+      const response = await apiClient.get('/admin/users/pending');
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching pending users:", error);
+      throw error;
+    }
+  },
+
+  assignUserRole: async (userId, role) => {
+    try {
+      const response = await apiClient.post('/admin/users/assign-role', { userId, role });
+      return response.data;
+    } catch (error) {
+      console.error("Error assigning user role:", error);
+      throw error;
+    }
+  },
+
+  deleteUser: async (userId) => {
+    try {
+      const response = await apiClient.delete(`/admin/delete/${userId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      throw error;
+    }
   }
 };
 

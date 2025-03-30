@@ -20,6 +20,14 @@ const User = sequelize.define("User", {
     type: DataTypes.STRING(255),
     allowNull: false
   },
+  Birthdate: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+  Gender: {
+    type: DataTypes.ENUM("Male", "Female", "Other"),
+    allowNull: true
+  },
   // Hoặc để null/pending nếu cần
   Role: {
     type: DataTypes.ENUM("Admin", "Tutor", "Student"),

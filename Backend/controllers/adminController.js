@@ -1,72 +1,65 @@
-const { User, Meeting, Notification, Document, Blog, Comment } = require("../models");
+const User = require("../models/user");
+const Student = require("../models/student");
+const Tutor = require("../models/tutor");
 const bcrypt = require("bcrypt");
-
-// Middleware kiểm tra quyền Admin
-const isAdmin = (req, res, next) => {
-    if (req.user.role !== "admin") {
-        return res.status(403).json({ message: "Unauthorized access! Only admins are allowed." });
-    }
-    next();
-};
 
 // 🔥 Lấy danh sách tất cả người dùng
 exports.getAllUsers = async (req, res) => {
     try {
-        const users = await User.findAll({ attributes: { exclude: ["password"] } });
+        const users = await User.findAll({ 
+            attributes: { exclude: ["Password"] }
+        });
         res.status(200).json(users);
     } catch (error) {
         res.status(500).json({ message: "Error fetching users", error: error.message });
     }
 };
 
-// 🔥 Thêm Admin mới
-exports.createAdmin = async (req, res) => {
+// 🔥 Lấy danh sách người dùng chờ duyệt (Role = null)
+exports.getPendingUsers = async (req, res) => {
     try {
-        const { name, email, password } = req.body;
-
-        // Kiểm tra nếu Admin đã tồn tại
-        const existingAdmin = await User.findOne({ where: { email, role: "admin" } });
-        if (existingAdmin) {
-            return res.status(400).json({ message: "Admin already exists" });
-        }
-
-        // Mã hóa mật khẩu
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Tạo Admin mới
-        const newAdmin = await User.create({
-            name,
-            email,
-            password: hashedPassword,
-            role: "admin"
+        const pendingUsers = await User.findAll({ 
+            where: { Role: null },
+            attributes: { exclude: ["Password"] } 
         });
-
-        res.status(201).json({ message: "Admin created successfully", admin: newAdmin });
+        res.status(200).json(pendingUsers);
     } catch (error) {
-        res.status(500).json({ message: "Error creating admin", error: error.message });
+        res.status(500).json({ message: "Error fetching pending users", error: error.message });
     }
 };
 
-// 🔥 Chỉnh sửa thông tin người dùng (Chỉ Admin)
-exports.updateUser = async (req, res) => {
+// 🔥 Phê duyệt người dùng và gán vai trò
+exports.assignUserRole = async (req, res) => {
     try {
-        const { id } = req.params;
-        const { name, email, role } = req.body;
-
-        const user = await User.findByPk(id);
+        const { userId, role } = req.body;
+        
+        if (!userId || !role) {
+            return res.status(400).json({ message: "User ID and role are required" });
+        }
+        
+        // Validate role is one of the allowed values
+        if (!["Admin", "Tutor", "Student"].includes(role)) {
+            return res.status(400).json({ message: "Invalid role. Must be Admin, Tutor, or Student" });
+        }
+        
+        const user = await User.findByPk(userId);
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
-
-        // Cập nhật thông tin
-        user.name = name || user.name;
-        user.email = email || user.email;
-        user.role = role || user.role;
-        await user.save();
-
-        res.status(200).json({ message: "User updated successfully", user });
+        
+        // Handle role change
+        await handleRoleChange(user, role);
+        
+        // Remove password from response
+        const userResponse = user.toJSON();
+        delete userResponse.Password;
+        
+        res.status(200).json({ 
+            message: `User role updated successfully to ${role}`, 
+            user: userResponse
+        });
     } catch (error) {
-        res.status(500).json({ message: "Error updating user", error: error.message });
+        res.status(500).json({ message: "Error assigning user role", error: error.message });
     }
 };
 
@@ -80,6 +73,13 @@ exports.deleteUser = async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
+        // If user is a Student or Tutor, delete those records first
+        if (user.Role === "Student") {
+            await Student.destroy({ where: { UserID: user.UserID } });
+        } else if (user.Role === "Tutor") {
+            await Tutor.destroy({ where: { UserID: user.UserID } });
+        }
+
         await user.destroy();
         res.status(200).json({ message: "User deleted successfully" });
     } catch (error) {
@@ -87,52 +87,33 @@ exports.deleteUser = async (req, res) => {
     }
 };
 
-// 🔥 Lấy danh sách tất cả Meetings
-exports.getAllMeetings = async (req, res) => {
-    try {
-        const meetings = await Meeting.findAll();
-        res.status(200).json(meetings);
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching meetings", error: error.message });
+// Helper function to handle role changes
+async function handleRoleChange(user, newRole) {
+    const oldRole = user.Role;
+    
+    // If user already has a role, clean up old role data
+    if (oldRole === "Student") {
+        await Student.destroy({ where: { UserID: user.UserID } });
+    } else if (oldRole === "Tutor") {
+        await Tutor.destroy({ where: { UserID: user.UserID } });
     }
-};
-
-// 🔥 Lấy danh sách tất cả Notifications
-exports.getAllNotifications = async (req, res) => {
-    try {
-        const notifications = await Notification.findAll();
-        res.status(200).json(notifications);
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching notifications", error: error.message });
+    
+    // Set the new role
+    user.Role = newRole;
+    await user.save();
+    
+    // Create corresponding records based on new role
+    if (newRole === "Student") {
+        await Student.create({
+            UserID: user.UserID,
+            Role: "Regular" // Default role for students
+        });
+    } else if (newRole === "Tutor") {
+        await Tutor.create({
+            UserID: user.UserID,
+            Fix: "General" // Default specialization
+        });
     }
-};
-
-// 🔥 Lấy danh sách tất cả Documents
-exports.getAllDocuments = async (req, res) => {
-    try {
-        const documents = await Document.findAll();
-        res.status(200).json(documents);
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching documents", error: error.message });
-    }
-};
-
-// 🔥 Lấy danh sách tất cả Blogs
-exports.getAllBlogs = async (req, res) => {
-    try {
-        const blogs = await Blog.findAll();
-        res.status(200).json(blogs);
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching blogs", error: error.message });
-    }
-};
-
-// 🔥 Lấy danh sách tất cả Comments
-exports.getAllComments = async (req, res) => {
-    try {
-        const comments = await Comment.findAll();
-        res.status(200).json(comments);
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching comments", error: error.message });
-    }
-};
+    
+    return user;
+}

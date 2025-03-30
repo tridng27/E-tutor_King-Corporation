@@ -35,14 +35,17 @@ const authenticateUser = async (req, res, next) => {
     }
 };
 
-
 // Middleware kiểm tra quyền Admin
 const isAdmin = (req, res, next) => {
-    if (req.user.role !== "Admin") {
+    console.log("User in isAdmin middleware:", req.user);
+    console.log("User role:", req.user.dataValues.Role);
+    
+    if (req.user.dataValues.Role !== "Admin") {
         return res.status(403).json({ message: "Unauthorized! Admins only." });
     }
     next();
 };
+
 
 // Middleware kiểm tra quyền Tutor
 const isTutor = async (req, res, next) => {
