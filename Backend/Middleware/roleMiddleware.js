@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { User, Student, Admin, Tutor } = require("../models");
+const { User, Student, Admin, Tutor, Tutor, Resource } = require("../models");
 
 // Middleware xác thực JWT và lấy thông tin user từ token
 const authenticateUser = async (req, res, next) => {
@@ -117,4 +117,53 @@ const isStudent = async (req, res, next) => {
 };
 
 
-module.exports = { authenticateUser, isAdmin, isTutor, isStudent };
+// Middleware kiểm tra quyền chỉnh sửa resource
+const canModifyResource = async (req, res, next) => {
+    try {
+        const resourceId = req.params.id;
+        const userRole = req.user.dataValues.Role;
+        
+        // Admin có thể chỉnh sửa mọi resource
+        if (userRole === "Admin") {
+            return next();
+        }
+        
+        // Nếu không phải Admin, kiểm tra xem user có phải là Tutor không
+        if (userRole !== "Tutor") {
+            return res.status(403).json({ message: "Unauthorized! Only Admins and Tutors can modify resources." });
+        }
+        
+        // Lấy TutorID của user hiện tại
+        const tutor = await Tutor.findOne({ where: { UserID: req.user.dataValues.UserID } });
+        if (!tutor) {
+            return res.status(403).json({ message: "No tutor record found!" });
+        }
+        
+        // Lấy thông tin resource
+        const resource = await Resource.findByPk(resourceId);
+        if (!resource) {
+            return res.status(404).json({ message: "Resource not found!" });
+        }
+        
+        // Kiểm tra xem Tutor có phải là người tạo resource không
+        if (resource.TutorID !== tutor.TutorID) {
+            return res.status(403).json({ message: "Unauthorized! You can only modify your own resources." });
+        }
+        
+        // Gán TutorID vào req.user để sử dụng trong controller
+        req.user.TutorID = tutor.TutorID;
+        
+        next();
+    } catch (error) {
+        console.error("Error in canModifyResource middleware:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+module.exports = { 
+    authenticateUser, 
+    isAdmin, 
+    isTutor, 
+    isStudent, 
+    canModifyResource
+};
