@@ -57,6 +57,17 @@ const apiService = {
   // Lấy thông tin điểm số và điểm danh của học sinh
   getStudentPerformance: (UserID) => apiClient.get(`/students/${UserID}/performance`),
   
+  // File upload with multipart/form-data
+    uploadFile: (url, formData, config = {}) => {
+      return apiClient.post(url, formData, {
+        ...config,
+        withCredentials: true,
+        headers: {
+          ...config.headers,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+    },
 };
 
 export default apiService;
