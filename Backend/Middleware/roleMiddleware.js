@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { User, Student, Tutor, Admin, Resource } = require("../models");
+const { User, Student, Admin, Tutor, Resource } = require("../models");
 
 // Middleware xác thực JWT và lấy thông tin user từ token
 const authenticateUser = async (req, res, next) => {
