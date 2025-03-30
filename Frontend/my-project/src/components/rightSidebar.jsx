@@ -1,68 +1,112 @@
-import React from 'react';
+import { useEffect, useState, useContext } from "react";
+import { FaPlus, FaEdit } from "react-icons/fa";
+import apiService from "../services/apiService";
+import ClassInformation from "./classInformation";
+import { GlobalContext } from "../context/GlobalContext"; // Import GlobalContext
 
 function RightSidebar() {
+    const { user } = useContext(GlobalContext); // Lấy user từ context
+    const [classes, setClasses] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [editingClass, setEditingClass] = useState(null);
+    const [showClassForm, setShowClassForm] = useState(false);
 
-  return (
-    <div className="w-1/5 bg-gray-100 p-6 " >
-        <h3 className="text-lg font-bold">Upcoming Classes</h3>
-        <div className="mt-4 space-y-3">
-            <div className="flex items-center space-x-3 rounded-lg">
-                <span className="bg-blue-400 p-2 rounded-full"></span>
-                    <div>
-                        <p className="font-bold text-sm">Mathematics 101</p>
-                        <p className="text-xs">Today, 10:30AM</p>
-                    </div>
-            </div>
-            <div className="flex items-center space-x-3 rounded-lg">
-                <span className="bg-green-400 p-2 rounded-full"></span>
-                    <div>
-                        <p className="font-bold text-sm">Programming Lab</p>
-                        <p className="text-xs">Today, 02:00PM</p>
-                    </div>
-            </div>
-        </div>
+    useEffect(() => {
+        fetchClasses();
+    }, []);
 
-        <h3 className="text-lg font-bold mt-6">Recent Grades</h3>
-        <div className="mt-4 space-y-3">
-            <div className="flex items-center space-x-3">
-                <span className="bg-purple-300 p-2 rounded-full"></span>
-                    <div>
-                        <p className="font-bold text-sm">Quiz 2: 85%</p>
-                        <p className="text-xs">Mathematics 101</p>
-                    </div>
+    const fetchClasses = async () => {
+        try {
+            const response = await apiService.get("/classes");
+            setClasses(response.data);
+        } catch (error) {
+            console.error("Error fetching classes:", error);
+        }
+    };
+
+    const handleDeleteClass = async (ClassID) => {
+        try {
+            await apiService.delete(`/classes/${ClassID}`);
+            fetchClasses();
+        } catch (error) {
+            console.error("Error deleting class:", error);
+        }
+    };
+
+    const handleAddClass = async (newClass) => {
+        try {
+            const response = await apiService.post("/classes", newClass);
+            setClasses([...classes, response.data]);
+            setShowClassForm(false);
+        } catch (error) {
+            console.error("Error adding class:", error);
+        }
+    };
+
+    const handleUpdateClass = async (updatedClass) => {
+        try {
+            await apiService.put(`/classes/${updatedClass.ClassID}`, updatedClass);
+            fetchClasses();
+            setEditingClass(null); // Đóng form sau khi cập nhật thành công
+        } catch (error) {
+            console.error("Error updating class:", error);
+        }
+    };
+
+    return (
+        <div className="w-1/5 bg-gray-100 p-6">
+            <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-bold">Classes</h3>
+                {user?.Role === "Admin" && (<button onClick={() => { setShowClassForm(true); setEditingClass(null); }} className="text-blue-500 text-lg">
+                        <FaPlus />
+                    </button>
+                )}
             </div>
-            <div className="flex items-center space-x-3">
-                <span className="bg-green-300 p-2 rounded-full"></span>
-                <div>
-                    <p className="font-bold text-sm">Homework #2: 92%</p>
-                    <p className="text-xs">Programming</p>
-                </div>
-            </div>
-        </div>
-                
-        <h3 className="text-lg font-bold mt-6">View Class</h3>
+
+            <input
+                type="text"
+                placeholder="Search classes..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full p-2 border rounded-lg mb-4"
+            />
+
             <div className="mt-4 space-y-3">
-                <div className="flex items-center space-x-3">
-                    <span className="bg-purple-300 p-2 rounded-full"></span>
-                        <div>
-                            <p className="font-bold text-sm">GCH1 - Security</p>
+                {classes
+                    .filter((classItem) => classItem.Name.toLowerCase().includes(searchTerm.toLowerCase()))
+                    .map((classItem) => (
+                        <div key={classItem.ClassID} className="flex justify-between items-center p-2 bg-white shadow rounded-lg">
+                            <p className="font-bold text-sm">{classItem.Name}</p>
+                            {user?.Role === "Admin" && (
+                                <div>
+                                    <button
+                                        onClick={() => {setEditingClass(classItem); setShowClassForm(true);}}
+                                        className="text-yellow-500 text-lg mr-2"
+                                    >
+                                        <FaEdit />
+                                    </button>
+                                    <button
+                                        onClick={() => handleDeleteClass(classItem.ClassID)}
+                                        className="text-red-500 text-lg"
+                                    >
+                                        ✖
+                                    </button>
+                                </div>
+                            )}
                         </div>
-                </div>
-                    <div className="flex items-center space-x-3">
-                        <span className="bg-green-300 p-2 rounded-full"></span>
-                        <div>
-                            <p className="font-bold text-sm">GCH2 - Game Dev</p>
-                        </div>
-                    </div>
-                </div>
-        <h3 className="text-lg font-bold mt-6">Study Resources</h3>
-        <div className="mt-4 space-y-2">
-            <a href="#" className="block text-blue-500 hover:underline">Mathematics Textbook</a>
-            <a href="#" className="block text-blue-500 hover:underline">Programming Reference</a>
-            <a href="#" className="block text-blue-500 hover:underline">Physics Lab Manual</a>
-        </div>        
-    </div>
-  );
+                    ))}
+            </div>
+            {/* Hiển thị form nhập lớp học khi nhấn Add/Edit */}
+            {showClassForm && (
+                <ClassInformation 
+                    onClose={() => { setShowClassForm(false); setEditingClass(null); }} 
+                    onAddClass={handleAddClass} 
+                    onUpdateClass={handleUpdateClass}
+                    editingClass={editingClass}
+                />
+            )}
+        </div>
+    );
 }
 
 export default RightSidebar;

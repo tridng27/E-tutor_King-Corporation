@@ -5,6 +5,7 @@ import { Chart } from "react-google-charts";
 import apiService from "../../services/apiService";
 
 function Dashboard() {
+    const [studentId] = useState(1);
     const [scoreChartData, setScoreChartData] = useState([
         ["Subject", "Score"], // Header cho biểu đồ điểm số
     ]);
@@ -14,7 +15,8 @@ function Dashboard() {
     useEffect(() => {
         const fetchPerformanceData = async () => {
             try {
-                const studentId = 1; // Thay bằng studentId thực tế
+                // const studentId = 1; // Thay bằng studentId thực tế
+
                 const response = await apiService.get(`/students/${studentId}/performance`);
 
                 console.log("API Response:", response.data); // Debug dữ liệu API
@@ -41,7 +43,7 @@ function Dashboard() {
         };
     
         fetchPerformanceData();
-    }, []);
+    }, [studentId]);
     
 
     return (

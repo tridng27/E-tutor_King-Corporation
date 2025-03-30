@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { User, Student, Tutor, Resource } = require("../models");
+const { User, Student, Admin, Tutor, Tutor, Resource } = require("../models");
 
 // Middleware xác thực JWT và lấy thông tin user từ token
 const authenticateUser = async (req, res, next) => {
@@ -36,14 +36,30 @@ const authenticateUser = async (req, res, next) => {
 };
 
 // Middleware kiểm tra quyền Admin
-const isAdmin = (req, res, next) => {
-    console.log("User in isAdmin middleware:", req.user);
-    console.log("User role:", req.user.dataValues.Role);
-    
-    if (req.user.dataValues.Role !== "Admin") {
-        return res.status(403).json({ message: "Unauthorized! Admins only." });
+const isAdmin = async (req, res, next) => {
+    try {
+        console.log("User object in isAmin middleware:", req.user);
+
+        if (!req.user || req.user.dataValues.Role !== "Admin") {
+            console.log("Access Denied! User role:", req.user?.dataValues?.Role);
+            return res.status(403).json({ message: "Unauthorized! Admins only." });
+        }
+
+        // Tìm AdminID từ bảng Admins
+        const admin = await Admin.findOne({ where: { UserID: req.user.dataValues.UserID } });
+        if (!admin) {
+            return res.status(403).json({ message: "No admin record found!" });
+        }
+
+        // Gán `AdminID` vào `req.user`
+        req.user.AdminID = admin.AdminID;
+
+        console.log("Access Granted! AdminID:", req.user.AdminID);
+        next();
+    } catch (error) {
+        console.error("Error in isAdmin middleware:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
     }
-    next();
 };
 
 
@@ -101,13 +117,6 @@ const isStudent = async (req, res, next) => {
     }
 };
 
-// Middleware chỉ cho phép Admin & Tutor
-const isAdminOrTutor = (req, res, next) => {
-    if (req.user.dataValues.Role !== "Admin" && req.user.dataValues.Role !== "Tutor") {
-        return res.status(403).json({ message: "Unauthorized! Only Admins and Tutors can access this." });
-    }
-    next();
-};
 
 // Middleware kiểm tra quyền chỉnh sửa resource
 const canModifyResource = async (req, res, next) => {
@@ -157,6 +166,5 @@ module.exports = {
     isAdmin, 
     isTutor, 
     isStudent, 
-    isAdminOrTutor,
     canModifyResource
 };
