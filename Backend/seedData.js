@@ -5,11 +5,12 @@ const Tutor = require("./models/tutor");
 const Student = require("./models/student");
 const Subject = require("./models/subject");
 const StudentSubject = require("./models/studentsubject");
+const Class = require("./models/class");
 const bcrypt = require("bcrypt");
 
 const seed = async () => {
   try {
-    await sequelize.sync({ alter: true }); // Giữ dữ liệu cũ, chỉ cập nhật nếu cần
+    await sequelize.sync({ force: true }); // Xóa và tạo lại bảng
     console.log("✅ Database synced!");
 
     // 👉 Kiểm tra và tạo Admin nếu chưa có
@@ -21,6 +22,8 @@ const seed = async () => {
         Password: adminPassword,
         Name: "Admin User",
         Role: "Admin",
+        Birthdate: "2001-08-20",
+        Gender: "Male"
       });
       await Admin.create({ UserID: adminUser.UserID, Supervision: "All" });
       console.log("✅ Admin user created!");
@@ -35,6 +38,8 @@ const seed = async () => {
         Password: tutorPassword,
         Name: "Tutor User",
         Role: "Tutor",
+        Birthdate: "2000-09-28",
+        Gender: "Male"
       });
       await Tutor.create({ UserID: tutorUser.UserID, Fix: "Math" });
       console.log("✅ Tutor user created!");
@@ -50,8 +55,10 @@ const seed = async () => {
         Password: studentPassword,
         Name: "Student User",
         Role: "Student",
+        Birthdate: "2005-11-30",
+        Gender: "Male"
       });
-      await Student.create({ UserID: studentUser.UserID });
+      await Student.create({ UserID: studentUser.UserID, Role: "Student" });
       console.log("✅ Student user created!");
     } else {
       studentUser = studentExists;
@@ -77,6 +84,23 @@ const seed = async () => {
           defaults: { Score: Math.floor(Math.random() * 100), Attendance: Math.floor(Math.random() * 100) },
         });
         console.log(`✅ Score and attendance added for ${subject.SubjectName}`);
+      }
+    }
+    const classes = [
+      { Name: "Math 101" },
+      { Name: "Physics 202" },
+      { Name: "Chemistry 303" },
+    ];
+    
+    for (const classData of classes) {
+      const [classInstance, created] = await Class.findOrCreate({
+        where: { Name: classData.Name },
+        defaults: classData,
+      });
+      if (created) {
+        console.log(`✅ Class ${classInstance.Name} added!`);
+      } else {
+        console.log(`⚠️ Class ${classInstance.Name} already exists.`);
       }
     }
 
