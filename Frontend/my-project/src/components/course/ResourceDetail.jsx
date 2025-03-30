@@ -102,10 +102,13 @@ function ResourceDetail() {
             <div className="p-8 flex flex-col md:flex-row items-start justify-between rounded-lg">
               <div className="max-w-lg">
                 <p className="uppercase text-sm font-semibold tracking-wide text-gray-700">Course</p>
-                <h1 className="text-4xl font-bold text-gray-900 mt-2">Learn Explainable AI</h1>
+                <h1 className="text-4xl font-bold text-gray-900 mt-2">{resource?.title || "Learn Explainable AI"}</h1>
                 <p className="text-gray-700 mt-4">Uploaded by: {resource?.tutorId === null ? "Admin (System)" : resource?.tutorName}</p>
                 <p className="text-gray-700 text-sm">{resource?.uploadDate ? new Date(resource.uploadDate).toLocaleDateString() : 'Unknown'}</p>
-                <button className="mt-6 bg-indigo-600 text-white px-6 py-3 rounded-md text-lg font-semibold hover:bg-indigo-700 transition">
+                <button 
+                  onClick={handleDownload}
+                  className="mt-6 bg-indigo-600 text-white px-6 py-3 rounded-md text-lg font-semibold hover:bg-indigo-700 transition"
+                >
                   Start
                 </button>
               </div>

@@ -9,7 +9,7 @@ import StudentDashboard from "./pages/student/Dashboard";
 import Lesson from "./pages/tutor/Lesson"
 import Class from "./pages/Class";
 import Course from "./pages/Course";
-import Timetable from "./pages/admin/Timetable";
+import Timetable from "./pages/user/Timetable";
 import Social from "./pages/user/Social";
 import MeetingPage from "./pages/meeting/MeetingPage";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -17,6 +17,7 @@ import Notfound from "./pages/Notfound";
 import Unauthorized from "./pages/Unauthorized";
 import ResourceDetail from "./components/course/ResourceDetail";
 import ResourceForm from "./components/course/ResourceForm";
+import AdminPage from "./pages/admin/AdminPage"; // Add this import
 
 function App() {
   return (
@@ -36,6 +37,16 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['Admin']}>
                 <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          
+          {/* Add new Admin Page route */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute allowedRoles={['Admin']}>
+                <AdminPage />
               </ProtectedRoute>
             }
           />

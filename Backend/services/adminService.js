@@ -6,9 +6,11 @@ const { User } = require('../models');
  */
 const getPendingUsers = async () => {
   return await User.findAll({
-    where: { Role: Pending }, // hoặc nếu bạn dùng chuỗi 'Pending' thay cho null\n    attributes: ['UserID', 'Email', 'Name', 'RegisterDate']
+    where: { Role: null }, // Changed from 'Pending' to null
+    attributes: ['UserID', 'Email', 'Name', 'RegisterDate']
   });
 };
+
 
 /**
  * Phân quyền cho user.
