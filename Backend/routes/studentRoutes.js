@@ -1,36 +1,34 @@
 const express = require("express");
-const { authenticateUser, isStudent, isAdminOrTutor } = require("../middleware/roleMiddleware");
-const { getStudentProfile, updateStudentProfile, getScores, getAttendance, getStudentPerformance } = require("../controllers/studentController");
+const { authenticateUser, isStudent, isAdmin, isTutor } = require("../middleware/roleMiddleware");
+const { getAllStudents,
+        getStudentById,
+        createStudent,
+        updateStudent,
+        deleteStudent,
+        getStudentPerformance } = require("../controllers/studentController");
 
 const router = express.Router();
 
 // 📌 Middleware xác thực người dùng (áp dụng cho tất cả route)
 router.use(authenticateUser);
 
-// 📌 Student tự xem thông tin của mình
-router.get("/profile", isStudent, getStudentProfile);
-router.put("/update", isStudent, updateStudentProfile);
+// Lấy danh sách học sinh
+router.get("/", getAllStudents);
 
-// 📌 Student có thể xem điểm số & điểm danh của mình
-router.get("/scores", isStudent, getScores);
-router.get("/attendance", isStudent, getAttendance);
-router.get("/:id/performance", isStudent, getStudentPerformance);
+// Lấy thông tin học sinh theo ID
+router.get("/:UserID", getStudentById);
 
-// 📌 Admin hoặc Tutor có thể xem điểm số & điểm danh của học sinh
-router.get("/:studentId/scores", isAdminOrTutor, (req, res, next) => {
-  const { studentId } = req.params;
-  if (isNaN(studentId)) {
-    return res.status(400).json({ message: "Invalid student ID!" });
-  }
-  next();
-}, getScores);
+// Tạo học sinh mới
+router.post("/",isAdmin, createStudent);
 
-router.get("/:studentId/attendance", isAdminOrTutor, (req, res, next) => {
-  const { studentId } = req.params;
-  if (isNaN(studentId)) {
-    return res.status(400).json({ message: "Invalid student ID!" });
-  }
-  next();
-}, getAttendance);
+// Cập nhật thông tin học sinh
+router.put("/:UserID",isAdmin, updateStudent);
+
+// Xóa học sinh
+router.delete("/:UserID",isAdmin, deleteStudent);
+
+// 📌 xem điểm số & điểm danh
+router.get("/:id/performance",isStudent, getStudentPerformance);
+
 
 module.exports = router;

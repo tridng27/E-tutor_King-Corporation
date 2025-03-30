@@ -14,121 +14,60 @@ const apiService = {
   put: (url, data, config = {}) => apiClient.put(url, data, { ...config, withCredentials: true }),
   delete: (url, config = {}) => apiClient.delete(url, { ...config, withCredentials: true }),
 
+  // Lấy danh sách lớp học
+  getAllClasses: () => apiClient.get('/classes').then(res => res.data),
+  
+  // Lấy thông tin lớp học theo ID
+  getClassById: (classId) => apiClient.get(`/classes/${classId}`),
+  
+  // Tạo lớp học mới
+  createClass: (classData) => apiClient.post('/classes', classData),
+  
+  // Cập nhật thông tin lớp học
+  updateClass: (classId, classData) => apiClient.put(`/classes/${classId}`, classData),
+  
+  // Xóa lớp học
+  deleteClass: (classId) => apiClient.delete(`/classes/${classId}`),
+  
+  // Lấy danh sách học sinh
+  getAllStudents: () => apiClient.get('/students').then(res => res.data),
+  
+  // Lấy thông tin học sinh theo ID
+  getStudentById: (UserID) => apiClient.get(`/students/${UserID}`),
+  
+  // Tạo học sinh mới (chỉ dành cho Admin)
+  createStudent: (studentData) => {
+    // Validate dữ liệu trước khi gửi
+    const requiredFields = ['Name', 'Email', 'Password', 'Birthdate', 'Gender'];
+    const missingFields = requiredFields.filter(field => !studentData[field]);
+    
+    if (missingFields.length > 0) {
+      return Promise.reject(new Error(`Thiếu trường bắt buộc: ${missingFields.join(', ')}`));
+    }
+    
+    return apiClient.post('/students', studentData);
+  },
+  
+  // Cập nhật thông tin học sinh (chỉ dành cho Admin)
+  updateStudent: (UserID, studentData) => apiClient.put(`/students/${UserID}`, studentData),
+
+  // Xóa học sinh (chỉ dành cho Admin)
+  deleteStudent: (UserID) => apiClient.delete(`/students/${UserID}`).then(res => res.data),
+
+  // Lấy thông tin điểm số và điểm danh của học sinh
+  getStudentPerformance: (UserID) => apiClient.get(`/students/${UserID}/performance`),
+  
   // File upload with multipart/form-data
-  uploadFile: (url, formData, config = {}) => {
-    return apiClient.post(url, formData, {
-      ...config,
-      withCredentials: true,
-      headers: {
-        ...config.headers,
-        'Content-Type': 'multipart/form-data'
-      }
-    });
-  },
-
-  // Student performance
-  getStudentPerformance: async (studentID) => {
-    try {
-      const response = await apiClient.get(`/students/${studentID}/performance`);
-      return response.data;
-    } catch (error) {
-      console.error("Lỗi khi lấy dữ liệu điểm số:", error);
-      return null;
-    }
-  },
-
-  // Resource management
-  getResources: async () => {
-    try {
-      const response = await apiClient.get('/resources');
-      return response.data;
-    } catch (error) {
-      console.error("Error fetching resources:", error);
-      throw error;
-    }
-  },
-
-  getResourceById: async (id) => {
-    try {
-      const response = await apiClient.get(`/resources/${id}`);
-      return response.data;
-    } catch (error) {
-      console.error(`Error fetching resource ${id}:`, error);
-      throw error;
-    }
-  },
-
-  createResource: async (formData) => {
-    try {
-      const data = new FormData();
-      // Changed from 'name' to 'title' to match backend expectations
-      data.append('title', formData.title);
-      data.append('description', formData.description);
-      
-      if (formData.pdfFile) {
-        // Changed from 'file' to 'pdfFile' to match multer field name in backend
-        data.append('pdfFile', formData.pdfFile);
-      }
-      
-      const response = await apiService.uploadFile('/resources', data);
-      return response.data;
-    } catch (error) {
-      console.error("Error creating resource:", error);
-      throw error;
-    }
-  },
-
-  updateResource: async (id, formData) => {
-    try {
-      const data = new FormData();
-      // Changed from 'name' to 'title' to match backend expectations
-      data.append('title', formData.title);
-      data.append('description', formData.description);
-      
-      if (formData.pdfFile) {
-        // Changed from 'file' to 'pdfFile' to match multer field name in backend
-        data.append('pdfFile', formData.pdfFile);
-      }
-      
-      const response = await apiService.uploadFile(`/resources/${id}`, data);
-      return response.data;
-    } catch (error) {
-      console.error(`Error updating resource ${id}:`, error);
-      throw error;
-    }
-  },
-
-  deleteResource: async (id) => {
-    try {
-      const response = await apiClient.delete(`/resources/${id}`);
-      return response.data;
-    } catch (error) {
-      console.error(`Error deleting resource ${id}:`, error);
-      throw error;
-    }
-  },
-
-  downloadResource: async (id, filename) => {
-    try {
-      const response = await apiClient.get(`/resources/${id}/download`, {
-        responseType: 'blob' // Important for file downloads
+    uploadFile: (url, formData, config = {}) => {
+      return apiClient.post(url, formData, {
+        ...config,
+        withCredentials: true,
+        headers: {
+          ...config.headers,
+          'Content-Type': 'multipart/form-data'
+        }
       });
-      
-      // Create a download link and trigger it
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `${filename || 'resource'}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      
-      return true;
-    } catch (error) {
-      console.error(`Error downloading resource ${id}:`, error);
-      throw error;
-    }
-  }
+    },
 };
 
 export default apiService;

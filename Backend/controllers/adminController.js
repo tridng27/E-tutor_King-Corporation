@@ -1,13 +1,5 @@
-const { User, Meeting, Notification, Document, Blog, Comment } = require("../models");
+const User = require("../models");
 const bcrypt = require("bcrypt");
-
-// Middleware kiểm tra quyền Admin
-const isAdmin = (req, res, next) => {
-    if (req.user.role !== "admin") {
-        return res.status(403).json({ message: "Unauthorized access! Only admins are allowed." });
-    }
-    next();
-};
 
 // 🔥 Lấy danh sách tất cả người dùng
 exports.getAllUsers = async (req, res) => {
@@ -25,7 +17,7 @@ exports.createAdmin = async (req, res) => {
         const { name, email, password } = req.body;
 
         // Kiểm tra nếu Admin đã tồn tại
-        const existingAdmin = await User.findOne({ where: { email, role: "admin" } });
+        const existingAdmin = await User.findOne({ where: { email, role: "Admin" } });
         if (existingAdmin) {
             return res.status(400).json({ message: "Admin already exists" });
         }
@@ -38,7 +30,7 @@ exports.createAdmin = async (req, res) => {
             name,
             email,
             password: hashedPassword,
-            role: "admin"
+            role: "Admin"
         });
 
         res.status(201).json({ message: "Admin created successfully", admin: newAdmin });
@@ -84,55 +76,5 @@ exports.deleteUser = async (req, res) => {
         res.status(200).json({ message: "User deleted successfully" });
     } catch (error) {
         res.status(500).json({ message: "Error deleting user", error: error.message });
-    }
-};
-
-// 🔥 Lấy danh sách tất cả Meetings
-exports.getAllMeetings = async (req, res) => {
-    try {
-        const meetings = await Meeting.findAll();
-        res.status(200).json(meetings);
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching meetings", error: error.message });
-    }
-};
-
-// 🔥 Lấy danh sách tất cả Notifications
-exports.getAllNotifications = async (req, res) => {
-    try {
-        const notifications = await Notification.findAll();
-        res.status(200).json(notifications);
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching notifications", error: error.message });
-    }
-};
-
-// 🔥 Lấy danh sách tất cả Documents
-exports.getAllDocuments = async (req, res) => {
-    try {
-        const documents = await Document.findAll();
-        res.status(200).json(documents);
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching documents", error: error.message });
-    }
-};
-
-// 🔥 Lấy danh sách tất cả Blogs
-exports.getAllBlogs = async (req, res) => {
-    try {
-        const blogs = await Blog.findAll();
-        res.status(200).json(blogs);
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching blogs", error: error.message });
-    }
-};
-
-// 🔥 Lấy danh sách tất cả Comments
-exports.getAllComments = async (req, res) => {
-    try {
-        const comments = await Comment.findAll();
-        res.status(200).json(comments);
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching comments", error: error.message });
     }
 };
