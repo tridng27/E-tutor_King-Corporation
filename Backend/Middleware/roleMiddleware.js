@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { User, Student, Admin, Tutor, Tutor, Resource } = require("../models");
+const { User, Student, Tutor, Admin, Resource } = require("../models");
 
 // Middleware xác thực JWT và lấy thông tin user từ token
 const authenticateUser = async (req, res, next) => {
@@ -38,7 +38,7 @@ const authenticateUser = async (req, res, next) => {
 // Middleware kiểm tra quyền Admin
 const isAdmin = async (req, res, next) => {
     try {
-        console.log("User object in isAmin middleware:", req.user);
+        console.log("User object in isAdmin middleware:", req.user);
 
         if (!req.user || req.user.dataValues.Role !== "Admin") {
             console.log("Access Denied! User role:", req.user?.dataValues?.Role);
@@ -62,7 +62,6 @@ const isAdmin = async (req, res, next) => {
     }
 };
 
-
 // Middleware kiểm tra quyền Tutor
 const isTutor = async (req, res, next) => {
     try {
@@ -79,7 +78,7 @@ const isTutor = async (req, res, next) => {
             return res.status(403).json({ message: "No tutor record found!" });
         }
 
-        // Gán `TutorID` vào `req.user`
+        // Gán TutorID vào req.user
         req.user.TutorID = tutor.TutorID;
 
         console.log("Access Granted! TutorID:", req.user.TutorID);
@@ -106,7 +105,7 @@ const isStudent = async (req, res, next) => {
             return res.status(403).json({ message: "No student record found!" });
         }
 
-        // Gán `StudentID` vào `req.user`
+        // Gán StudentID vào req.user
         req.user.StudentID = student.StudentID;
 
         console.log("Access Granted! StudentID:", req.user.StudentID);
@@ -117,6 +116,13 @@ const isStudent = async (req, res, next) => {
     }
 };
 
+// Middleware chỉ cho phép Admin & Tutor
+const isAdminOrTutor = (req, res, next) => {
+    if (req.user.dataValues.Role !== "Admin" && req.user.dataValues.Role !== "Tutor") {
+        return res.status(403).json({ message: "Unauthorized! Only Admins and Tutors can access this." });
+    }
+    next();
+};
 
 // Middleware kiểm tra quyền chỉnh sửa resource
 const canModifyResource = async (req, res, next) => {
@@ -166,5 +172,6 @@ module.exports = {
     isAdmin, 
     isTutor, 
     isStudent, 
+    isAdminOrTutor,
     canModifyResource
 };

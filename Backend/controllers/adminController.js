@@ -15,45 +15,25 @@ exports.getAllUsers = async (req, res) => {
     }
 };
 
-// 🔥 Lấy danh sách người dùng chờ duyệt (Role = null)
+// 🔥 Lấy danh sách người dùng chờ duyệt (Role = null or 'Pending')
 exports.getPendingUsers = async (req, res) => {
     try {
-        const { name, email, password } = req.body;
-
-try {
-    // Kiểm tra nếu Admin đã tồn tại
-    const existingAdmin = await User.findOne({ where: { email, role: "Admin" } });
-    if (existingAdmin) {
-        return res.status(400).json({ message: "Admin already exists" });
-    }
-
-    // Mã hóa mật khẩu
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Tạo Admin mới
-    const newAdmin = await User.create({
-        name,
-        email,
-        password: hashedPassword,
-        role: "Admin"
-    });
-
-    // Lấy danh sách người dùng đang chờ xét duyệt
-    const pendingUsers = await User.findAll({ 
-        where: { role: null },
-        attributes: { exclude: ["password"] } 
-    });
-
-    res.status(201).json({ 
-        message: "Admin created successfully", 
-        admin: newAdmin, 
-        pendingUsers 
-    });
-} catch (error) {
-    res.status(500).json({ message: "Internal server error", error: error.message });
-}
+        console.log("Attempting to fetch pending users...");
+        
+        // Check what values are allowed in your Role enum
+        const pendingUsers = await User.findAll({ 
+            where: { Role: null }, // Changed from 'Pending' to null
+            attributes: ['UserID', 'Email', 'Name', 'RegisterDate']
+        });
+        
+        console.log("Pending users fetched successfully:", pendingUsers.length);
+        res.status(200).json(pendingUsers);
     } catch (error) {
-        res.status(500).json({ message: "Error fetching pending users", error: error.message });
+        console.error("Error in getPendingUsers:", error);
+        res.status(500).json({ 
+            message: "Error fetching pending users", 
+            error: error.message
+        });
     }
 };
 

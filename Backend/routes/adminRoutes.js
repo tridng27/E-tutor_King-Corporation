@@ -5,7 +5,7 @@ const {
     getPendingUsers, 
     assignUserRole
 } = require("../controllers/adminController");
-const { authenticateUser, isAdmin } = require("../middleware/roleMiddleware");
+const { authenticateUser, isAdmin } = require("../Middleware/roleMiddleware");
 
 const router = express.Router();
 
