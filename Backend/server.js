@@ -14,6 +14,7 @@ console.log("Models loaded in server.js:", Object.keys(db));
 const authRoutes = require("./routes/authRoutes");
 const studentRoutes = require("./routes/studentRoutes");
 const classRoutes = require("./routes/classRoutes");
+const classStudentRoutes = require("./routes/classstudentRoutes");
 const sequelize = require("./config/Database"); // Import database
 const postRoutes = require("./routes/postRoute");
 const uploadRoutes = require("./routes/uploadRoutes"); // Add this line to import upload routes
@@ -52,6 +53,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/classes", classRoutes);
+app.use("/api/class-students", classStudentRoutes);
 app.use("/api/upload", uploadRoutes); // Add this line to register upload routes
 app.use("/api/resources", resourceRoutes);
 app.use("/api/admin", adminRoutes); // Register admin routes

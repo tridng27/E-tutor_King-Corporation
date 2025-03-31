@@ -16,6 +16,7 @@ const Student = require('./student');
 const Subject = require('./subject');
 const Ticket = require('./ticket');
 const Tutor = require('./tutor');
+const ClassStudent = require('./classstudent');
 
 // Export
 module.exports = {
@@ -33,5 +34,6 @@ module.exports = {
   Student,
   Subject,
   Ticket,
-  Tutor
+  Tutor,
+  ClassStudent
 };
