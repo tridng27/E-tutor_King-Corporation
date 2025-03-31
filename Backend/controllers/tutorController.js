@@ -1,4 +1,5 @@
 const { Tutor, User, Student, Resource } = require("../models");
+const sequelize = require("../config/Database");
 const { Op } = require("sequelize");
 
 // Lấy danh sách gia sư (Chỉ admin)
@@ -8,46 +9,6 @@ exports.getAllTutors = async (req, res) => {
         res.status(200).json(tutors);
     } catch (error) {
         res.status(500).json({ message: "Error fetching tutors", error: error.message });
-    }
-};
-
-// Thêm gia sư (Chỉ admin)
-exports.createTutor = async (req, res) => {
-    try {
-        const { userId, fix } = req.body;
-
-        // Kiểm tra nếu tutor đã tồn tại
-        const existingTutor = await Tutor.findOne({ where: { userId } });
-        if (existingTutor) {
-            return res.status(400).json({ message: "Tutor already exists" });
-        }
-
-        const newTutor = await Tutor.create({ userId, fix });
-        res.status(201).json({ message: "Tutor created successfully", tutor: newTutor });
-    } catch (error) {
-        res.status(500).json({ message: "Creation failed", error: error.message });
-    }
-};
-
-// Xóa gia sư (Chỉ admin)
-exports.deleteTutor = async (req, res) => {
-    try {
-        const { id } = req.params;
-
-        // Chỉ admin có quyền xóa
-        if (req.user.role !== "admin") {
-            return res.status(403).json({ message: "Unauthorized access!" });
-        }
-
-        const tutor = await Tutor.findByPk(id);
-        if (!tutor) {
-            return res.status(404).json({ message: "Tutor not found" });
-        }
-
-        await tutor.destroy();
-        res.status(200).json({ message: "Tutor deleted successfully" });
-    } catch (error) {
-        res.status(500).json({ message: "Delete failed", error: error.message });
     }
 };
 
@@ -76,23 +37,84 @@ exports.getTutorProfile = async (req, res) => {
 };
 
 // Update tutor profile
-exports.updateTutorProfile = async (req, res) => {
+exports.updateTutor = async (req, res) => {
+    const transaction = await sequelize.transaction();
     try {
-        const tutorId = req.user.TutorID;
-        const { fix } = req.body;
-        
-        const tutor = await Tutor.findByPk(tutorId);
-        if (!tutor) {
-            return res.status(404).json({ message: "Tutor not found" });
-        }
-        
-        await tutor.update({ fix });
-        
-        res.status(200).json({ message: "Profile updated successfully", tutor });
+      // 1. Lấy UserID từ URL parameter và validate
+      const userID = parseInt(req.params.UserID);
+      if (isNaN(userID)) {
+        await transaction.rollback();
+        return res.status(400).json({ message: "UserID phải là số" });
+      }
+  
+      // 2. Lấy dữ liệu cập nhật từ body
+      const { Name, Email, Gender } = req.body;
+  
+      // 3. Tìm và cập nhật thông tin
+      const user = await User.findOne({
+        where: { 
+          UserID: userID, 
+          Role: "Tutor" 
+        },
+        include: [{
+          model: Tutor,
+          attributes: ['TutorID']
+        }],
+        transaction
+      });
+  
+      if (!user) {
+        await transaction.rollback();
+        return res.status(404).json({ message: "Không tìm thấy gia sư." });
+      }
+  
+      // Cập nhật thông tin User
+      await user.update({
+        Name: Name || user.Name,
+        Email: Email || user.Email,
+        Gender: Gender || user.Gender
+      }, { transaction });
+  
+      // Cập nhật thông tin Tutor (nếu có)
+      if (user.Tutor) {
+        await Tutor.update({
+          Subjects: Subjects || user.Tutor.Subjects,
+          Fix: Fix || user.Tutor.Fix
+        }, {
+          where: { TutorID: user.Tutor.TutorID },
+          transaction
+        });
+      }
+  
+      await transaction.commit();
+      
+      // 4. Trả về response
+      const updatedTutor = await User.findByPk(userID, {
+        include: [{
+          model: Tutor,
+          attributes: ['TutorID', 'Fix']
+        }],
+        attributes: ['UserID', 'Name', 'Email', 'Gender', 'RegisterDate']
+      });
+  
+      res.json({
+        message: "Cập nhật thông tin gia sư thành công!",
+        tutor: updatedTutor
+      });
     } catch (error) {
-        res.status(500).json({ message: "Update failed", error: error.message });
+      await transaction.rollback();
+      
+      if (error.name === 'SequelizeUniqueConstraintError') {
+        return res.status(400).json({ message: "Email đã tồn tại." });
+      }
+      
+      console.error("Lỗi khi cập nhật thông tin gia sư:", error);
+      res.status(500).json({ 
+        error: "Lỗi server",
+        details: error.message 
+      });
     }
-};
+  };
 
 // Get students assigned to tutor
 exports.getMyStudents = async (req, res) => {

@@ -80,7 +80,7 @@ function App() {
           />
           
           <Route
-            path="/class"
+            path="/class/:classId"
             element={
               <ProtectedRoute allowedRoles={[]}>
                 <Class />

@@ -1,6 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/Database");
 const Tutor = require("./tutor");
+const User = require("./user");
 
 const Class = sequelize.define("Class", {
   ClassID: {
@@ -14,6 +15,14 @@ const Class = sequelize.define("Class", {
     references: {
       model: Tutor,
       key: "TutorID"
+    }
+  },
+  UserID: { // Add the UserID field
+    type: DataTypes.BIGINT,
+    allowNull: true,
+    references: {
+      model: User, // Reference to the User model
+      key: "UserID"
     }
   },
   Name: {
