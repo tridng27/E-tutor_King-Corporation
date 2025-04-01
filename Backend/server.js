@@ -24,6 +24,9 @@ const adminRoutes = require("./routes/adminRoutes"); // Add admin routes
 const timetableRoutes = require("./routes/timetableRoutes"); // Add timetable routes
 const userRoutes = require("./routes/userRoutes"); // Add user routes
 const directMessageRoutes = require("./routes/directMessageRoutes"); // Add direct message routes
+const tutorRoutes = require("./routes/tutorRoutes"); // Add tutor routes
+const studentSubjectRoutes = require("./routes/studentSubjectRoutes"); // Add student subject routes
+const subjectRoutes = require("./routes/subjectRoutes");
 
 // Create email service
 const emailService = {
@@ -111,6 +114,9 @@ app.use("/api/admin", adminRoutes); // Register admin routes
 app.use("/api/timetables", timetableRoutes); // Register timetable routes
 app.use("/api/users", userRoutes); // Register user routes
 app.use("/api/messages", directMessageRoutes); // Register direct message routes
+app.use("/api/tutor", tutorRoutes); // Register tutor routes
+app.use("/api/studentsubjects", studentSubjectRoutes); // Register student subject routes
+app.use("/api/subjects", subjectRoutes);
 
 // Basic route
 app.get("/", (req, res) => {

@@ -1,19 +1,23 @@
 import { useEffect, useState } from "react";
 import RightSidebar from "../../components/rightSidebar";
 import Sidebar from "../../components/sidebar";
-import { Search, Plus, Edit2, Trash2 } from 'lucide-react';
+import { Search, Plus, Edit2, Trash2, BookOpen } from 'lucide-react';
 import apiService from "../../services/apiService";
 import StudentInformation from '../../components/studentInformation';
 import TutorInformation from '../../components/tutorInformation';
 import TutorClassList from '../../components/TutorClassList';
+import { Link } from "react-router-dom";
+import AssignSubjectForm from '../../components/admin/AssignSubjectForm';
 
 function Dashboard() {
     const [showStudentInfo, setShowStudentInfo] = useState(false);
     const [showTutorInfo, setShowTutorInfo] = useState(false);
     const [showTutorClassList, setShowTutorClassList] = useState(false);
+    const [showAssignSubjectModal, setShowAssignSubjectModal] = useState(false);
     const [students, setStudents] = useState([]);
     const [tutors, setTutors] = useState([]);
     const [currentTutor, setCurrentTutor] = useState(null);
+    const [selectedStudent, setSelectedStudent] = useState(null);
     const [tutorClasses, setTutorClasses] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [editingStudent, setEditingStudent] = useState(null);
@@ -77,7 +81,7 @@ function Dashboard() {
     };
 
     const filteredStudents = students.filter(student =>
-        student.Name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.Name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (student.Email && student.Email.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
@@ -156,12 +160,31 @@ function Dashboard() {
         }
     };
 
+    const handleManageSubjects = (student) => {
+        setSelectedStudent(student);
+        setShowAssignSubjectModal(true);
+    };
+
     return (
         <div className="relative">
             <div className="flex h-full">
                 <Sidebar/>
                
                 <div className="flex-1 p-6 ml-16">
+                    {/* Admin Actions Bar */}
+                    <div className="flex items-center justify-between mb-6">
+                        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+                        <div className="flex gap-2">
+                            <Link 
+                                to="/admin/subjects" 
+                                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                            >
+                                <BookOpen size={18} />
+                                <span>Subject Management</span>
+                            </Link>
+                        </div>
+                    </div>
+                    
                     {/* Search Bar */}
                     <div className="flex items-center gap-2 mb-4 border rounded-lg p-2 shadow-sm">
                         <input
@@ -193,21 +216,28 @@ function Dashboard() {
                                         <p><span className="font-medium">Gender:</span> {student.Gender}</p>
                                     </div>
                                     <div className="flex gap-2">
-                                    <button
-                                        className="p-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md transition"
-                                        onClick={() => handleEdit(student)}
-                                        title="Edit"
-                                    >
-                                        <Edit2 size={16} />
-                                    </button>
-                                    <button
-                                        className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition"
-                                        onClick={() => handleDelete(student.UserID)}
-                                        title="Delete"
-                                    >
-                                        <Trash2 size={16} />
-                                    </button>
-                                </div>
+                                        <button
+                                            className="p-2 bg-purple-500 hover:bg-purple-600 text-white rounded-md transition"
+                                            onClick={() => handleManageSubjects(student)}
+                                            title="Manage Subjects"
+                                        >
+                                            <BookOpen size={16} />
+                                        </button>
+                                        <button
+                                            className="p-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md transition"
+                                            onClick={() => handleEdit(student)}
+                                            title="Edit"
+                                        >
+                                            <Edit2 size={16} />
+                                        </button>
+                                        <button
+                                            className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition"
+                                            onClick={() => handleDelete(student.UserID)}
+                                            title="Delete"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         ))
@@ -286,7 +316,7 @@ function Dashboard() {
                             </div>
                         </div>
                         <div className="flex gap-2 mt-4">
-                            <button
+                        <button
                                 className="px-6 py-2 bg-gray-800 text-white rounded-lg shadow-md hover:bg-gray-700"
                                 onClick={() => handleEditTutor(currentTutor)}
                                 disabled={!currentTutor}
@@ -323,28 +353,42 @@ function Dashboard() {
             {showTutorInfo && (
                 <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-50">
                     <TutorInformation
-                                                onClose={() => setShowTutorInfo(false)}
-                                                tutor={currentTutor}
-                                                refreshTutors={() => {
-                                                    fetchTutors();
-                                                    if (currentTutor) {
-                                                        fetchTutorClasses(currentTutor.TutorID);
-                                                    }
-                                                }}
-                                            />
-                                        </div>
-                                    )}
-                        
-                                    {showTutorClassList && currentTutor && (
-                                        <TutorClassList
-                                            onClose={() => setShowTutorClassList(false)}
-                                            onConfirm={handleAssignClasses}
-                                            tutorId={currentTutor.TutorID}
-                                        />
-                                    )}
-                                </div>
-                            );
-                        }
-                        
-                        export default Dashboard;
-                        
+                        onClose={() => setShowTutorInfo(false)}
+                        tutor={currentTutor}
+                        refreshTutors={() => {
+                            fetchTutors();
+                            if (currentTutor) {
+                                fetchTutorClasses(currentTutor.TutorID);
+                            }
+                        }}
+                    />
+                </div>
+            )}
+            
+            {showTutorClassList && currentTutor && (
+                <TutorClassList
+                    onClose={() => setShowTutorClassList(false)}
+                    onConfirm={handleAssignClasses}
+                    tutorId={currentTutor.TutorID}
+                />
+            )}
+
+            {/* Modal for assigning subjects to students */}
+            {showAssignSubjectModal && selectedStudent && (
+    <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
+        <AssignSubjectForm
+            studentId={selectedStudent.UserID}  // Change from StudentID to UserID
+            onClose={() => setShowAssignSubjectModal(false)}
+            onSuccess={() => {
+                setShowAssignSubjectModal(false);
+                // Optionally refresh student data if needed
+            }}
+        />
+    </div>
+)}
+
+        </div>
+    );
+}
+
+export default Dashboard;
