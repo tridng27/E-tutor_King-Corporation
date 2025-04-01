@@ -103,14 +103,16 @@ function ResourceDetail() {
               <div className="max-w-lg">
                 <p className="uppercase text-sm font-semibold tracking-wide text-gray-700">Course</p>
                 <h1 className="text-4xl font-bold text-gray-900 mt-2">{resource?.title || "Learn Explainable AI"}</h1>
-                <p className="text-gray-700 mt-4">Uploaded by: {resource?.tutorId === null ? "Admin (System)" : resource?.tutorName}</p>
-                <p className="text-gray-700 text-sm">{resource?.uploadDate ? new Date(resource.uploadDate).toLocaleDateString() : 'Unknown'}</p>
-                <button 
-                  onClick={handleDownload}
-                  className="mt-6 bg-indigo-600 text-white px-6 py-3 rounded-md text-lg font-semibold hover:bg-indigo-700 transition"
-                >
-                  Start
-                </button>
+                <p className="text-gray-700 mt-4 text-sm">Uploaded by: {resource?.tutorId === null ? "Admin (System)" : resource?.tutorName}</p>
+                <p className="text-gray-700 text-xs">{resource?.uploadDate ? new Date(resource.uploadDate).toLocaleDateString() : 'Unknown'}</p>
+                {resource?.filePath && (
+                  <button 
+                    onClick={handleDownload}
+                    className="mt-6 bg-indigo-600 text-white px-6 py-3 rounded-md text-lg font-semibold hover:bg-indigo-700 transition"
+                  >
+                    Download course
+                  </button>
+                )}
               </div>
 
               <div className="border border-gray-500 p-6 mt-8 md:mt-0 md:ml-12 rounded-lg relative">
@@ -169,29 +171,8 @@ function ResourceDetail() {
               </div>
             </div>
             
-            <div className="flex gap-4 items-center">      
-              {/* Download Button */}
-              {resource?.filePath && (
-                <button 
-                  onClick={handleDownload}
-                  className="border px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-100"
-                >
-                  Download course file <span className="text-xl">⬇️</span>
-                </button>
-              )}
-            </div>
-            
-            {/* Placeholder Image or PDF Preview */}
-            <div className="bg-gray-300 p-8 rounded-lg flex justify-center items-center">
-              <div className="text-gray-500">
-                {resource?.filePath ? 'PDF Document Available' : 'No Document Available'}
-              </div>
-            </div>
-            
             {/* Action Buttons */}
-            <div className="flex justify-center space-x-4">
-              {/* Removed the Download PDF button from here */}
-              
+            <div className="flex justify-center space-x-4 p-10">
               {/* Edit and Delete buttons for Admin or the Tutor who created the resource */}
               {(hasRole('Admin') || (hasRole('Tutor') && resource?.tutorId === user?.TutorID)) && (
                 <>
