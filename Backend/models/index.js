@@ -18,7 +18,8 @@ const Subject = require('./subject');
 const Ticket = require('./ticket');
 const Tutor = require('./tutor');
 const Timetable = require('./timetable');
-const ClassStudent = require('./classstudent'); 
+const ClassStudent = require('./classstudent');
+const StudentSubject = require('./studentsubject'); // Add this line
 
 // Define associations between models
 // DirectMessage associations
@@ -46,5 +47,6 @@ module.exports = {
   Ticket,
   Tutor,
   Timetable,
-  ClassStudent
+  ClassStudent,
+  StudentSubject  // Add this line
 };

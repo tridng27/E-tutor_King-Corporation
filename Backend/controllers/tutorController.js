@@ -1,4 +1,4 @@
-const { Tutor, User, Student, Resource } = require("../models");
+const { Tutor, User, Student, Resource, Class, Subject } = require("../models");
 const sequelize = require("../config/Database");
 const { Op } = require("sequelize");
 
@@ -114,30 +114,115 @@ exports.updateTutor = async (req, res) => {
         details: error.message 
       });
     }
-  };
+};
+
+// Get classes assigned to the logged-in tutor
+exports.getTutorClasses = async (req, res) => {
+    try {
+        // Get the tutor ID from the authenticated user
+        const tutorUser = await Tutor.findOne({ 
+            where: { UserID: req.user.UserID }
+        });
+        
+        if (!tutorUser) {
+            return res.status(404).json({ message: "Tutor profile not found" });
+        }
+        
+        // Find all classes where this tutor is assigned
+        const classes = await Class.findAll({
+            where: { TutorID: tutorUser.TutorID }
+        });
+        
+        res.status(200).json(classes);
+    } catch (error) {
+        console.error("Error fetching tutor classes:", error);
+        res.status(500).json({ 
+            message: "Error fetching classes", 
+            error: error.message 
+        });
+    }
+};
 
 // Get students assigned to tutor
 exports.getMyStudents = async (req, res) => {
     try {
-        const tutorId = req.user.TutorID;
+        const tutorUser = await Tutor.findOne({ 
+            where: { UserID: req.user.UserID }
+        });
         
-        // This is a placeholder - you'll need to adjust based on your actual database schema
-        // Assuming there's a Class model that links tutors to students
+        if (!tutorUser) {
+            return res.status(404).json({ message: "Tutor profile not found" });
+        }
+        
+        // Get students from classes where this tutor is assigned
         const students = await Student.findAll({
             include: [
                 {
                     model: User,
-                    attributes: ['Name', 'Email']
+                    attributes: ['Name', 'Email', 'Gender']
                 },
                 {
                     model: Class,
-                    where: { TutorID: tutorId }
+                    where: { TutorID: tutorUser.TutorID },
+                    required: true
                 }
             ]
         });
         
         res.status(200).json(students);
     } catch (error) {
+        console.error("Error fetching students:", error);
+        res.status(500).json({ message: "Error fetching students", error: error.message });
+    }
+};
+
+// Get students for a specific class
+exports.getStudentsByClass = async (req, res) => {
+    try {
+        const { classId } = req.params;
+        const tutorUser = await Tutor.findOne({
+            where: { UserID: req.user.UserID }
+        });
+       
+        if (!tutorUser) {
+            return res.status(404).json({ message: "Tutor profile not found" });
+        }
+       
+        // Verify the tutor is assigned to this class
+        const classRecord = await Class.findOne({
+            where: {
+                ClassID: classId,
+                TutorID: tutorUser.TutorID
+            }
+        });
+       
+        if (!classRecord) {
+            return res.status(403).json({ message: "You are not authorized to view this class" });
+        }
+       
+        // Get the class with its students
+        const classWithStudents = await Class.findByPk(classId, {
+            include: [
+                {
+                    model: Student,
+                    include: [
+                        {
+                            model: User,
+                            attributes: ['Name', 'Email', 'Gender', 'Birthdate']
+                        }
+                    ]
+                }
+            ]
+        });
+       
+        if (!classWithStudents) {
+            return res.status(404).json({ message: "Class not found" });
+        }
+       
+        // Return just the students array
+        res.status(200).json(classWithStudents.Students || []);
+    } catch (error) {
+        console.error("Error fetching students by class:", error);
         res.status(500).json({ message: "Error fetching students", error: error.message });
     }
 };
