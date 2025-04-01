@@ -52,7 +52,7 @@ assignStudentToClass = async (req, res) => {
                 // Continue with the response even if email fails
             }
         }
-        
+        // Send email notification if student has a user with email
         res.status(201).json({ 
             message: "Student assigned to class successfully. Email notification sent." 
         });
