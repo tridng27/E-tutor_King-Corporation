@@ -6,7 +6,7 @@ import ClassInformation from "./classInformation";
 import { GlobalContext } from "../context/GlobalContext";
 
 function RightSidebar() {
-    const { user } = useContext(GlobalContext);
+    const { user, setCurrentTutor, fetchTutorClasses } = useContext(GlobalContext);
     const [classes, setClasses] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [editingClass, setEditingClass] = useState(null);
@@ -55,15 +55,38 @@ function RightSidebar() {
         }
     };
 
-    // Hàm xử lý khi click vào một lớp
+    // Updated handleClassClick to fetch and set tutor information
     const handleClassClick = async (classId) => {
         try {
-          navigate(`/class/${classId}`, { 
-          });
+            // Fetch class details including tutor information
+            const classDetails = await apiService.get(`/classes/${classId}`);
+            console.log("Class details:", classDetails.data);
+            
+            // If the class has a tutor, fetch the tutor details and set current tutor
+            if (classDetails.data && classDetails.data.TutorID) {
+                try {
+                    // Use the correct API method for fetching tutor details
+                    const tutorDetails = await apiService.getTutorById(classDetails.data.TutorID);
+                    console.log("Tutor details:", tutorDetails);
+                    
+                    if (tutorDetails) {
+                        setCurrentTutor(tutorDetails);
+                        fetchTutorClasses(tutorDetails.TutorID);
+                    }
+                } catch (tutorError) {
+                    console.error("Error fetching tutor details:", tutorError);
+                }
+            } else {
+                console.log("Class has no tutor assigned");
+                setCurrentTutor(null);
+            }
+            
+            // Navigate to the class page
+            navigate(`/class/${classId}`);
         } catch (error) {
-          console.error("Error fetching class details:", error);
+            console.error("Error fetching class details:", error);
         }
-      };
+    };
 
     return (
         <div className="w-1/5 bg-gray-100 p-6">
@@ -96,7 +119,7 @@ function RightSidebar() {
                         <div 
                             key={classItem.ClassID} 
                             className="flex justify-between items-center p-2 bg-white shadow rounded-lg cursor-pointer" 
-                            onClick={() => handleClassClick(classItem.ClassID)} // Sửa lại ở đây
+                            onClick={() => handleClassClick(classItem.ClassID)}
                         >
                             <p className="font-bold text-sm">{classItem.Name}</p>
                             {user?.Role === "Admin" && (

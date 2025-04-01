@@ -18,6 +18,7 @@ import Unauthorized from "./pages/Unauthorized";
 import ResourceDetail from "./components/course/ResourceDetail";
 import ResourceForm from "./components/course/ResourceForm";
 import AdminPage from "./pages/admin/AdminPage"; // Add this import
+import DirectMessages from "./pages/DirectMessages"; // Add this import
 
 function App() {
   return (
@@ -112,6 +113,35 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={[]}>
                 <Course />
+              </ProtectedRoute>
+            }
+          />
+          
+          {/* Timetable route accessible to all authenticated users */}
+          <Route
+            path="/timetable"
+            element={
+              <ProtectedRoute allowedRoles={[]}>
+                <Timetable />
+              </ProtectedRoute>
+            }
+          />
+          
+          {/* Direct Messages Routes */}
+          <Route
+            path="/messages"
+            element={
+              <ProtectedRoute allowedRoles={[]}>
+                <DirectMessages />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/messages/:userId"
+            element={
+              <ProtectedRoute allowedRoles={[]}>
+                <DirectMessages />
               </ProtectedRoute>
             }
           />

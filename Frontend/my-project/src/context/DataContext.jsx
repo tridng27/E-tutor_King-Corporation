@@ -1,37 +1,41 @@
-import { createContext, useState, useContext } from "react";
+import { createContext, useState, useContext, useEffect } from "react";
 import apiService from "../services/apiService";
-import { AuthContext } from './AuthContext';
 
-export const DataContext = createContext(null);
+// Create the context
+export const DataContext = createContext();
 
+// Provider component
 export const DataProvider = ({ children }) => {
+  // State for data
   const [students, setStudents] = useState([]);
   const [tutors, setTutors] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [documents, setDocuments] = useState([]);
   
-  // Import setAuthError directly from AuthContext instead of GlobalContext
-  const { setAuthError } = useContext(AuthContext);
+  // New state for tutor management
+  const [currentTutor, setCurrentTutor] = useState(null);
+  const [tutorClasses, setTutorClasses] = useState([]);
 
+  // Fetch functions
   const fetchStudents = async () => {
     try {
-      const response = await apiService.get("/students");
-      setStudents(response.data);
+      const response = await apiService.getAllStudents();
+      setStudents(response);
+      return response;
     } catch (error) {
-      if (error.response?.status === 401) {
-        setAuthError("Please log in to view students");
-      }
+      console.error("Error fetching students:", error);
+      return [];
     }
   };
 
   const fetchTutors = async () => {
     try {
-      const response = await apiService.get("/tutors");
-      setTutors(response.data);
+      const response = await apiService.getAllTutors();
+      setTutors(response);
+      return response;
     } catch (error) {
-      if (error.response?.status === 401) {
-        setAuthError("Please log in to view tutors");
-      }
+      console.error("Error fetching tutors:", error);
+      return [];
     }
   };
 
@@ -39,10 +43,10 @@ export const DataProvider = ({ children }) => {
     try {
       const response = await apiService.get("/notifications");
       setNotifications(response.data);
+      return response.data;
     } catch (error) {
-      if (error.response?.status === 401) {
-        setAuthError("Please log in to view notifications");
-      }
+      console.error("Error fetching notifications:", error);
+      return [];
     }
   };
 
@@ -50,30 +54,70 @@ export const DataProvider = ({ children }) => {
     try {
       const response = await apiService.get("/documents");
       setDocuments(response.data);
+      return response.data;
     } catch (error) {
-      if (error.response?.status === 401) {
-        setAuthError("Please log in to view documents");
-      }
+      console.error("Error fetching documents:", error);
+      return [];
     }
   };
 
+  // New functions for tutor management
+  const fetchTutorClasses = async (tutorId) => {
+    try {
+      const response = await apiService.getClassesByTutor(tutorId);
+      setTutorClasses(response);
+      return response;
+    } catch (error) {
+      console.error("Error fetching tutor classes:", error);
+      return [];
+    }
+  };
+
+  const assignTutorToClass = async (classId, tutorId) => {
+    try {
+      await apiService.assignTutorToClass(classId, tutorId);
+      return true;
+    } catch (error) {
+      console.error("Error assigning tutor to class:", error);
+      return false;
+    }
+  };
+
+  const removeTutorFromClass = async (classId, tutorId) => {
+    try {
+      await apiService.removeTutorFromClass(classId, tutorId);
+      return true;
+    } catch (error) {
+      console.error("Error removing tutor from class:", error);
+      return false;
+    }
+  };
+
+  // Provide the context value
+  const contextValue = {
+    students,
+    tutors,
+    notifications,
+    documents,
+    fetchStudents,
+    fetchTutors,
+    fetchNotifications,
+    fetchDocuments,
+    // New tutor management values
+    currentTutor,
+    setCurrentTutor,
+    tutorClasses,
+    fetchTutorClasses,
+    assignTutorToClass,
+    removeTutorFromClass
+  };
+
   return (
-    <DataContext.Provider
-      value={{
-        students,
-        tutors,
-        notifications,
-        documents,
-        fetchStudents,
-        fetchTutors,
-        fetchNotifications,
-        fetchDocuments
-      }}
-    >
+    <DataContext.Provider value={contextValue}>
       {children}
     </DataContext.Provider>
   );
 };
 
-// Custom hook to use the data context
+// Custom hook to use the context
 export const useData = () => useContext(DataContext);
