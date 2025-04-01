@@ -13,6 +13,16 @@ function Login() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  useEffect(() => {
+    if (error || success) {
+      const timer = setTimeout(() => {
+        setError("");
+        setSuccess("");
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, success]);
+
   // Check if already authenticated
   useEffect(() => {
     console.log("Login effect - Auth state:", isAuthenticated);
@@ -88,68 +98,73 @@ function Login() {
 
   return (
     <div className="flex h-screen">
-      {/* Left Side - Illustration */}
-      <div className="w-1/2 flex justify-center items-center bg-white">
-        <div className="max-w-xl">
-          <img src="/illustration.png" alt="Illustration" className="max-w-full h-auto rounded-xl" />
-        </div>
+
+      {/* Left Section - Illustration */}
+      <div className="w-1/2  flex flex-col justify-center items-center relative px-6">
+        <img src="/illustration.png" className="" alt="User" />
       </div>
 
-      {/* Right Side - Form */}
-      <div className="w-1/2 flex flex-col justify-center items-center px-16">
-        <h1 className="text-3xl font-semibold mb-6">Sign in to your account</h1>
+      {/* Right Section - Login Form */}
+      <div className="w-1/2 flex flex-col justify-center px-16 bg-white">
+        <h1 className="text-3xl font-bold mb-2">Login</h1>
+        <p className="text-gray-500 mb-6">See your growth and get consulting support!</p>
 
-        {/* Debug info */}
-        <div className="w-full max-w-sm mb-4 p-3 bg-yellow-50 rounded-md text-xs">
-          <p><strong>isAuthenticated:</strong> {isAuthenticated ? 'Yes' : 'No'}</p>
-          <p><strong>User:</strong> {user ? user.Name : 'None'}</p>
-          <p><strong>Role:</strong> {user ? user.Role : 'None'}</p>
-          <p><strong>Redirect attempted:</strong> {redirectAttempted.current ? 'Yes' : 'No'}</p>
-          <p><strong>Current path:</strong> {location.pathname}</p>
+        <button className="w-full flex items-center justify-center gap-2 py-3 border rounded-3xl text-gray-600 shadow-md mb-4">
+          <img src="https://www.svgrepo.com/show/303108/google-icon-logo.svg" className="w-5 h-5" alt="Google logo" />
+          Sign in with Google
+        </button>
+        
+        <div className="flex items-center my-4">
+          <div className="flex-grow border-t border-gray-300"></div>
+          <span className="mx-4 text-gray-400 text-sm">or Sign up with Email</span>
+          <div className="flex-grow border-t border-gray-300"></div>
         </div>
 
-        {error && <p className="text-red-500 mb-4">{error}</p>}
-        {success && <p className="text-green-500 mb-4">{success}</p>}
+        {(error || success) && (
+        <div className="fixed top-5 left-1/2 transform -translate-x-1/2 bg-white shadow-lg rounded-lg px-6 py-3 text-center text-base font-medium duration-300 h-20 flex items-center justify-center">
+          {error && <p className="text-red-500">{error}</p>}
+          {success && <p className="text-green-500">{success}</p>}
+        </div>
+      )}
+        
+        <form onSubmit={handleLogin}> 
+          <input 
+            type="email" 
+            placeholder="Mail@website.com" 
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full p-3 border mb-3 text-gray-700 rounded-3xl" 
+            required
+          />
 
-        <form className="w-full max-w-sm" onSubmit={handleLogin}>
-          <div className="mb-4">
-            <label className="block text-sm font-medium py-1">Email</label>
-            <input
-              type="email"
-              placeholder="Username or email address..."
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#cbfff3]"
-              required
-            />
+          <input 
+            type="password" 
+            placeholder="Password"               
+            value={password}
+            onChange={(e) => setPassword(e.target.value)} 
+            className="w-full p-3 border mb-3 text-gray-700 rounded-3xl" 
+            required
+          />
+
+          <div className="flex justify-between items-center mb-6">
+            <label className="flex items-center text-gray-500">
+              <input type="checkbox" className="mr-2" /> Remember me
+            </label>
+            <a href="#" className="text-blue-600">Forget password?</a>
           </div>
 
-          <div className="mb-4 relative">
-            <label className="block text-sm font-medium py-1">Password</label>
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#cbfff3]"
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={redirectAttempted.current}
-            className={`w-full ${redirectAttempted.current ? 'bg-gray-300' : 'bg-[#cbfff3] hover:bg-[#b3ffed]'} text-[#252B42] py-2 rounded-xl transition`}
-          >
-            {redirectAttempted.current ? 'Redirecting...' : 'Sign In →'}
-          </button>
+            <button
+                type="submit"
+                disabled={redirectAttempted.current}
+                className={`w-full ${redirectAttempted.current ? 'bg-blue-200' : ' hover:bg-blue-500'} bg-blue-600 text-white py-3 text-lg font-bold rounded-3xl`}
+              >
+                {redirectAttempted.current ? 'Redirecting...' : 'Login →'}
+            </button>
         </form>
+        
 
-        <p className="mt-4 text-sm">
-          You don't have an account?{" "}
-          <a href="/signup" className="text-orange-500 hover:underline">
-            Create Account
-          </a>
+        <p className="text-gray-500 text-center mt-4">
+          Not registered yet? <a href="/signup" className="text-blue-600">Create an Account</a>
         </p>
       </div>
     </div>

@@ -54,7 +54,6 @@ function Course() {
 
         <div className="flex-1 p-6 ml-16 transition-all duration-300 overflow-y-auto">
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold">Study Materials</h1>
             
             {hasRole(['Admin', 'Tutor']) && (
               <button 
@@ -72,14 +71,40 @@ function Course() {
             </div>
           )}
 
-          <div className="mb-6">
-            <input 
-              type="text" 
-              placeholder="Search materials..." 
-              className="w-full p-2 border rounded-lg"
-              value={searchTerm}
-              onChange={handleSearchChange}
-            />
+
+          <div className=" flex flex-col items-center p-8">
+            <h1 className="text-4xl font-bold mb-4">Study Materials</h1>
+            <p className="text-gray-400 mb-6 text-center max-w-xl">
+              Start a conversation and find learning to match your goals.
+            </p>
+            <div className="flex flex-wrap justify-center gap-4 mb-6">
+              <button className=" px-6 py-3 rounded-lg border border-gray-700 hover:bg-gray-400 transition">
+                ✨ I'm new to coding, what courses should I take?
+              </button>
+              <button className=" px-6 py-3 rounded-lg border border-gray-700 hover:bg-gray-400 transition">
+                ✨ What can I learn for my career?
+              </button>
+              <button className=" px-6 py-3 rounded-lg border border-gray-700 hover:bg-gray-400 transition">
+                ✨ What projects can help me showcase my skills?
+              </button>
+              <button className=" px-6 py-3 rounded-lg border border-gray-700 hover:bg-gray-400 transition">
+                ✨ How can I earn certificates?
+              </button>
+            </div>
+            
+            <div className="relative w-full max-w-lg">
+              <input
+                type="text" 
+                placeholder="Search materials..." 
+                className="w-full px-4 py-3 rounded-lg text-gray-700 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={searchTerm}
+                onChange={handleSearchChange}
+              />
+              <button className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white">
+                ➤
+              </button>
+
+            </div>
           </div>
 
           {loading ? (
@@ -102,11 +127,11 @@ function Course() {
           ) : (
             <div className="grid grid-cols-3 gap-4 p-4">
               {filteredResources.map(resource => (
-                <div key={resource.id} className="rounded-lg border-[1px] border-black hover:-translate-y-1 hover:translate-x-1 hover:border-l-4 hover:border-b-4 transition-all duration-300 shadow-md">
+                <div key={resource.id} className="rounded-lg border-[1px] border-black hover:-translate-y-1 hover:translate-x-1 hover:border-l-4 hover:border-b-4 transition-all duration-300 shadow-md w-[320px] h-[280px]">
                   <div className="bg-[#EAFDC6] rounded-t-md">
                     <h4 className="text-xl font-bold mb-2 p-2">{resource.title || 'Untitled'}</h4>
                   </div>
-                  <div className="p-4">
+                  <div className="p-4 ">
                     <p className="text-gray-600 text-sm">
                       {resource.description 
                         ? (resource.description.length > 150 
