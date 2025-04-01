@@ -290,9 +290,6 @@ exports.getClassesWithoutTutor = async (req, res) => {
 };
 
 // 🔥 Assign tutor to class
-const { sendClassAssignmentNotification } = require('../services/emailService');
-
-// 🔥 Assign tutor to class
 exports.assignTutorToClass = async (req, res) => {
     try {
         const { classId, tutorId } = req.params;

@@ -5,17 +5,17 @@ const { sendClassAssignmentNotification } = require('../services/emailService');
 // Update your assignStudentToClass function
 assignStudentToClass = async (req, res) => {
     try {
-        const { classId } = req.params;
-        const { studentId } = req.body;  // Assuming this is how you receive the student ID
+        const { ClassID } = req.params;  // Changed from classId to ClassID to match route
+        const { StudentID } = req.body;  // Changed from studentId to StudentID to match frontend
         
         // Check if class exists
-        const classObj = await Class.findByPk(classId);
+        const classObj = await Class.findByPk(ClassID);
         if (!classObj) {
             return res.status(404).json({ message: "Class not found" });
         }
         
         // Check if student exists
-        const student = await Student.findByPk(studentId, {
+        const student = await Student.findByPk(StudentID, {
             include: [{ model: User }]  // Include User model to get email
         });
         
@@ -25,7 +25,7 @@ assignStudentToClass = async (req, res) => {
         
         // Check if student is already in class
         const existingAssignment = await ClassStudent.findOne({
-            where: { ClassID: classId, StudentID: studentId }
+            where: { ClassID, StudentID }
         });
         
         if (existingAssignment) {
@@ -34,8 +34,8 @@ assignStudentToClass = async (req, res) => {
         
         // Create the assignment
         await ClassStudent.create({
-            ClassID: classId,
-            StudentID: studentId
+            ClassID,
+            StudentID
         });
         
         // Send email notification if student has a user with email
@@ -52,7 +52,7 @@ assignStudentToClass = async (req, res) => {
                 // Continue with the response even if email fails
             }
         }
-        
+        // Send email notification if student has a user with email
         res.status(201).json({ 
             message: "Student assigned to class successfully. Email notification sent." 
         });
