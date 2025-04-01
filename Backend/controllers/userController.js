@@ -1,4 +1,88 @@
 const { User } = require("../models");
+const { Op } = require("sequelize");
+
+// Search users for direct messaging
+exports.searchUsers = async (req, res) => {
+    try {
+        const { query } = req.query;
+        
+        console.log("Search query received:", query);
+        console.log("Current user:", req.user); // Log the entire user object
+        
+        if (!query) {
+            return res.status(400).json({ 
+                success: false,
+                message: "Search query is required",
+                data: []
+            });
+        }
+        
+        // Build the where clause
+        let whereClause = {
+            [Op.or]: [
+                { Name: { [Op.like]: `%${query}%` } },
+                { Email: { [Op.like]: `%${query}%` } }
+            ]
+        };
+        
+        // Only add the user exclusion if we have a valid user ID
+        if (req.user && req.user.UserID) {
+            whereClause = {
+                [Op.and]: [
+                    whereClause,
+                    { UserID: { [Op.ne]: req.user.UserID } }
+                ]
+            };
+            console.log("Excluding current user ID:", req.user.UserID);
+        } else {
+            console.log("No user ID found in request, not excluding any users");
+        }
+        
+        // Search users by name or email
+        const users = await User.findAll({
+            where: whereClause,
+            attributes: ['UserID', 'Name', 'Email', 'Role'],
+            limit: 10
+        });
+        
+        console.log("Search results:", users.length, "users found");
+        
+        res.status(200).json({
+            success: true,
+            data: users
+        });
+    } catch (error) {
+        console.error("Error in searchUsers:", error);
+        res.status(500).json({
+            success: false,
+            message: "Error searching users",
+            error: error.message,
+            data: []
+        });
+    }
+};
+
+// In userController.js
+exports.testUserSearch = async (req, res) => {
+    try {
+        const users = await User.findAll({
+            limit: 5
+        });
+        
+        res.status(200).json({
+            success: true,
+            message: "Test query executed",
+            count: users.length,
+            data: users
+        });
+    } catch (error) {
+        res.status(500).json({ 
+            success: false,
+            message: "Error in test query", 
+            error: error.message
+        });
+    }
+};
 
 // Lấy danh sách người dùng (Chỉ admin)
 exports.getAllUsers = async (req, res) => {

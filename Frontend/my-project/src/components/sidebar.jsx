@@ -9,7 +9,7 @@ import { Link } from "react-router-dom";
 function Sidebar() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const navigate = useNavigate();
-    const { user, logout, hasRole } = useContext(GlobalContext);
+    const { user, logout, hasRole, unreadCount } = useContext(GlobalContext);
 
     // Get user role from token or context
     const getUserRole = () => {
@@ -74,15 +74,11 @@ function Sidebar() {
         navigate('/social');
     };
 
+    // Updated timetable navigation to use the common /timetable route
     const handleTTableClick = (e) => {
         e.preventDefault();
-        if (userRole === 'Admin') {
-            navigate('/admin/Timetable');
-        } else if (userRole === 'Tutor') {
-            navigate('/tutor/Timetable');
-        } else if (userRole === 'Student') {
-            navigate('/student/Timetable');
-        }
+        // Navigate to the common timetable route instead of role-specific routes
+        navigate('/timetable');
     };
 
     // Handle navigation to course page
@@ -95,6 +91,12 @@ function Sidebar() {
     const handleAdminClick = (e) => {
         e.preventDefault();
         navigate('/admin');
+    };
+
+    // Handle navigation to messages page
+    const handleMessagesClick = (e) => {
+        e.preventDefault();
+        navigate('/messages');
     };
 
     return (
@@ -160,6 +162,7 @@ function Sidebar() {
                         </a>
                     )}
 
+                    {/* Timetable button - Updated to use the common route */}
                     <a
                         href="#"
                         className="flex items-center space-x-3 rounded-lg hover:bg-gray-200 p-2"
@@ -205,13 +208,25 @@ function Sidebar() {
                         <h3 className={`text-gray-500 uppercase text-xs pb-2 mt-10 ${isSidebarOpen ? "block" : "hidden"}`}>
                             Teams
                         </h3>
-                        <a href="#" className="flex items-center space-x-3 rounded-lg hover:bg-gray-200 p-2">
+                        {/* Messages button - Updated to navigate to direct messages */}
+                        <a 
+                            href="#" 
+                            className="flex items-center space-x-3 rounded-lg hover:bg-gray-200 p-2"
+                            onClick={handleMessagesClick}
+                        >
                             <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>
-                                <MessageSquare className="w-6 h-6 text-gray-600 min-w-[24px]" />
+                                <MessageSquare className="w-6 h-6 text-teal-500 min-w-[24px]" />
                             </div>
-                            <span className={`text-gray-700 transition-all duration-300 ${isSidebarOpen ? "block" : "hidden"}`}>
-                                Message
-                            </span>
+                            <div className="flex items-center">
+                                <span className={`text-gray-700 transition-all duration-300 ${isSidebarOpen ? "block" : "hidden"}`}>
+                                    Messages
+                                </span>
+                                {unreadCount > 0 && (
+                                    <span className={`ml-2 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 ${isSidebarOpen ? "inline-flex" : "absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2"}`}>
+                                        {unreadCount}
+                                    </span>
+                                )}
+                            </div>
                         </a>
                         
                         {/* FIXED: Changed from nested <a> and <Link> to just <Link> */}

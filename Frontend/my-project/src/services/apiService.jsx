@@ -212,6 +212,109 @@ const apiService = {
       console.error("Error deleting user:", error);
       throw error;
     }
+  },
+
+  // Timetable management
+  getAllTimetables: async (startDate, endDate) => {
+    try {
+      const response = await apiClient.get(`/timetables?startDate=${startDate}&endDate=${endDate}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching timetables:", error);
+      throw error;
+    }
+  },
+
+  getTimetableById: async (id) => {
+    try {
+      const response = await apiClient.get(`/timetables/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching timetable ${id}:`, error);
+      throw error;
+    }
+  },
+
+  createTimetable: async (timetableData) => {
+    try {
+      const response = await apiClient.post('/timetables', timetableData);
+      return response.data;
+    } catch (error) {
+      console.error("Error creating timetable:", error);
+      throw error;
+    }
+  },
+
+  updateTimetable: async (id, timetableData) => {
+    try {
+      const response = await apiClient.put(`/timetables/${id}`, timetableData);
+      return response.data;
+    } catch (error) {
+      console.error(`Error updating timetable ${id}:`, error);
+      throw error;
+    }
+  },
+
+  deleteTimetable: async (id) => {
+    try {
+      const response = await apiClient.delete(`/timetables/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error deleting timetable ${id}:`, error);
+      throw error;
+    }
+  },
+
+  // User search for direct messaging
+  searchUsers: async (query) => {
+    try {
+      const response = await apiClient.get(`/users/search?query=${encodeURIComponent(query)}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error searching users:", error);
+      throw error;
+    }
+  },
+
+  // Direct messaging methods
+  sendDirectMessage: async (receiverID, content) => {
+    try {
+      const response = await apiClient.post('/messages/send', { receiverID, content });
+      return response.data;
+    } catch (error) {
+      console.error("Error sending message:", error);
+      throw error;
+    }
+  },
+
+  getConversation: async (userID) => {
+    try {
+      const response = await apiClient.get(`/messages/conversation/${userID}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching conversation:", error);
+      throw error;
+    }
+  },
+
+  getUserConversations: async () => {
+    try {
+      const response = await apiClient.get('/messages/conversations');
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching user conversations:", error);
+      throw error;
+    }
+  },
+
+  markMessagesAsRead: async (messageIDs) => {
+    try {
+      const response = await apiClient.put('/messages/read', { messageIDs });
+      return response.data;
+    } catch (error) {
+      console.error("Error marking messages as read:", error);
+      throw error;
+    }
   }
 };
 

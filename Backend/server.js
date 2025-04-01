@@ -19,6 +19,9 @@ const postRoutes = require("./routes/postRoute");
 const uploadRoutes = require("./routes/uploadRoutes"); // Add this line to import upload routes
 const resourceRoutes = require("./routes/resourceRoutes");
 const adminRoutes = require("./routes/adminRoutes"); // Add admin routes
+const timetableRoutes = require("./routes/timetableRoutes"); // Add timetable routes
+const userRoutes = require("./routes/userRoutes"); // Add user routes
+const directMessageRoutes = require("./routes/directMessageRoutes"); // Add direct message routes
 
 // Create Express instance
 const app = express();
@@ -55,6 +58,9 @@ app.use("/api/classes", classRoutes);
 app.use("/api/upload", uploadRoutes); // Add this line to register upload routes
 app.use("/api/resources", resourceRoutes);
 app.use("/api/admin", adminRoutes); // Register admin routes
+app.use("/api/timetables", timetableRoutes); // Register timetable routes
+app.use("/api/users", userRoutes); // Register user routes
+app.use("/api/messages", directMessageRoutes); // Register direct message routes
 
 // Basic route
 app.get("/", (req, res) => {

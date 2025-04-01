@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from "./AuthContext";
 import { PostProvider, usePost } from "./PostContext";
 import { ResourceProvider, useResource } from "./ResourceContext";
 import { DataProvider, useData } from "./DataContext";
+import { MessageProvider, useMessage } from "./MessageContext"; // Add this line
 
 // Create a combined context
 export const GlobalContext = createContext(null);
@@ -14,7 +15,9 @@ export const GlobalProvider = ({ children }) => {
       <PostProvider>
         <ResourceProvider>
           <DataProvider>
-            <CombinedProvider>{children}</CombinedProvider>
+            <MessageProvider> {/* Add this line */}
+              <CombinedProvider>{children}</CombinedProvider>
+            </MessageProvider> {/* Add this line */}
           </DataProvider>
         </ResourceProvider>
       </PostProvider>
@@ -29,6 +32,7 @@ const CombinedProvider = ({ children }) => {
   const postContext = usePost();
   const resourceContext = useResource();
   const dataContext = useData();
+  const messageContext = useMessage(); // Add this line
 
   // Combine all context values
   const combinedValue = {
@@ -42,7 +46,7 @@ const CombinedProvider = ({ children }) => {
     hasRole: authContext.hasRole,
     getTutorId: authContext.getTutorId,
     testAuth: authContext.testAuth,
-    setAuthError: authContext.setAuthError, // Make sure this is included
+    setAuthError: authContext.setAuthError,
    
     // Post context values
     posts: postContext.posts,
@@ -72,7 +76,22 @@ const CombinedProvider = ({ children }) => {
     fetchStudents: dataContext.fetchStudents,
     fetchTutors: dataContext.fetchTutors,
     fetchNotifications: dataContext.fetchNotifications,
-    fetchDocuments: dataContext.fetchDocuments
+    fetchDocuments: dataContext.fetchDocuments,
+    
+    // Message context values
+    conversations: messageContext.conversations,
+    currentConversation: messageContext.currentConversation,
+    messages: messageContext.messages,
+    messageLoading: messageContext.loading,
+    messageError: messageContext.error,
+    unreadCount: messageContext.unreadCount,
+    fetchConversations: messageContext.fetchConversations,
+    fetchMessages: messageContext.fetchMessages,
+    sendMessage: messageContext.sendMessage,
+    searchUsers: messageContext.searchUsers,
+    selectConversation: messageContext.selectConversation,
+    setCurrentConversation: messageContext.setCurrentConversation,
+    setMessageError: messageContext.setError
   };
 
   return (
