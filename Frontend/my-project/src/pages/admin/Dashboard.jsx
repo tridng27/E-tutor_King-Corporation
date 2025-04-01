@@ -209,7 +209,13 @@ function Dashboard() {
                         filteredStudents.map((student) => (
                             <div key={student.UserID} className="flex items-center justify-between p-4 border rounded-lg shadow-sm bg-white mb-3">
                                 <div className="flex items-center gap-4 w-full">
-                                    <div className="flex flex-row text-sm gap-4 w-full justify-between">
+
+                                    {/* <img
+                                        src={student.Avatar || "https://via.placeholder.com/48"}
+                                        alt="Avatar"
+                                        className="w-12 h-12 rounded-full object-cover"
+                                    /> */}
+                                    <div className="grid grid-cols-4 gap-4 text-sm w-full">
                                         <p><span className="font-medium">Name:</span> {student.Name}</p>
                                         <p><span className="font-medium">Email:</span> {student.Email || 'N/A'}</p>
                                         <p><span className="font-medium">Birth date:</span> {new Date(student.Birthdate).toLocaleDateString('vi-VN')} </p>
