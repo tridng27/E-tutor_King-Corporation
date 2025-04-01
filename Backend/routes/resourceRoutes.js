@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const resourceController = require("../controllers/resourceController");
-const { authenticateUser, isAdmin, isTutor, isAdminOrTutor } = require("../Middleware/roleMiddleware");
+const { authenticateUser, isAdminOrTutor } = require("../Middleware/roleMiddleware");
 
 // Public routes (still require authentication)
 router.get("/", authenticateUser, resourceController.getAllResources);

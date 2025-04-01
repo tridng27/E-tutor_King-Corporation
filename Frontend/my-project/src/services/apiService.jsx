@@ -315,7 +315,143 @@ const apiService = {
       console.error("Error marking messages as read:", error);
       throw error;
     }
+  },
+  getStudentsByClass: async (classId) => {
+    try {
+      const response = await apiClient.get(`/class-students/${classId}/students`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching students by class:", error);
+      throw error;
+    }
+  },  
+  assignStudentToClass: async (classId, studentId) => {
+    try {
+      console.log(`Attempting to assign student ${studentId} to class ${classId}`);
+      console.log(`Using URL: /class-students/${classId}/students`);
+      console.log(`With payload:`, { StudentID: String(studentId) });
+      
+      const response = await apiClient.post(`/class-students/${classId}/students`, {
+        StudentID: String(studentId)
+      });
+      
+      console.log("Success response:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error assigning student:", error);
+      console.error("Error details:", {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        url: error.config?.url,
+        method: error.config?.method,
+        params: error.config?.params,
+        data: error.config?.data
+      });
+      throw error;
+    }
+  },
+  
+  removeStudentFromClass: async (classId, studentId) => {
+    try {
+      const response = await apiClient.delete(`/class-students/${classId}/students/${studentId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error removing student from class:", error);
+      throw error;
+    }
+  },
+  getStudentsNotInClass: async (classId) => {
+    try {
+        const response = await apiClient.get(`/class-students/${classId}/students/not-in-class`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching students not in class:", error);
+        throw error;
+    }
+  },
+
+// Tutor management
+getAllTutors: async () => {
+  try {
+      const response = await apiClient.get('/admin/tutors');
+      return response.data;
+  } catch (error) {
+      console.error('Error fetching tutors:', error);
+      throw error;
   }
+},
+
+getTutorById: async (id) => {
+  try {
+      const response = await apiClient.get(`/admin/tutors/${id}`);
+      return response.data;
+  } catch (error) {
+      console.error(`Error fetching tutor ${id}:`, error);
+      throw error;
+  }
+},
+
+updateTutor: async (id, tutorData) => {
+  try {
+      const response = await apiClient.put(`/admin/tutors/${id}`, tutorData);
+      return response.data;
+  } catch (error) {
+      console.error(`Error updating tutor ${id}:`, error);
+      throw error;
+  }
+},
+
+deleteTutor: async (id) => {
+  try {
+      const response = await apiClient.delete(`/admin/tutors/${id}`);
+      return response.data;
+  } catch (error) {
+      console.error(`Error deleting tutor ${id}:`, error);
+      throw error;
+  }
+},
+
+// Class-tutor assignment
+getClassesWithoutTutor: async () => {
+  try {
+      const response = await apiClient.get('/admin/classes/without-tutor');
+      return response.data;
+  } catch (error) {
+      console.error('Error fetching classes without tutor:', error);
+      throw error;
+  }
+},
+
+getClassesByTutor: async (tutorId) => {
+  try {
+      const response = await apiClient.get(`/admin/tutors/${tutorId}/classes`);
+      return response.data;
+  } catch (error) {
+      console.error(`Error fetching classes for tutor ${tutorId}:`, error);
+      throw error;
+  }
+},
+
+assignTutorToClass: async (classId, tutorId) => {
+  try {
+      const response = await apiClient.post(`/admin/classes/${classId}/tutors/${tutorId}`);
+      return response.data;
+  } catch (error) {
+      console.error(`Error assigning tutor ${tutorId} to class ${classId}:`, error);
+      throw error;
+  }
+},
+
+removeTutorFromClass: async (classId, tutorId) => {
+  try {
+      const response = await apiClient.delete(`/admin/classes/${classId}/tutors/${tutorId}`);
+      return response.data;
+  } catch (error) {
+      console.error(`Error removing tutor ${tutorId} from class ${classId}:`, error);
+      throw error;
+  }
+},
 };
 
 export default apiService;

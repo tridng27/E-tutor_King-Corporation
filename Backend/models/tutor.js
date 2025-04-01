@@ -19,7 +19,7 @@ const Tutor = sequelize.define("Tutor", {
   },
   Fix: {
     type: DataTypes.CHAR(50),
-    allowNull: false
+    allowNull: true
   }
 }, {
   tableName: "Tutor",

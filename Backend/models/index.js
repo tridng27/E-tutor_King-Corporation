@@ -18,7 +18,7 @@ const Subject = require('./subject');
 const Ticket = require('./ticket');
 const Tutor = require('./tutor');
 const Timetable = require('./timetable');
-const ClassStudent = require('./classstudent'); // Added ClassStudent
+const ClassStudent = require('./classstudent'); 
 
 // Define associations between models
 // DirectMessage associations

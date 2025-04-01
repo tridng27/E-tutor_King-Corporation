@@ -1,15 +1,17 @@
 import { useEffect, useState, useContext } from "react";
 import { FaPlus, FaEdit } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import apiService from "../services/apiService";
 import ClassInformation from "./classInformation";
-import { GlobalContext } from "../context/GlobalContext"; // Import GlobalContext
+import { GlobalContext } from "../context/GlobalContext";
 
 function RightSidebar() {
-    const { user } = useContext(GlobalContext); // Lấy user từ context
+    const { user, setCurrentTutor, fetchTutorClasses } = useContext(GlobalContext);
     const [classes, setClasses] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [editingClass, setEditingClass] = useState(null);
     const [showClassForm, setShowClassForm] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchClasses();
@@ -47,9 +49,42 @@ function RightSidebar() {
         try {
             await apiService.put(`/classes/${updatedClass.ClassID}`, updatedClass);
             fetchClasses();
-            setEditingClass(null); // Đóng form sau khi cập nhật thành công
+            setEditingClass(null);
         } catch (error) {
             console.error("Error updating class:", error);
+        }
+    };
+
+    // Updated handleClassClick to fetch and set tutor information
+    const handleClassClick = async (classId) => {
+        try {
+            // Fetch class details including tutor information
+            const classDetails = await apiService.get(`/classes/${classId}`);
+            console.log("Class details:", classDetails.data);
+            
+            // If the class has a tutor, fetch the tutor details and set current tutor
+            if (classDetails.data && classDetails.data.TutorID) {
+                try {
+                    // Use the correct API method for fetching tutor details
+                    const tutorDetails = await apiService.getTutorById(classDetails.data.TutorID);
+                    console.log("Tutor details:", tutorDetails);
+                    
+                    if (tutorDetails) {
+                        setCurrentTutor(tutorDetails);
+                        fetchTutorClasses(tutorDetails.TutorID);
+                    }
+                } catch (tutorError) {
+                    console.error("Error fetching tutor details:", tutorError);
+                }
+            } else {
+                console.log("Class has no tutor assigned");
+                setCurrentTutor(null);
+            }
+            
+            // Navigate to the class page
+            navigate(`/class/${classId}`);
+        } catch (error) {
+            console.error("Error fetching class details:", error);
         }
     };
 
@@ -57,7 +92,11 @@ function RightSidebar() {
         <div className="w-1/5 bg-gray-100 p-6">
             <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-bold">Classes</h3>
-                {user?.Role === "Admin" && (<button onClick={() => { setShowClassForm(true); setEditingClass(null); }} className="text-blue-500 text-lg">
+                {user?.Role === "Admin" && (
+                    <button 
+                        onClick={() => { setShowClassForm(true); setEditingClass(null); }} 
+                        className="text-blue-500 text-lg"
+                    >
                         <FaPlus />
                     </button>
                 )}
@@ -73,20 +112,33 @@ function RightSidebar() {
 
             <div className="mt-4 space-y-3">
                 {classes
-                    .filter((classItem) => classItem.Name.toLowerCase().includes(searchTerm.toLowerCase()))
+                    .filter((classItem) => 
+                        classItem.Name.toLowerCase().includes(searchTerm.toLowerCase())
+                    )
                     .map((classItem) => (
-                        <div key={classItem.ClassID} className="flex justify-between items-center p-2 bg-white shadow rounded-lg">
+                        <div 
+                            key={classItem.ClassID} 
+                            className="flex justify-between items-center p-2 bg-white shadow rounded-lg cursor-pointer" 
+                            onClick={() => handleClassClick(classItem.ClassID)}
+                        >
                             <p className="font-bold text-sm">{classItem.Name}</p>
                             {user?.Role === "Admin" && (
                                 <div>
                                     <button
-                                        onClick={() => {setEditingClass(classItem); setShowClassForm(true);}}
+                                        onClick={(e) => { 
+                                            e.stopPropagation(); 
+                                            setEditingClass(classItem); 
+                                            setShowClassForm(true); 
+                                        }}
                                         className="text-yellow-500 text-lg mr-2"
                                     >
                                         <FaEdit />
                                     </button>
                                     <button
-                                        onClick={() => handleDeleteClass(classItem.ClassID)}
+                                        onClick={(e) => { 
+                                            e.stopPropagation(); 
+                                            handleDeleteClass(classItem.ClassID); 
+                                        }}
                                         className="text-red-500 text-lg"
                                     >
                                         ✖
@@ -96,7 +148,7 @@ function RightSidebar() {
                         </div>
                     ))}
             </div>
-            {/* Hiển thị form nhập lớp học khi nhấn Add/Edit */}
+
             {showClassForm && (
                 <ClassInformation 
                     onClose={() => { setShowClassForm(false); setEditingClass(null); }} 

@@ -3,7 +3,7 @@ import { AuthProvider, useAuth } from "./AuthContext";
 import { PostProvider, usePost } from "./PostContext";
 import { ResourceProvider, useResource } from "./ResourceContext";
 import { DataProvider, useData } from "./DataContext";
-import { MessageProvider, useMessage } from "./MessageContext"; // Add this line
+import { MessageProvider, useMessage } from "./MessageContext";
 
 // Create a combined context
 export const GlobalContext = createContext(null);
@@ -15,9 +15,9 @@ export const GlobalProvider = ({ children }) => {
       <PostProvider>
         <ResourceProvider>
           <DataProvider>
-            <MessageProvider> {/* Add this line */}
+            <MessageProvider>
               <CombinedProvider>{children}</CombinedProvider>
-            </MessageProvider> {/* Add this line */}
+            </MessageProvider>
           </DataProvider>
         </ResourceProvider>
       </PostProvider>
@@ -32,7 +32,7 @@ const CombinedProvider = ({ children }) => {
   const postContext = usePost();
   const resourceContext = useResource();
   const dataContext = useData();
-  const messageContext = useMessage(); // Add this line
+  const messageContext = useMessage();
 
   // Combine all context values
   const combinedValue = {
@@ -77,6 +77,13 @@ const CombinedProvider = ({ children }) => {
     fetchTutors: dataContext.fetchTutors,
     fetchNotifications: dataContext.fetchNotifications,
     fetchDocuments: dataContext.fetchDocuments,
+    // New tutor management values
+    currentTutor: dataContext.currentTutor,
+    setCurrentTutor: dataContext.setCurrentTutor,
+    tutorClasses: dataContext.tutorClasses,
+    fetchTutorClasses: dataContext.fetchTutorClasses,
+    assignTutorToClass: dataContext.assignTutorToClass,
+    removeTutorFromClass: dataContext.removeTutorFromClass,
     
     // Message context values
     conversations: messageContext.conversations,

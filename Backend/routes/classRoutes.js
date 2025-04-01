@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const {getAllClasses, getClassById, createClass, updateClass, deleteClass,} = require("../controllers/classController");
-const { authenticateUser, isAdmin } = require("../middleware/roleMiddleware");
+const { authenticateUser, isAdmin } = require("../Middleware/roleMiddleware");
 
 // 📌 Middleware xác thực người dùng (áp dụng cho tất cả route)
 router.use(authenticateUser);
