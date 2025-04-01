@@ -1,4 +1,5 @@
 const Class = require("../models/class");
+const { sendClassAssignmentNotification } = require('../services/emailService');
 
 // Lấy danh sách tất cả lớp học
 const getAllClasses = async (req, res) => {

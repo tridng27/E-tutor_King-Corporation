@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import Sidebar from '../components/sidebar';
 import { useParams } from 'react-router-dom';
 import RightSidebar from '../components/rightSidebar';
@@ -6,8 +6,10 @@ import { Search, Plus } from 'lucide-react';
 import Studentlist from '../components/Studentlist'; 
 import TutorInformation from '../components/tutorInformation';
 import apiService from '../services/apiService';
+import { GlobalContext } from "../context/GlobalContext";
 
 function Class() {
+    const { currentTutor } = useContext(GlobalContext);
     const [showStudentInfo, setShowStudentInfo] = useState(false);
     const [deletingIds, setDeletingIds] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -15,11 +17,16 @@ function Class() {
     const [students, setStudents] = useState([]);
     const { classId } = useParams();
 
+    // Log for debugging
+    useEffect(() => {
+        console.log("Class component - currentTutor:", currentTutor);
+    }, [currentTutor]);
+
     useEffect(() => {
       if (classId) { // Thêm điều kiện kiểm tra classId
           fetchStudents();
       }
-  }, [classId]); // Thêm classId vào dependency array
+    }, [classId]); // Thêm classId vào dependency array
 
     const fetchStudents = async () => {
         try {
@@ -43,7 +50,7 @@ function Class() {
     const filteredStudents = students.filter(student => {
       const studentName = student.User?.Name?.toLowerCase() || '';
       return studentName.includes(searchTerm.toLowerCase());
-  });
+    });
 
     const handleRemoveStudent = async (studentId) => {
       try {
@@ -76,8 +83,8 @@ function Class() {
           alert(`Xóa thất bại: ${error.response?.data?.message || error.message}`);
       } finally {
         setDeletingIds(prev => prev.filter(id => id !== studentId));
-    }
-  };
+      }
+    };
 
     return (
       <div className="relative">
@@ -134,31 +141,48 @@ function Class() {
                         </div>
                     )}
                     
-              {/* Tutor Infographic */}
+              {/* Tutor Infographic - Updated to use currentTutor from context */}
               <div className="flex flex-col items-center justify-center min-h-screen p-4">
                 <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-xl border relative">
                     <h2 className="text-lg font-semibold text-center mb-4">Tutor Infographic</h2>
                     <div className="flex items-start justify-between">
                         <div className="space-y-2">
-                            <p className="font-semibold">Name: <span className="font-normal">________</span></p>
-                            <p className="font-semibold">ID: <span className="font-normal">________</span></p>
-                            <p className="font-semibold">Subject: <span className="font-normal">________</span></p>
-                            <p className="font-semibold">Enroll Date: <span className="font-normal">________</span></p>
+                            <p className="font-semibold">Name: <span className="font-normal">{currentTutor?.User?.Name || "________"}</span></p>
+                            <p className="font-semibold">ID: <span className="font-normal">{currentTutor?.TutorID || "________"}</span></p>
+                            <p className="font-semibold">Subject: <span className="font-normal">{currentTutor?.Fix || "________"}</span></p>
+                            <p className="font-semibold">Email: <span className="font-normal">{currentTutor?.User?.Email || "________"}</span></p>
                             <p className="font-semibold">Description:</p>
-                            <div className="border-b w-64"></div>
-                            <div className="border-b w-64"></div>
-                            <div className="border-b w-64"></div>
+                            {currentTutor ? (
+                                <p className="text-sm text-gray-600">{currentTutor.Description || "No description available"}</p>
+                            ) : (
+                                <>
+                                    <div className="border-b w-64"></div>
+                                    <div className="border-b w-64"></div>
+                                    <div className="border-b w-64"></div>
+                                </>
+                            )}
                         </div>
                         <div className="w-24 h-24 bg-gray-300 rounded-full flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-16 h-16 text-gray-700">
-                            <path d="M12 2a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm-8 16c0-3.314 3.582-6 8-6s8 2.686 8 6v2H4v-2Z" />
-                            </svg>
+                            {currentTutor?.User?.Avatar ? (
+                                <img 
+                                    src={currentTutor.User.Avatar} 
+                                    alt="Tutor Avatar" 
+                                    className="w-24 h-24 rounded-full object-cover"
+                                />
+                            ) : (
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-16 h-16 text-gray-700">
+                                    <path d="M12 2a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm-8 16c0-3.314 3.582-6 8-6s8 2.686 8 6v2H4v-2Z" />
+                                </svg>
+                            )}
                         </div>
                     </div>
                 </div>
-                <button className="mt-4 px-6 py-2 bg-gray-800 text-white rounded-lg shadow-md hover:bg-gray-700"
-                        onClick={() => setShowTutorInfo(true)}
-                >Edit Tutor</button>
+                <button 
+                    className="mt-4 px-6 py-2 bg-gray-800 text-white rounded-lg shadow-md hover:bg-gray-700"
+                    onClick={() => setShowTutorInfo(true)}
+                >
+                    {currentTutor ? "Edit Tutor" : "Assign Tutor"}
+                </button>
               </div>
 
             </div>
@@ -178,7 +202,11 @@ function Class() {
 
         {showTutorInfo && (
           <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-50">
-            <TutorInformation onClose={() => setShowTutorInfo(false)} />
+            <TutorInformation 
+                onClose={() => setShowTutorInfo(false)} 
+                tutor={currentTutor}
+                classId={classId}
+            />
           </div>
         )}
       </div>

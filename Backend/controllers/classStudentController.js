@@ -1,43 +1,69 @@
 const { ClassStudent, Class, Student, User } = require("../models");
 const { Op } = require("sequelize");
+const { sendClassAssignmentNotification } = require('../services/emailService');
 
-// Thêm học sinh vào lớp
-const assignStudentToClass = async (req, res) => {
+// Update your assignStudentToClass function
+assignStudentToClass = async (req, res) => {
     try {
-        const { ClassID } = req.params;  // Lấy ClassID từ URL
-        const { StudentID } = req.body;  // StudentID vẫn lấy từ body
-
-        console.log("ClassID from request params:", ClassID);
-        console.log("StudentID from request body:", StudentID);
-
-        if (!ClassID || !StudentID) {
-            return res.status(400).json({ message: "Missing ClassID or StudentID" });
+        const { ClassID } = req.params;  // Changed from classId to ClassID to match route
+        const { StudentID } = req.body;  // Changed from studentId to StudentID to match frontend
+        
+        // Check if class exists
+        const classObj = await Class.findByPk(ClassID);
+        if (!classObj) {
+            return res.status(404).json({ message: "Class not found" });
         }
-
-        const student = await Student.findByPk(StudentID);
+        
+        // Check if student exists
+        const student = await Student.findByPk(StudentID, {
+            include: [{ model: User }]  // Include User model to get email
+        });
+        
         if (!student) {
             return res.status(404).json({ message: "Student not found" });
         }
-
-        const classExists = await Class.findByPk(ClassID);
-        if (!classExists) {
-            return res.status(404).json({ message: "Class not found" });
-        }
-
-        // Kiểm tra xem học sinh đã ở trong lớp chưa
-        const existingRecord = await ClassStudent.findOne({ where: { ClassID, StudentID } });
-        if (existingRecord) {
+        
+        // Check if student is already in class
+        const existingAssignment = await ClassStudent.findOne({
+            where: { ClassID, StudentID }
+        });
+        
+        if (existingAssignment) {
             return res.status(400).json({ message: "Student is already assigned to this class" });
         }
-
-        await ClassStudent.create({ ClassID, StudentID });
-        res.status(201).json({ message: "Student assigned to class successfully" });
+        
+        // Create the assignment
+        await ClassStudent.create({
+            ClassID,
+            StudentID
+        });
+        
+        // Send email notification if student has a user with email
+        if (student.User && student.User.Email) {
+            try {
+                await sendClassAssignmentNotification(
+                    student.User, 
+                    classObj.Name.trim(), // Trim whitespace from class name
+                    'Student'
+                );
+                console.log(`Email notification sent to student ${student.User.Email}`);
+            } catch (emailError) {
+                console.error("Error sending email notification:", emailError);
+                // Continue with the response even if email fails
+            }
+        }
+        // Send email notification if student has a user with email
+        res.status(201).json({ 
+            message: "Student assigned to class successfully. Email notification sent." 
+        });
     } catch (error) {
         console.error("Error assigning student to class:", error);
-        res.status(500).json({ message: "Error assigning student to class", error });
+        res.status(500).json({ 
+            message: "Error assigning student to class", 
+            error: error.message 
+        });
     }
 };
-
 
 // Xóa học sinh khỏi lớp
 const removeStudentFromClass = async (req, res) => {

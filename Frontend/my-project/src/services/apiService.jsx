@@ -213,6 +213,109 @@ const apiService = {
       throw error;
     }
   },
+
+  // Timetable management
+  getAllTimetables: async (startDate, endDate) => {
+    try {
+      const response = await apiClient.get(`/timetables?startDate=${startDate}&endDate=${endDate}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching timetables:", error);
+      throw error;
+    }
+  },
+
+  getTimetableById: async (id) => {
+    try {
+      const response = await apiClient.get(`/timetables/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching timetable ${id}:`, error);
+      throw error;
+    }
+  },
+
+  createTimetable: async (timetableData) => {
+    try {
+      const response = await apiClient.post('/timetables', timetableData);
+      return response.data;
+    } catch (error) {
+      console.error("Error creating timetable:", error);
+      throw error;
+    }
+  },
+
+  updateTimetable: async (id, timetableData) => {
+    try {
+      const response = await apiClient.put(`/timetables/${id}`, timetableData);
+      return response.data;
+    } catch (error) {
+      console.error(`Error updating timetable ${id}:`, error);
+      throw error;
+    }
+  },
+
+  deleteTimetable: async (id) => {
+    try {
+      const response = await apiClient.delete(`/timetables/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error deleting timetable ${id}:`, error);
+      throw error;
+    }
+  },
+
+  // User search for direct messaging
+  searchUsers: async (query) => {
+    try {
+      const response = await apiClient.get(`/users/search?query=${encodeURIComponent(query)}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error searching users:", error);
+      throw error;
+    }
+  },
+
+  // Direct messaging methods
+  sendDirectMessage: async (receiverID, content) => {
+    try {
+      const response = await apiClient.post('/messages/send', { receiverID, content });
+      return response.data;
+    } catch (error) {
+      console.error("Error sending message:", error);
+      throw error;
+    }
+  },
+
+  getConversation: async (userID) => {
+    try {
+      const response = await apiClient.get(`/messages/conversation/${userID}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching conversation:", error);
+      throw error;
+    }
+  },
+
+  getUserConversations: async () => {
+    try {
+      const response = await apiClient.get('/messages/conversations');
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching user conversations:", error);
+      throw error;
+    }
+  },
+
+  markMessagesAsRead: async (messageIDs) => {
+    try {
+      const response = await apiClient.put('/messages/read', { messageIDs });
+      return response.data;
+    } catch (error) {
+      console.error("Error marking messages as read:", error);
+      throw error;
+    }
+  },
   getStudentsByClass: async (classId) => {
     try {
       const response = await apiClient.get(`/class-students/${classId}/students`);
@@ -224,15 +327,31 @@ const apiService = {
   },  
   assignStudentToClass: async (classId, studentId) => {
     try {
-        const response = await apiClient.post(`/class-students/${classId}/students`, {
-            StudentID: String(studentId) 
-        });
-        return response.data;
+      console.log(`Attempting to assign student ${studentId} to class ${classId}`);
+      console.log(`Using URL: /class-students/${classId}/students`);
+      console.log(`With payload:`, { StudentID: String(studentId) });
+      
+      const response = await apiClient.post(`/class-students/${classId}/students`, {
+        StudentID: String(studentId)
+      });
+      
+      console.log("Success response:", response.data);
+      return response.data;
     } catch (error) {
-        console.error("Error assigning student:", error);
-        throw error;
+      console.error("Error assigning student:", error);
+      console.error("Error details:", {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        url: error.config?.url,
+        method: error.config?.method,
+        params: error.config?.params,
+        data: error.config?.data
+      });
+      throw error;
     }
   },
+  
   removeStudentFromClass: async (classId, studentId) => {
     try {
       const response = await apiClient.delete(`/class-students/${classId}/students/${studentId}`);
@@ -250,7 +369,89 @@ const apiService = {
         console.error("Error fetching students not in class:", error);
         throw error;
     }
+  },
+
+// Tutor management
+getAllTutors: async () => {
+  try {
+      const response = await apiClient.get('/admin/tutors');
+      return response.data;
+  } catch (error) {
+      console.error('Error fetching tutors:', error);
+      throw error;
   }
+},
+
+getTutorById: async (id) => {
+  try {
+      const response = await apiClient.get(`/admin/tutors/${id}`);
+      return response.data;
+  } catch (error) {
+      console.error(`Error fetching tutor ${id}:`, error);
+      throw error;
+  }
+},
+
+updateTutor: async (id, tutorData) => {
+  try {
+      const response = await apiClient.put(`/admin/tutors/${id}`, tutorData);
+      return response.data;
+  } catch (error) {
+      console.error(`Error updating tutor ${id}:`, error);
+      throw error;
+  }
+},
+
+deleteTutor: async (id) => {
+  try {
+      const response = await apiClient.delete(`/admin/tutors/${id}`);
+      return response.data;
+  } catch (error) {
+      console.error(`Error deleting tutor ${id}:`, error);
+      throw error;
+  }
+},
+
+// Class-tutor assignment
+getClassesWithoutTutor: async () => {
+  try {
+      const response = await apiClient.get('/admin/classes/without-tutor');
+      return response.data;
+  } catch (error) {
+      console.error('Error fetching classes without tutor:', error);
+      throw error;
+  }
+},
+
+getClassesByTutor: async (tutorId) => {
+  try {
+      const response = await apiClient.get(`/admin/tutors/${tutorId}/classes`);
+      return response.data;
+  } catch (error) {
+      console.error(`Error fetching classes for tutor ${tutorId}:`, error);
+      throw error;
+  }
+},
+
+assignTutorToClass: async (classId, tutorId) => {
+  try {
+      const response = await apiClient.post(`/admin/classes/${classId}/tutors/${tutorId}`);
+      return response.data;
+  } catch (error) {
+      console.error(`Error assigning tutor ${tutorId} to class ${classId}:`, error);
+      throw error;
+  }
+},
+
+removeTutorFromClass: async (classId, tutorId) => {
+  try {
+      const response = await apiClient.delete(`/admin/classes/${classId}/tutors/${tutorId}`);
+      return response.data;
+  } catch (error) {
+      console.error(`Error removing tutor ${tutorId} from class ${classId}:`, error);
+      throw error;
+  }
+},
 };
 
 export default apiService;

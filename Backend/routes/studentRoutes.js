@@ -1,5 +1,5 @@
 const express = require("express");
-const { authenticateUser, isStudent, isAdmin, isTutor } = require("../middleware/roleMiddleware");
+const { authenticateUser, isStudent, isAdmin, isTutor } = require("../Middleware/roleMiddleware");
 const { getAllStudents,
         getStudentById,
         createStudent,
