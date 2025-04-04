@@ -55,7 +55,7 @@ function Landing() {
 
       <div className={isAuthenticated ? "ml-16 transition-all duration-300" : ""}>
         {/* Header */}
-        <header className="bg-[#E9FFFA] py-4 px-8 flex justify-between items-center">
+        <header className=" py-4 px-8 flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <span className="text-lg font-bold text-gray-900">LearnXpert</span>
           </div>
@@ -97,7 +97,7 @@ function Landing() {
         </header>
 
         {/* Hero Section - Customize based on authentication status */}
-        <section className="flex flex-col md:flex-row items-center justify-between px-24 py-20 bg-[#E9FFFA]">
+        <section className="flex flex-col md:flex-row items-center justify-between px-24 py-20">
           {/* Nội dung bên trái */}
           <div className="w-full md:w-1/2">
             <h1 className="text-5xl font-bold text-gray-900">
@@ -129,14 +129,14 @@ function Landing() {
             <div className="mt-6 flex space-x-4">
               {isAuthenticated ? (
                 <button 
-                  className="bg-[#23856D] text-white px-6 py-3 rounded-full font-bold shadow-md"
+                  className="bg-[#31A0FE] text-white px-6 py-3 rounded-full font-bold shadow-md hover:bg-blue-500"
                   onClick={handleDashboardClick}
                 >
                   Go to Dashboard
                 </button>
               ) : (
                 <>
-                  <button className="bg-[#23856D] text-white px-6 py-3 rounded-full font-bold shadow-md">
+                  <button className="bg-[#31A0FE] text-white px-6 py-3 rounded-full font-bold shadow-md">
                     Join Class
                   </button>
                   <button className="bg-white text-gray-900 px-6 py-3 rounded-full font-bold shadow-md border">
@@ -162,21 +162,33 @@ function Landing() {
           {/* Hình ảnh bên phải */}
           <div className="w-full md:w-1/2 relative mt-10 md:mt-0 ">
             <img
-              src="/bookteal.jpg"
+              src="/bookteal2.png"
               alt="Teal Book Stack"
               className="relative w-full max-w-sm mx-auto drop-shadow-lg"
             />
           </div>
         </section>
 
-        {/* Rest of your landing page content */}
-        {/* You can conditionally render different sections based on authentication status if needed */}
-        
-        {/* Feature Section */}
-        <div className="bg-[conic-gradient(#E9FFFA_0deg,#E9FFFA_90deg,white_90deg,white_270deg,#E9FFFA_270deg)] py-16 flex justify-center">
-          {/* Your existing feature section content */}
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl w-full px-4">
-            {/* Your feature cards */}
+        <div className=" py-16 px-8 md:px-20 flex flex-col md:flex-row items-center bg-[#ddf2ff]">
+          {/* Left Side */}
+          <div className="md:w-1/2 space-y-6 ">
+            <h1 className="text-4xl md:text-5xl font-bold leading-tight ">
+              Equip your team with skills for today — and tomorrow
+            </h1>
+            <p className="text-gray-400 text-lg">
+              Reach business and professional goals with technical training for your whole team.
+            </p>
+            <button className="bg-yellow-400 text-black font-bold py-3 px-6 rounded-md">
+              Explore business plans
+            </button>
+          </div>
+          
+          {/* Right Side */}
+          <div className="md:w-1/2 flex flex-wrap justify-center md:justify-end gap-6 mt-10 md:mt-0">
+            <img src="/airbnb.svg" alt="Airbnb" className="h-10 opacity-50" />
+            <img src="/amazon.svg" alt="Amazon" className="h-10 opacity-50" />
+            <img src="/dailymotion.svg" alt="Dailymotion" className="h-10 opacity-50" />
+            <img src="/reverb.svg" alt="Reverb" className="h-10 opacity-50" />
           </div>
         </div>
 
@@ -241,13 +253,51 @@ function Landing() {
           </div>
         )}
 
-        {/* Continue with the rest of your landing page content */}
-        {/* ... */}
+        {/* Hero Section */}
+        <div className="text-center py-20 bg-[#ddf2ff]">
+          <h1 className="text-4xl font-bold text-gray-900">Start Your Learning Journey Today!</h1>
+          <p className="mt-4 text-gray-700">Join LearnXpert and embark on a path of continuous growth and knowledge.</p>
+          <button className="mt-6 px-6 py-3 bg-[#31A0FE] text-white rounded-lg shadow hover:bg-blue-500">Get Started</button>
+        </div>
+        
+        {/* Footer Section */}
+        <div className="bg-white py-12 px-8 flex text-gray-900">
+          <div className="w-1/2 px-10">
+            <h3 className="font-bold text-lg">Get In Touch</h3>
+            <p className="mt-2 text-gray-600">the quick fox jumps over the lazy dog</p>
+            <div className="flex gap-4 mt-4 text-blue-500 text-xl">
+              <i className="fab fa-facebook"></i>
+              <i className="fab fa-instagram"></i>
+              <i className="fab fa-twitter"></i>
+            </div>
+          </div>
 
-        {/* Footer */}
-        <footer className="bg-white text-[#252B42]">
-          {/* Your existing footer content */}
-        </footer>
+          <div className="w-1/2 flex">
+            <div className="w-1/2 px-10">
+              <h3 className="font-bold text-lg">Company Info</h3>
+              <ul className="mt-2 text-gray-600">
+                <li>About Us</li>
+                <li>Carrier</li>
+                <li>We are hiring</li>
+                <li>Blog</li>
+              </ul>
+            </div>
+            <div className="w-1/2 px-10">
+              <h3 className="font-bold text-lg">Features</h3>
+              <ul className="mt-2 text-gray-600">
+                <li>Business Marketing</li>
+                <li>User Analytics</li>
+                <li>Live Chat</li>
+                <li>Unlimited Support</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Copyright */}
+        <div className="bg-[#ddf2ff] text-center py-4 text-gray-700">
+          Made With Love By Team 3 © 2025
+        </div>
       </div>
     </div>
   );

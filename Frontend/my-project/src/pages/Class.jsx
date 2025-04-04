@@ -90,9 +90,19 @@ function Class() {
       <div className="relative">
         <div className="flex h-full ">
             <Sidebar/>
-              
+            
             <div className="flex-1 p-6 ml-16">
-                {/* Search Bar */}
+                <div className="flex items-center justify-end mb-6">
+                    <button 
+                        className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                        onClick={() => setShowStudentInfo(true)} 
+                    >
+                        <Plus size={18} />
+                        <span>Add New Student</span>
+                    </button>
+                </div>
+
+            {/* Search Bar */}
                 <div className="flex items-center gap-2 mb-4 border rounded-lg p-2 shadow-sm">
                 <input 
                     type="text" 
@@ -102,24 +112,29 @@ function Class() {
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
                 <Search className="text-gray-500" />
-                <Plus 
-                    className="text-gray-500 cursor-pointer" 
-                    onClick={() => setShowStudentInfo(true)} 
-                />
             </div>
 
               {/* Student List */}
-              {filteredStudents.length > 0 ? (
-                filteredStudents.map((student) => (
-                    <div key={student.StudentID} className="flex items-center justify-between p-4 border rounded-lg shadow-sm bg-white mb-2">
-                        <div className="flex items-center gap-4 w-full">
-                            <div className="flex flex-row text-sm gap-4 w-full justify-between">
-                                <p><span className="font-medium">Student code:</span> {student.StudentID}</p>
-                                <p><span className="font-medium">Name:</span> {student.User.Name}</p>
-                                <p><span className="font-medium">Birth date:</span> {new Date(student.User.Birthdate).toLocaleDateString('vi-VN')}</p>
-                                <p><span className="font-medium">Gender:</span> {student.User.Gender}</p>
-                            </div>
-                            <div className="flex gap-2">
+              <table className="w-full border-collapse bg-white shadow-md rounded-lg overflow-hidden">
+                <thead>
+                    <tr className="bg-gray-200 text-gray-700 text-left">
+                        <th className="p-3 border">Name</th>
+                        <th className="p-3 border">Student code</th>
+                        <th className="p-3 border">Date of birth</th>
+                        <th className="p-3 border">Gender</th>
+                        <th className="p-3 border text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {filteredStudents.length > 0 ? (
+                    filteredStudents.map((student) => (
+                    <tr key={student.UserID} className="hover:bg-gray-100 transition">
+                        <td className="p-3 border">{student.User.Name}</td>
+                        <td className="p-3 border">{student.StudentID}</td>
+                        <td className="p-3 border">{new Date(student.User.Birthdate).toLocaleDateString('vi-VN')}</td>
+                        <td className="p-3 border">{student.User.Gender}</td>
+                        <td className="p-3 border text-center">
+                            <div className="flex justify-center gap-2">
                                 <button
                                     onClick={() => handleRemoveStudent(student.StudentID)}
                                     className={`px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-md transition
@@ -129,8 +144,8 @@ function Class() {
                                     {deletingIds.includes(student.StudentID) ? 'Đang xóa...' : 'Delete'}
                                 </button>
                             </div>
-                        </div>
-                    </div>
+                        </td>
+                    </tr>
                     ))
                     ) : (
                         <div className="text-center py-4 text-gray-500">
@@ -140,6 +155,8 @@ function Class() {
                             }
                         </div>
                     )}
+                </tbody>
+              </table>
                     
               {/* Tutor Infographic - Updated to use currentTutor from context */}
               <div className="flex flex-col items-center justify-center min-h-screen p-4">

@@ -3,6 +3,7 @@ import { toast } from 'react-toastify';
 import apiService from '../../services/apiService';
 import Sidebar from '../../components/sidebar';
 import RightSidebar from '../../components/rightSidebar';
+import { Plus, Search } from 'lucide-react';
 
 function SubjectManagement() {
   const [subjects, setSubjects] = useState([]);
@@ -98,9 +99,20 @@ function SubjectManagement() {
         <Sidebar />
 
         {/* Main content */}
-        <div className="flex-1 p-6 ml-16 transition-all duration-300 overflow-y-auto">
-          <div className="bg-white p-6 rounded-lg shadow mb-6">
+        <div className="flex-1 p-6 ml-16">
+          <div className="flex items-center justify-between mb-6">
             <h1 className="text-2xl font-bold mb-4">Subject Management</h1>
+            <button 
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+              onClick={() => {
+                  setEditingStudent(null);
+                  setShowStudentInfo(true);
+                }}
+              >
+                <Plus size={18} />
+                <span>Add New Subject</span>
+              </button>    
+            </div>
             
             {/* Create new subject form */}
             <form onSubmit={handleCreateSubject} className="mb-6">
@@ -123,14 +135,18 @@ function SubjectManagement() {
               </div>
             </form>
 
-            {/* Search bar */}
-            <input
-              type="text"
-              placeholder="Search subjects..."
-              className="w-full p-2 border rounded mb-4"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+            {/* Search Bar */}
+            <div className="flex items-center gap-2 mb-4 border rounded-lg p-2 shadow-sm">
+              <input
+                type="text"
+                placeholder="Search subjects..."
+                className="flex-1 p-2 outline-none"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            <Search className="text-gray-500 cursor-pointer" />
+            </div>
+
 
             {/* Subjects list */}
             {loading && subjects.length === 0 ? (
@@ -141,16 +157,16 @@ function SubjectManagement() {
               </p>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
+                <table className="w-full border-collapse bg-white shadow-md rounded-lg overflow-hidden">
                   <thead>
-                    <tr className="border-b bg-gray-50">
-                      <th className="p-2">ID</th>
-                      <th className="p-2">Subject Name</th>
-                      <th className="p-2">Actions</th>
-                    </tr>
+                      <tr className="bg-gray-200 text-gray-700 text-left">
+                        <th className="p-3">ID</th>
+                        <th className="p-3">Subject Name</th>
+                        <th className="p-3">Actions</th>
+                      </tr>
                   </thead>
                   <tbody>
-                    {filteredSubjects.map(subject => (
+                  {filteredSubjects.map(subject => (
                       <tr key={subject.SubjectID} className="border-b hover:bg-gray-50">
                         <td className="p-2">{subject.SubjectID}</td>
                         <td className="p-2">
@@ -211,7 +227,7 @@ function SubjectManagement() {
                 </table>
               </div>
             )}
-          </div>
+          
         </div>
 
         {/* Right sidebar */}

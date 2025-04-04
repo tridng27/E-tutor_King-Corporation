@@ -21,6 +21,7 @@ function Dashboard() {
     const [tutorClasses, setTutorClasses] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [editingStudent, setEditingStudent] = useState(null);
+    const [studentToDelete, setStudentToDelete] = useState(null);
 
     useEffect(() => {
         fetchStudents();
@@ -85,10 +86,17 @@ function Dashboard() {
         (student.Email && student.Email.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
-    const handleDelete = async (UserID) => {
+    const handleDelete = (student) => {
+        setStudentToDelete(student);
+    };
+
+    const confirmDelete = async () => {
         try {
-            await apiService.deleteStudent(UserID);
-            fetchStudents();
+            if (studentToDelete) {
+                await apiService.deleteStudent(studentToDelete.UserID);
+                fetchStudents();
+                setStudentToDelete(null); // Clear the state after deletion
+            }
         } catch (error) {
             console.error("Error deleting student:", error);
         }
@@ -182,8 +190,19 @@ function Dashboard() {
                                 <BookOpen size={18} />
                                 <span>Subject Management</span>
                             </Link>
-                        </div>
+                            <button 
+                                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                                onClick={() => {
+                                    setEditingStudent(null);
+                                    setShowStudentInfo(true);
+                                }}
+                            >
+                                <Plus size={18} />
+                                <span>Add New Student</span>
+                            </button>
+                        </div>      
                     </div>
+                    
                     
                     {/* Search Bar */}
                     <div className="flex items-center gap-2 mb-4 border rounded-lg p-2 shadow-sm">
@@ -195,61 +214,62 @@ function Dashboard() {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                         <Search className="text-gray-500 cursor-pointer" />
-                        <Plus
-                            className="text-gray-500 cursor-pointer"
-                            onClick={() => {
-                                setEditingStudent(null);
-                                setShowStudentInfo(true);
-                            }}
-                        />
                     </div>
 
                     {/* Students List */}
-                    {filteredStudents.length > 0 ? (
-                        filteredStudents.map((student) => (
-                            <div key={student.UserID} className="flex items-center justify-between p-4 border rounded-lg shadow-sm bg-white mb-3">
-                                <div className="flex items-center gap-4 w-full">
+                    <table className="w-full border-collapse bg-white shadow-md rounded-lg overflow-hidden">
+                        <thead>
+                            <tr className="bg-gray-200 text-gray-700 text-left">
+                                <th className="p-3 border">Name</th>
+                                <th className="p-3 border">Email</th>
+                                <th className="p-3 border">Birth Date</th>
+                                <th className="p-3 border">Gender</th>
+                                <th className="p-3 border text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filteredStudents.length > 0 ? (
+                                filteredStudents.map((student) => (
+                                    <tr key={student.UserID} className="hover:bg-gray-100 transition">
+                                        <td className="p-3 border">{student.Name}</td>
+                                        <td className="p-3 border">{student.Email || 'N/A'}</td>
+                                        <td className="p-3 border">{new Date(student.Birthdate).toLocaleDateString('vi-VN')}</td>
+                                        <td className="p-3 border">{student.Gender}</td>
+                                        <td className="p-3 border text-center">
+                                            <div className="flex justify-center gap-2">
+                                                <button
+                                                    className="p-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md transition"
+                                                    onClick={() => handleManageSubjects(student)}
+                                                    title="Manage Subjects"
+                                                >
+                                                    <BookOpen size={16} />
+                                                </button>
+                                                <button
+                                                    className="p-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md transition"
+                                                    onClick={() => handleEdit(student)}
+                                                    title="Edit"
+                                                >
+                                                    <Edit2 size={16} />
+                                                </button>
+                                                <button
+                                                    className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition"
+                                                    onClick={() => handleDelete(student)}
+                                                    title="Delete"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="5" className="text-center p-4 text-gray-500">No students found.</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
 
-                                    {/* <img
-                                        src={student.Avatar || "https://via.placeholder.com/48"}
-                                        alt="Avatar"
-                                        className="w-12 h-12 rounded-full object-cover"
-                                    /> */}
-                                    <div className="grid grid-cols-4 gap-4 text-sm w-full">
-                                        <p><span className="font-medium">Name:</span> {student.Name}</p>
-                                        <p><span className="font-medium">Email:</span> {student.Email || 'N/A'}</p>
-                                        <p><span className="font-medium">Birth date:</span> {new Date(student.Birthdate).toLocaleDateString('vi-VN')} </p>
-                                        <p><span className="font-medium">Gender:</span> {student.Gender}</p>
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <button
-                                            className="p-2 bg-purple-500 hover:bg-purple-600 text-white rounded-md transition"
-                                            onClick={() => handleManageSubjects(student)}
-                                            title="Manage Subjects"
-                                        >
-                                            <BookOpen size={16} />
-                                        </button>
-                                        <button
-                                            className="p-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md transition"
-                                            onClick={() => handleEdit(student)}
-                                            title="Edit"
-                                        >
-                                            <Edit2 size={16} />
-                                        </button>
-                                        <button
-                                            className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition"
-                                            onClick={() => handleDelete(student.UserID)}
-                                            title="Delete"
-                                        >
-                                            <Trash2 size={16} />
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        ))
-                    ) : (
-                        <p className="text-center text-gray-500 py-4">No students found</p>
-                    )}
 
                     {/* Tutor Infographic (Enhanced) */}
                     <div className="flex flex-col items-center justify-center min-h-screen p-4">
@@ -381,17 +401,40 @@ function Dashboard() {
 
             {/* Modal for assigning subjects to students */}
             {showAssignSubjectModal && selectedStudent && (
-    <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
-        <AssignSubjectForm
-            studentId={selectedStudent.UserID}  // Change from StudentID to UserID
-            onClose={() => setShowAssignSubjectModal(false)}
-            onSuccess={() => {
-                setShowAssignSubjectModal(false);
-                // Optionally refresh student data if needed
-            }}
-        />
-    </div>
-)}
+                <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
+                    <AssignSubjectForm
+                        studentId={selectedStudent.UserID}  // Change from StudentID to UserID
+                        onClose={() => setShowAssignSubjectModal(false)}
+                        onSuccess={() => {
+                            setShowAssignSubjectModal(false);
+                            // Optionally refresh student data if needed
+                        }}
+                    />
+                </div>
+            )}
+
+            {studentToDelete && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+                        <h3 className="text-lg font-semibold mb-4">Confirm Deletion</h3>
+                        <p className="mb-6">Are you sure you want to delete student "{studentToDelete.Name}"? This action cannot be undone.</p>
+                        <div className="flex justify-end gap-3">
+                            <button 
+                                className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300"
+                                onClick={() => setStudentToDelete(null)}
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                                onClick={confirmDelete}
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
         </div>
     );

@@ -156,7 +156,7 @@ function Login() {
             <button
                 type="submit"
                 disabled={redirectAttempted.current}
-                className={`w-full ${redirectAttempted.current ? 'bg-blue-200' : ' hover:bg-blue-500'} bg-blue-600 text-white py-3 text-lg font-bold rounded-3xl`}
+                className={`w-full ${redirectAttempted.current ? 'bg-blue-200' : ' hover:bg-blue-500'} bg-[#31A0FE] text-white py-3 text-lg font-bold rounded-3xl`}
               >
                 {redirectAttempted.current ? 'Redirecting...' : 'Login →'}
             </button>

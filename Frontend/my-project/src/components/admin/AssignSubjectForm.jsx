@@ -79,6 +79,7 @@ function AssignSubjectForm({ studentId, onClose, onSuccess }) {
   );
 
   return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">  
     <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
       <h2 className="text-xl font-bold mb-4">Assign Subject to Student</h2>
       
@@ -130,7 +131,7 @@ function AssignSubjectForm({ studentId, onClose, onSuccess }) {
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+            className="px-4 py-2 border rounded-md bg-red-500 hover:bg-red-600 text-white"
             disabled={loading}
           >
             Cancel
@@ -144,6 +145,7 @@ function AssignSubjectForm({ studentId, onClose, onSuccess }) {
           </button>
         </div>
       </form>
+    </div>
     </div>
   );
 }
