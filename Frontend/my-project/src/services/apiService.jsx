@@ -316,6 +316,7 @@ const apiService = {
       throw error;
     }
   },
+  
   getStudentsByClass: async (classId) => {
     try {
       const response = await apiClient.get(`/class-students/${classId}/students`);
@@ -325,6 +326,7 @@ const apiService = {
       throw error;
     }
   },  
+  
   assignStudentToClass: async (classId, studentId) => {
     try {
       console.log(`Attempting to assign student ${studentId} to class ${classId}`);
@@ -361,97 +363,241 @@ const apiService = {
       throw error;
     }
   },
+  
   getStudentsNotInClass: async (classId) => {
     try {
-        const response = await apiClient.get(`/class-students/${classId}/students/not-in-class`);
-        return response.data;
+      const response = await apiClient.get(`/class-students/${classId}/students/not-in-class`);
+      return response.data;
     } catch (error) {
-        console.error("Error fetching students not in class:", error);
-        throw error;
+      console.error("Error fetching students not in class:", error);
+      throw error;
     }
   },
 
-// Tutor management
-getAllTutors: async () => {
-  try {
+  // Tutor management
+  getAllTutors: async () => {
+    try {
       const response = await apiClient.get('/admin/tutors');
       return response.data;
-  } catch (error) {
+    } catch (error) {
       console.error('Error fetching tutors:', error);
       throw error;
-  }
-},
+    }
+  },
 
-getTutorById: async (id) => {
-  try {
+  getTutorById: async (id) => {
+    try {
       const response = await apiClient.get(`/admin/tutors/${id}`);
       return response.data;
-  } catch (error) {
+    } catch (error) {
       console.error(`Error fetching tutor ${id}:`, error);
       throw error;
-  }
-},
+    }
+  },
 
-updateTutor: async (id, tutorData) => {
-  try {
+  updateTutor: async (id, tutorData) => {
+    try {
       const response = await apiClient.put(`/admin/tutors/${id}`, tutorData);
       return response.data;
-  } catch (error) {
+    } catch (error) {
       console.error(`Error updating tutor ${id}:`, error);
       throw error;
-  }
-},
+    }
+  },
 
-deleteTutor: async (id) => {
-  try {
+  deleteTutor: async (id) => {
+    try {
       const response = await apiClient.delete(`/admin/tutors/${id}`);
       return response.data;
-  } catch (error) {
+    } catch (error) {
       console.error(`Error deleting tutor ${id}:`, error);
       throw error;
-  }
-},
+    }
+  },
 
-// Class-tutor assignment
-getClassesWithoutTutor: async () => {
-  try {
+  // Class-tutor assignment
+  getClassesWithoutTutor: async () => {
+    try {
       const response = await apiClient.get('/admin/classes/without-tutor');
       return response.data;
-  } catch (error) {
+    } catch (error) {
       console.error('Error fetching classes without tutor:', error);
       throw error;
-  }
-},
+    }
+  },
 
-getClassesByTutor: async (tutorId) => {
-  try {
+  getClassesByTutor: async (tutorId) => {
+    try {
       const response = await apiClient.get(`/admin/tutors/${tutorId}/classes`);
       return response.data;
-  } catch (error) {
+    } catch (error) {
       console.error(`Error fetching classes for tutor ${tutorId}:`, error);
       throw error;
-  }
-},
+    }
+  },
 
-assignTutorToClass: async (classId, tutorId) => {
-  try {
+  assignTutorToClass: async (classId, tutorId) => {
+    try {
       const response = await apiClient.post(`/admin/classes/${classId}/tutors/${tutorId}`);
       return response.data;
-  } catch (error) {
+    } catch (error) {
       console.error(`Error assigning tutor ${tutorId} to class ${classId}:`, error);
       throw error;
-  }
-},
+    }
+  },
 
-removeTutorFromClass: async (classId, tutorId) => {
-  try {
+  removeTutorFromClass: async (classId, tutorId) => {
+    try {
       const response = await apiClient.delete(`/admin/classes/${classId}/tutors/${tutorId}`);
       return response.data;
-  } catch (error) {
+    } catch (error) {
       console.error(`Error removing tutor ${tutorId} from class ${classId}:`, error);
       throw error;
+    }
+  },
+
+  // Tutor dashboard methods
+  getTutorClasses: async () => {
+    try {
+      const response = await apiClient.get('/tutor/classes');
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching tutor classes:", error);
+      throw error;
+    }
+  },
+
+  getTutorClassStudents: async (classId) => {
+    try {
+      const response = await apiClient.get(`/tutor/classes/${classId}/students`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching students for class ${classId}:`, error);
+      throw error;
+    }
+  },
+
+  getStudentSubjects: async (studentId) => {
+    try {
+      const response = await apiClient.get(`/studentsubjects/students/${studentId}/subjects`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching subjects for student ${studentId}:`, error);
+      throw error;
+    }
+  },
+
+  updateStudentSubject: async (studentSubjectId, data) => {
+    try {
+      const response = await apiClient.put(`/studentsubjects/${studentSubjectId}`, data);
+      return response.data;
+    } catch (error) {
+      console.error(`Error updating student subject ${studentSubjectId}:`, error);
+      throw error;
+    }
+  },
+
+  // Subject management - NEW METHODS
+  getAllSubjects: async () => {
+    try {
+      const response = await apiClient.get('/subjects');
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching subjects:", error);
+      throw error;
+    }
+  },
+
+  getSubjectById: async (id) => {
+    try {
+      const response = await apiClient.get(`/subjects/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching subject ${id}:`, error);
+      throw error;
+    }
+  },
+
+  createSubject: async (subjectData) => {
+    try {
+      const response = await apiClient.post('/subjects', subjectData);
+      return response.data;
+    } catch (error) {
+      console.error("Error creating subject:", error);
+      throw error;
+    }
+  },
+
+  updateSubject: async (id, subjectData) => {
+    try {
+      const response = await apiClient.put(`/subjects/${id}`, subjectData);
+      return response.data;
+    } catch (error) {
+      console.error(`Error updating subject ${id}:`, error);
+      throw error;
+    }
+  },
+
+  deleteSubject: async (id) => {
+    try {
+      const response = await apiClient.delete(`/subjects/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error deleting subject ${id}:`, error);
+      throw error;
+    }
+  },
+
+  // Student-Subject management - NEW METHODS
+  createStudentSubject: async (data) => {
+    try {
+      const response = await apiClient.post('/studentsubjects', data);
+      return response.data;
+    } catch (error) {
+      console.error("Error creating student subject:", error);
+      throw error;
+    }
+  },
+
+  getAllStudentSubjects: async () => {
+    try {
+      const response = await apiClient.get('/studentsubjects');
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching all student subjects:", error);
+      throw error;
+    }
+  },
+
+  getStudentSubjectById: async (id) => {
+    try {
+      const response = await apiClient.get(`/studentsubjects/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching student subject ${id}:`, error);
+      throw error;
+    }
+  },
+
+  deleteStudentSubject: async (id) => {
+    try {
+      const response = await apiClient.delete(`/studentsubjects/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error deleting student subject ${id}:`, error);
+      throw error;
+    }
+  },
+
+  getSubjectsByClass: async (classId) => {
+    try {
+      const response = await apiClient.get(`/studentsubjects/class/${classId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching subjects for class ${classId}:`, error);
+      throw error;
+    }
   }
-},
 };
 
 export default apiService;

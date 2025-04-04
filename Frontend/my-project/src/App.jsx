@@ -17,8 +17,9 @@ import Notfound from "./pages/Notfound";
 import Unauthorized from "./pages/Unauthorized";
 import ResourceDetail from "./components/course/ResourceDetail";
 import ResourceForm from "./components/course/ResourceForm";
-import AdminPage from "./pages/admin/AdminPage"; // Add this import
-import DirectMessages from "./pages/DirectMessages"; // Add this import
+import AdminPage from "./pages/admin/AdminPage"; 
+import DirectMessages from "./pages/DirectMessages";
+import SubjectManagement from "./pages/admin/SubjectManagement"; // Added import for SubjectManagement
 
 function App() {
   return (
@@ -48,6 +49,16 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['Admin']}>
                 <AdminPage />
+              </ProtectedRoute>
+            }
+          />
+          
+          {/* Subject Management Route */}
+          <Route
+            path="/admin/subjects"
+            element={
+              <ProtectedRoute allowedRoles={['Admin']}>
+                <SubjectManagement />
               </ProtectedRoute>
             }
           />

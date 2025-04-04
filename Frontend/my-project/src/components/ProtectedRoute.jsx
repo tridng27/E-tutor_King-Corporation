@@ -72,7 +72,17 @@ function ProtectedRoute({ children, allowedRoles = [] }) {
   // If roles are specified and user doesn't have the required role
   if (allowedRoles.length > 0 && !allowedRoles.includes(authStatus.user.Role)) {
     console.log(`ProtectedRoute: User role ${authStatus.user.Role} not allowed, required roles:`, allowedRoles);
-    return <Navigate to="/unauthorized" replace />;
+    
+    // Redirect based on user role
+    if (authStatus.user.Role === 'Tutor') {
+      return <Navigate to="/tutor/dashboard" replace />;
+    } else if (authStatus.user.Role === 'Student') {
+      return <Navigate to="/student/dashboard" replace />;
+    } else if (authStatus.user.Role === 'Admin') {
+      return <Navigate to="/admin/dashboard" replace />;
+    } else {
+      return <Navigate to="/unauthorized" replace />;
+    }
   }
  
   // If all checks pass, render the children
