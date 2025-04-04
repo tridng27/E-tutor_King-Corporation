@@ -112,6 +112,7 @@ const TutorInformation = ({ onClose, tutor, refreshTutors, classId }) => {
     };
 
     return (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
         <div className="bg-white p-6 rounded-lg shadow-lg w-96 max-h-[90vh] overflow-y-auto">
             <h2 className="text-lg font-semibold mb-4">
                 {mode === 'edit' 
@@ -246,6 +247,8 @@ const TutorInformation = ({ onClose, tutor, refreshTutors, classId }) => {
                 </div>
             </form>
         </div>
+
+    </div>
     );
 };
 

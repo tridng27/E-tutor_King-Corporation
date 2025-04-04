@@ -107,25 +107,25 @@ function Sidebar() {
             )}
 
             <div
-                className={`fixed left-0 top-0 h-screen bg-teal-50 p-5 space-y-6 overflow-y-auto shadow-xl transition-all duration-500 ${
+                className={`fixed left-0 top-0 h-screen bg-[#e4f5ff] p-5 space-y-6 overflow-y-auto shadow-xl transition-all duration-500 ${
                     isSidebarOpen ? "w-64 z-50" : "w-16"
                 }`}
                 onMouseEnter={() => setIsSidebarOpen(true)}
                 onMouseLeave={() => setIsSidebarOpen(false)}
             >
-                <h1 className="text-xl font-bold text-teal-500 whitespace-nowrap text-center">
+                <h1 className="text-xl font-bold text-[#31A0FE] whitespace-nowrap text-center">
                     LX
                 </h1>
                 <nav className="space-y-6">
                     {/* Home/Landing button */}
                     <a
                         href="#"
-                        className="flex items-center space-x-3 rounded-lg hover:bg-gray-200 p-2"
+                        className="flex items-center space-x-3 rounded-lg hover:bg-gray-100 p-2"
                         onClick={handleHomeClick}
                     >
                         {/* Add min-width and center the icon when sidebar is collapsed */}
                         <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>
-                            <Home className="w-6 h-6 text-teal-500 min-w-[24px]" />
+                            <Home className="w-6 h-6 text-[#31A0FE] min-w-[24px]" />
                         </div>
                         <span className={`text-gray-700 transition-all duration-300 ${isSidebarOpen ? "block" : "hidden"}`}>
                             Home
@@ -135,11 +135,11 @@ function Sidebar() {
                     {/* Dashboard button */}
                     <a
                         href="#"
-                        className="flex items-center space-x-3 rounded-lg hover:bg-gray-200 p-2"
+                        className="flex items-center space-x-3 rounded-lg hover:bg-gray-100 p-2"
                         onClick={handleDashboardClick}
                     >
                         <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>
-                            <LayoutDashboard className="w-6 h-6 text-teal-500 min-w-[24px]" />
+                            <LayoutDashboard className="w-6 h-6 text-[#31A0FE] min-w-[24px]" />
                         </div>
                         <span className={`text-gray-700 transition-all duration-300 ${isSidebarOpen ? "block" : "hidden"}`}>
                             Dashboard
@@ -150,11 +150,11 @@ function Sidebar() {
                     {userRole === 'Admin' && (
                         <a
                             href="#"
-                            className="flex items-center space-x-3 rounded-lg hover:bg-gray-200 p-2"
+                            className="flex items-center space-x-3 rounded-lg hover:bg-gray-100 p-2"
                             onClick={handleAdminClick}
                         >
                             <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>
-                                <Users className="w-6 h-6 text-teal-500 min-w-[24px]" />
+                                <Users className="w-6 h-6 text-[#31A0FE] min-w-[24px]" />
                             </div>
                             <span className={`text-gray-700 transition-all duration-300 ${isSidebarOpen ? "block" : "hidden"}`}>
                                 ManagerTool
@@ -165,12 +165,12 @@ function Sidebar() {
                     {/* Timetable button - Updated to use the common route */}
                     <a
                         href="#"
-                        className="flex items-center space-x-3 rounded-lg hover:bg-gray-200 p-2"
+                        className="flex items-center space-x-3 rounded-lg hover:bg-gray-100 p-2"
                         onClick={handleTTableClick}
                     >
                         {/* Add min-width and center the icon when sidebar is collapsed */}
                         <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>
-                            <Calendar className="w-6 h-6 text-teal-500 min-w-[24px]" />
+                            <Calendar className="w-6 h-6 text-[#31A0FE] min-w-[24px]" />
                         </div>
                         <span className={`text-gray-700 transition-all duration-300 ${isSidebarOpen ? "block" : "hidden"}`}>
                             TimeTable
@@ -180,11 +180,11 @@ function Sidebar() {
                     {/* Course button - Updated to use handleCourseClick */}
                     <a 
                         href="#" 
-                        className="flex items-center space-x-3 rounded-lg hover:bg-gray-200 p-2"
+                        className="flex items-center space-x-3 rounded-lg hover:bg-gray-100 p-2"
                         onClick={handleCourseClick}
                     >
                         <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>
-                            <BookHeart className="w-6 h-6 text-teal-500 min-w-[24px]" />
+                            <BookHeart className="w-6 h-6 text-[#31A0FE] min-w-[24px]" />
                         </div>
                         <span className={`text-gray-700 transition-all duration-300 ${isSidebarOpen ? "block" : "hidden"}`}>
                             Course
@@ -193,11 +193,11 @@ function Sidebar() {
 
                     <a
                         href="#"
-                        className="flex items-center space-x-3 rounded-lg hover:bg-gray-200 p-2"
+                        className="flex items-center space-x-3 rounded-lg hover:bg-gray-100 p-2"
                         onClick={handleSocialClick}
                     >
                         <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>
-                            <Earth className="w-6 h-6 text-teal-500 min-w-[24px]" />
+                            <Earth className="w-6 h-6 text-[#31A0FE] min-w-[24px]" />
                         </div>
                         <span className={`text-gray-700 transition-all duration-300 ${isSidebarOpen ? "block" : "hidden"}`}>
                             Social
@@ -211,11 +211,11 @@ function Sidebar() {
                         {/* Messages button - Updated to navigate to direct messages */}
                         <a 
                             href="#" 
-                            className="flex items-center space-x-3 rounded-lg hover:bg-gray-200 p-2"
+                            className="flex items-center space-x-3 rounded-lg hover:bg-gray-100 p-2"
                             onClick={handleMessagesClick}
                         >
                             <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>
-                                <MessageSquare className="w-6 h-6 text-teal-500 min-w-[24px]" />
+                                <MessageSquare className="w-6 h-6 text-[#31A0FE] min-w-[24px]" />
                             </div>
                             <div className="flex items-center">
                                 <span className={`text-gray-700 transition-all duration-300 ${isSidebarOpen ? "block" : "hidden"}`}>
@@ -232,10 +232,10 @@ function Sidebar() {
                         {/* FIXED: Changed from nested <a> and <Link> to just <Link> */}
                         <Link 
                             to={`/meeting/${uuidv4()}`} 
-                            className="flex items-center space-x-3 rounded-lg hover:bg-gray-200 p-2"
+                            className="flex items-center space-x-3 rounded-lg hover:bg-gray-100 p-2"
                         >
                             <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>
-                                <PhoneCall className="w-6 h-6 text-teal-500 min-w-[24px]" />
+                                <PhoneCall className="w-6 h-6 text-[#31A0FE] min-w-[24px]" />
                             </div>
                             <span className={`text-gray-700 transition-all duration-300 ${isSidebarOpen ? "block" : "hidden"}`}>
                                 Meeting
@@ -247,7 +247,7 @@ function Sidebar() {
                     <div className="absolute bottom-5 left-0 right-0 px-5">
                         <a
                             href="#"
-                            className="flex items-center space-x-3 rounded-lg hover:bg-gray-200 p-2 text-red-500"
+                            className="flex items-center space-x-3 rounded-lg hover:bg-gray-100 p-2 text-red-500"
                             onClick={handleLogoutClick}
                         >
                             <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>

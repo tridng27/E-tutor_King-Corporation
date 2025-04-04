@@ -133,7 +133,7 @@ function ResourceForm() {
               onClick={() => navigate('/course')}
               className="text-blue-500 hover:underline flex items-center"
             >
-              <span className="mr-1">←</span> Back to Study Materials
+               ← Back to Study Materials
             </button>
           </div>
 

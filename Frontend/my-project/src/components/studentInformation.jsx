@@ -32,14 +32,14 @@ function StudentInformation({ onClose, student, refreshStudents }) {
 
     const validateForm = () => {
         const newErrors = {};
-        if (!formData.Name) newErrors.Name = 'Vui lòng nhập tên';
+        if (!formData.Name) newErrors.Name = 'Please enter a name';
         if (!formData.Email) {
-            newErrors.Email = 'Vui lòng nhập email';
+            newErrors.Email = 'Please enter email';
         } else if (!/^\S+@\S+\.\S+$/.test(formData.Email)) {
-            newErrors.Email = 'Email không hợp lệ';
+            newErrors.Email = 'Invalid email';
         }
         if (!student && !formData.Password) {
-            newErrors.Password = 'Vui lòng nhập mật khẩu';
+            newErrors.Password = 'Please enter password';
         }
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -61,8 +61,8 @@ function StudentInformation({ onClose, student, refreshStudents }) {
             refreshStudents();
             onClose();
         } catch (error) {
-            console.error("Lỗi khi lưu dữ liệu:", error);
-            alert(error.response?.data?.message || "Đã xảy ra lỗi. Vui lòng thử lại.");
+            console.error("Error while storing data:", error);
+            alert(error.response?.data?.message || "An error occurred. Please try again.");
         }
     };
 
@@ -70,13 +70,13 @@ function StudentInformation({ onClose, student, refreshStudents }) {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
             <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
                 <h2 className="text-xl font-semibold mb-4">
-                    {student ? 'Chỉnh sửa học sinh' : 'Thêm học sinh mới'}
+                    {student ? 'Edit student' : 'Add new student'}
                 </h2>
                 
                 <form onSubmit={handleSubmit} className="space-y-3">
                     {/* Tên */}
                     <div>
-                        <label className="block mb-1">Tên học sinh *</label>
+                        <label className="block mb-1">Name *</label>
                         <input
                             type="text"
                             name="Name"
@@ -104,7 +104,7 @@ function StudentInformation({ onClose, student, refreshStudents }) {
                     {/* Mật khẩu (chỉ khi thêm mới) */}
                     {!student && (
                         <div>
-                            <label className="block mb-1">Mật khẩu *</label>
+                            <label className="block mb-1">Password *</label>
                             <input
                                 type="password"
                                 name="Password"
@@ -118,7 +118,7 @@ function StudentInformation({ onClose, student, refreshStudents }) {
 
                     {/* Ngày sinh */}
                     <div>
-                        <label className="block mb-1">Ngày sinh</label>
+                        <label className="block mb-1">Date of birth</label>
                         <input
                             type="date"
                             name="Birthdate"
@@ -131,16 +131,16 @@ function StudentInformation({ onClose, student, refreshStudents }) {
 
                     {/* Giới tính */}
                     <div>
-                        <label className="block mb-1">Giới tính</label>
+                        <label className="block mb-1">Gender</label>
                         <select
                             name="Gender"
                             value={formData.Gender}
                             onChange={handleChange}
                             className="w-full p-2 border rounded"
                         >
-                            <option value="Male">Nam</option>
-                            <option value="Female">Nữ</option>
-                            <option value="Other">Khác</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
                         </select>
                     </div>
 
@@ -149,15 +149,15 @@ function StudentInformation({ onClose, student, refreshStudents }) {
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-4 py-2 border rounded hover:bg-gray-100"
+                            className="px-4 py-2 border rounded-md bg-red-500 hover:bg-red-600 text-white"
                         >
-                            Huỷ
+                            Cancel
                         </button>
                         <button
                             type="submit"
                             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                         >
-                            {student ? 'Cập nhật' : 'Tạo mới'}
+                            {student ? 'Update' : 'Create'}
                         </button>
                     </div>
                 </form>
