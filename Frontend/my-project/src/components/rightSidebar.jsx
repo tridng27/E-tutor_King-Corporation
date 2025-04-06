@@ -35,15 +35,25 @@ function RightSidebar() {
         }
     };
 
-    const handleAddClass = async (newClass) => {
-        try {
+    // Modify the handleAddClass function in RightSidebar.jsx
+const handleAddClass = async (newClass) => {
+    try {
+        // Check if the class already has a ClassID (meaning it was already created)
+        if (newClass.ClassID) {
+            console.log("Class already created, just updating the UI", newClass);
+            // Just update the UI without making another API call
+            setClasses(prevClasses => [...prevClasses, newClass]);
+        } else {
+            // Only create a new class if it doesn't have an ID yet
+            console.log("Creating new class via API", newClass);
             const response = await apiService.post("/classes", newClass);
-            setClasses([...classes, response.data]);
-            setShowClassForm(false);
-        } catch (error) {
-            console.error("Error adding class:", error);
+            setClasses(prevClasses => [...prevClasses, response.data]);
         }
-    };
+        setShowClassForm(false);
+    } catch (error) {
+        console.error("Error adding class:", error);
+    }
+};
 
     const handleUpdateClass = async (updatedClass) => {
         try {

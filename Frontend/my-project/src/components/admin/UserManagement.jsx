@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import apiService from '../../services/apiService';
 
-// Make sure to use a proper function declaration
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
   const [pendingUsers, setPendingUsers] = useState([]);
@@ -29,13 +28,13 @@ const UserManagement = () => {
     }
   };
 
-  const handleAssignRole = async (userId, role) => {
+  const handleApproveUser = async (userId, requestedRole) => {
     try {
-      await apiService.assignUserRole(userId, role);
-      setSuccessMessage(`User role assigned successfully to ${role}`);
+      await apiService.assignUserRole(userId, requestedRole || 'Student');
+      setSuccessMessage(`User approved successfully as ${requestedRole || 'Student'}`);
       fetchUsers(); // Refresh user lists
     } catch (error) {
-      setError('Failed to assign role: ' + error.message);
+      setError('Failed to approve user: ' + error.message);
     }
   };
 
@@ -48,6 +47,16 @@ const UserManagement = () => {
       } catch (error) {
         setError('Failed to delete user: ' + error.message);
       }
+    }
+  };
+
+  const handleChangeRole = async (userId, newRole) => {
+    try {
+      await apiService.assignUserRole(userId, newRole);
+      setSuccessMessage(`User role changed successfully to ${newRole}`);
+      fetchUsers(); // Refresh user lists
+    } catch (error) {
+      setError('Failed to change role: ' + error.message);
     }
   };
 
@@ -97,6 +106,7 @@ const UserManagement = () => {
                   <th className="px-4 py-2 border">ID</th>
                   <th className="px-4 py-2 border">Name</th>
                   <th className="px-4 py-2 border">Email</th>
+                  <th className="px-4 py-2 border">Requested Role</th>
                   <th className="px-4 py-2 border">Register Date</th>
                   <th className="px-4 py-2 border">Actions</th>
                 </tr>
@@ -107,20 +117,22 @@ const UserManagement = () => {
                     <td className="px-4 py-2 border">{user.UserID}</td>
                     <td className="px-4 py-2 border">{user.Name}</td>
                     <td className="px-4 py-2 border">{user.Email}</td>
+                    <td className="px-4 py-2 border">
+                      <span className={`px-2 py-1 rounded text-xs ${
+                        user.RequestedRole === 'Tutor' ? 'bg-blue-100 text-blue-800' : 
+                        'bg-green-100 text-green-800'
+                      }`}>
+                        {user.RequestedRole || 'Student'}
+                      </span>
+                    </td>
                     <td className="px-4 py-2 border">{new Date(user.RegisterDate).toLocaleDateString()}</td>
                     <td className="px-4 py-2 border">
                       <div className="flex space-x-2">
                         <button 
                           className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-sm"
-                          onClick={() => handleAssignRole(user.UserID, 'Student')}
+                          onClick={() => handleApproveUser(user.UserID, user.RequestedRole || 'Student')}
                         >
-                          Approve as Student
-                        </button>
-                        <button 
-                          className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-sm"
-                          onClick={() => handleAssignRole(user.UserID, 'Tutor')}
-                        >
-                          Approve as Tutor
+                          Approve as {user.RequestedRole || 'Student'}
                         </button>
                         <button 
                           className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm"
@@ -175,14 +187,14 @@ const UserManagement = () => {
                         <>
                           <button 
                             className="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-sm"
-                            onClick={() => handleAssignRole(user.UserID, 'Student')}
+                            onClick={() => handleChangeRole(user.UserID, 'Student')}
                             disabled={user.Role === 'Student'}
                           >
                             Set as Student
                           </button>
                           <button 
                             className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-sm"
-                            onClick={() => handleAssignRole(user.UserID, 'Tutor')}
+                            onClick={() => handleChangeRole(user.UserID, 'Tutor')}
                             disabled={user.Role === 'Tutor'}
                           >
                             Set as Tutor
@@ -207,5 +219,4 @@ const UserManagement = () => {
   );
 };
 
-// Make sure to add this default export
 export default UserManagement;
