@@ -1,7 +1,7 @@
 // routes/authRoutes.js
 const express = require("express");
 const { register, login, logout, getMe } = require("../controllers/authController");
-const verifyToken = require("../middleware/authMiddleware"); // Note the capital M
+const verifyToken = require("../Middleware/authMiddleware"); // Note the capital M
 
 const router = express.Router();
 
