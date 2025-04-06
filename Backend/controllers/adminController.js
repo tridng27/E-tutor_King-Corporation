@@ -23,17 +23,17 @@ exports.getPendingUsers = async (req, res) => {
         console.log("Attempting to fetch pending users...");
         
         // Check what values are allowed in your Role enum
-        const pendingUsers = await User.findAll({ 
+        const pendingUsers = await User.findAll({
             where: { Role: null }, // Changed from 'Pending' to null
-            attributes: ['UserID', 'Email', 'Name', 'RegisterDate']
+            attributes: ['UserID', 'Email', 'Name', 'RegisterDate', 'RequestedRole']
         });
         
         console.log("Pending users fetched successfully:", pendingUsers.length);
         res.status(200).json(pendingUsers);
     } catch (error) {
         console.error("Error in getPendingUsers:", error);
-        res.status(500).json({ 
-            message: "Error fetching pending users", 
+        res.status(500).json({
+            message: "Error fetching pending users",
             error: error.message
         });
     }
@@ -65,8 +65,8 @@ exports.assignUserRole = async (req, res) => {
         const userResponse = user.toJSON();
         delete userResponse.Password;
         
-        res.status(200).json({ 
-            message: `User role updated successfully to ${role}`, 
+        res.status(200).json({
+            message: `User role updated successfully to ${role}`,
             user: userResponse
         });
     } catch (error) {

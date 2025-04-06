@@ -3,9 +3,9 @@ const { registerUser, loginUser } = require("../services/authService");
 
 const register = async (req, res) => {
   try {
-    const { email, password, name } = req.body;
+    const { email, password, name, requestedRole } = req.body;
     // Tạo user mới với Role là null (chờ admin duyệt)
-    const newUser = await registerUser({ email, password, name });
+    const newUser = await registerUser({ email, password, name, requestedRole });
     res.status(201).json({
       message: "Đăng ký thành công, tài khoản của bạn đang chờ admin duyệt.",
       user: newUser,
@@ -81,7 +81,5 @@ const getMe = async (req, res) => {
     res.status(401).json({ message: "Authentication failed", error: error.message });
   }
 };
-
-
 
 module.exports = { register, login, logout, getMe };

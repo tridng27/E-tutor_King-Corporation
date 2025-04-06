@@ -6,6 +6,8 @@ function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [name, setName] = useState("");
+  const [requestedRole, setRequestedRole] = useState("Student"); // Default to Student
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
@@ -45,7 +47,8 @@ function Signup() {
       const response = await apiService.post("/auth/register", {
         email,
         password,
-        name: email.split("@")[0] // Nếu bạn không có field 'name' trong form, có thể thay thế bằng cách khác
+        name: name || email.split("@")[0], // Use provided name or fallback to email username
+        requestedRole // Send the requested role to the backend
       });
 
       // Giả sử backend trả về một thông báo thành công khi đăng ký
@@ -65,7 +68,7 @@ function Signup() {
   return (
       <div className="flex h-screen">
       {/* Left Section - Login Form */}
-      <div className="w-1/2  flex flex-col justify-center items-center relative px-6">
+      <div className="w-1/2 flex flex-col justify-center items-center relative px-6">
         <img src="/illustration.png" className="" alt="User" />
       </div>
 
@@ -93,6 +96,43 @@ function Signup() {
             className="w-full p-3 border mb-3 text-gray-700 rounded-3xl" 
             required
           />
+
+          <input 
+            type="text" 
+            placeholder="Your Name" 
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full p-3 border mb-3 text-gray-700 rounded-3xl" 
+            required
+          />
+
+          <div className="w-full p-3 border mb-3 text-gray-700 rounded-3xl">
+            <label className="block text-gray-500 mb-1">I want to join as:</label>
+            <div className="flex gap-4">
+              <label className="flex items-center">
+                <input 
+                  type="radio" 
+                  name="role" 
+                  value="Student" 
+                  checked={requestedRole === "Student"}
+                  onChange={() => setRequestedRole("Student")}
+                  className="mr-2" 
+                />
+                Student
+              </label>
+              <label className="flex items-center">
+                <input 
+                  type="radio" 
+                  name="role" 
+                  value="Tutor" 
+                  checked={requestedRole === "Tutor"}
+                  onChange={() => setRequestedRole("Tutor")}
+                  className="mr-2" 
+                />
+                Tutor
+              </label>
+            </div>
+          </div>
 
           <input 
             type="password" 
@@ -126,22 +166,30 @@ function Signup() {
             <a href="#" className="text-blue-600">Forget password?</a>
           </div>
 
-            <button
-                type="submit"
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+              <span className="block sm:inline">{error}</span>
+            </div>
+          )}
 
-                className="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 text-lg font-bold rounded-3xl"
-              >
-                Sign Up 
-            </button>
+          {success && (
+            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
+              <span className="block sm:inline">{success}</span>
+            </div>
+          )}
+
+          <button
+            type="submit"
+            className="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 text-lg font-bold rounded-3xl"
+          >
+            Sign Up 
+          </button>
         </form>
         
-
         <p className="text-gray-500 text-center mt-4">
           Already have an Account? <a href="/login" className="text-blue-600">Login</a>
         </p>
       </div>
-
-      {/* Right Section - Illustration */}
     </div>
   );
 }

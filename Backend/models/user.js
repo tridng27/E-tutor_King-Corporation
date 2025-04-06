@@ -33,6 +33,12 @@ const User = sequelize.define("User", {
     type: DataTypes.ENUM("Admin", "Tutor", "Student"),
     allowNull: true
   },
+  // Add this new field for requested role
+  RequestedRole: {
+    type: DataTypes.ENUM("Tutor", "Student"),
+    allowNull: true,
+    defaultValue: "Student"
+  },
   RegisterDate: {
     type: DataTypes.DATE,
     allowNull: false,

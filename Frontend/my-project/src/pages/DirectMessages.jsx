@@ -4,7 +4,7 @@ import { useGlobal } from '../context/GlobalContext';
 import ConversationList from '../components/DirectMessages/ConversationList';
 import MessageArea from '../components/DirectMessages/MessageArea';
 import UserSearch from '../components/DirectMessages/UserSearch';
-import Sidebar from '../components/sidebar'; // Import the Sidebar component
+import Sidebar from '../components/sidebar';
 
 const DirectMessages = () => {
   const { 

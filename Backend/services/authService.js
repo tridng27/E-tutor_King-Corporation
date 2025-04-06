@@ -11,7 +11,7 @@ if (!JWT_SECRET) {
   // In production, you might want to throw an error here
 }
 
-const registerUser = async ({ email, password, name }) => {
+const registerUser = async ({ email, password, name, requestedRole }) => {
   const existingUser = await User.findOne({ where: { Email: email } });
   if (existingUser) {
     throw new Error("Email đã được sử dụng.");
@@ -19,12 +19,13 @@ const registerUser = async ({ email, password, name }) => {
  
   const hashedPassword = await bcrypt.hash(password, 10);
  
-  // Tạo user mới với Role là null (chờ admin duyệt)
+  // Tạo user mới với Role là null (chờ admin duyệt) và lưu RequestedRole
   const newUser = await User.create({
     Email: email,
     Password: hashedPassword,
     Name: name,
     Role: null,
+    RequestedRole: requestedRole || "Student", // Default to Student if not specified
   });
  
   // Don't return the password hash
