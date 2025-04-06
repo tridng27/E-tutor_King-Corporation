@@ -20,6 +20,7 @@
     "cookie-parser": "^1.4.7",
     "date-fns": "^4.1.0",
     "dompurify": "^3.2.4",
+    "js-cookie": "^3.0.5",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.477.0",
     "peerjs": "^1.5.4",

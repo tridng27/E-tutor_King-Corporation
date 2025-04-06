@@ -3,6 +3,7 @@ import RightSidebar from "../../components/rightSidebar";
 import Sidebar from "../../components/sidebar";
 import { Chart } from "react-google-charts";
 import apiService from "../../services/apiService";
+import { jwtDecode } from "jwt-decode";
 
 function Dashboard() {
     const [studentId] = useState(1);
@@ -11,11 +12,15 @@ function Dashboard() {
     ]);
     
     const [attendanceData, setAttendanceData] = useState([]); // Dữ liệu điểm danh dạng danh sách
-    
-    useEffect(() => {
+    const [messageTimelineData, setMessageTimelineData] = useState([]);
+    const [messagesByHourData, setMessagesByHourData] = useState([]);
+
+    useEffect(() => { 
+        fetchPerformanceData();
+        fetchMessageData();
+    }, [studentId]); 
         const fetchPerformanceData = async () => {
             try {
-                // const studentId = 1; // Thay bằng studentId thực tế
 
                 const response = await apiService.get(`/students/${studentId}/performance`);
 
@@ -41,10 +46,48 @@ function Dashboard() {
                 console.error("Lỗi khi lấy dữ liệu:", error);
             }
         };
-    
-        fetchPerformanceData();
-    }, [studentId]);
-    
+
+        const fetchMessageData = async () => {
+            try {
+                const response1 = await apiService.get('/auth/me'); // với withCredentials: true
+                const userID = response1.data.user.UserID;
+        
+                if (!userID) {
+                    console.error("UserID not found");
+                    return;
+                }
+        
+                const response = await apiService.getConversation(userID);
+                const messages = response.data;
+        
+                const timelineMap = new Map();
+                messages.forEach(msg => {
+                    const date = new Date(msg.Timestamp).toLocaleDateString();
+                    timelineMap.set(date, (timelineMap.get(date) || 0) + 1);
+                });
+        
+                const timelineData = [["Date", "Messages"]];
+                timelineMap.forEach((count, date) => {
+                    timelineData.push([date, count]);
+                });
+                setMessageTimelineData(timelineData);
+        
+                // Messages by Hour Data
+                const hoursData = [["Hour", "Messages"]];
+                const hoursCount = Array(24).fill(0);
+                messages.forEach(msg => {
+                    const hour = new Date(msg.Timestamp).getHours();
+                    hoursCount[hour]++;
+                });
+                hoursCount.forEach((count, hour) => {
+                    hoursData.push([`${hour}:00`, count]);
+                });
+                setMessagesByHourData(hoursData);
+        
+            } catch (error) {
+                console.error("Error fetching message data:", error);
+            }
+        };
 
     return (
         <div className="relative h-screen flex">
@@ -96,9 +139,55 @@ function Dashboard() {
                         <p className="text-center text-gray-500">Đang tải dữ liệu điểm số...</p>
                     )}
                 </div>
+                {/* New Message Charts */}
+                <div className="flex flex-col gap-6 mb-10">
+                        <div className="bg-white rounded-lg shadow p-4 w-full">
+                            <h2 className="text-xl font-semibold mb-4">Message Activity Timeline</h2>
+                            <Chart
+                                chartType="LineChart"
+                                width="100%"
+                                height="400px"
+                                data={messageTimelineData}
+                                options={{
+                                    title: "Message Activity Over Time",
+                                    curveType: 'function',
+                                    legend: { position: 'none' },
+                                    hAxis: {
+                                        title: 'Date',
+                                        slantedText: true,
+                                        slantedTextAngle: 45
+                                    },
+                                    vAxis: {
+                                        title: 'Number of Messages'
+                                    },
+                                    colors: ['#34A853']
+                                }}
+                            />
+                        </div>
 
+                        <div className="bg-white rounded-lg shadow p-4 w-full">
+                            <h2 className="text-xl font-semibold mb-4">Messages by Hour of Day</h2>
+                            <Chart
+                                chartType="BarChart"
+                                width="100%"
+                                height="400px"
+                                data={messagesByHourData}
+                                options={{
+                                    title: "Messages by Hour",
+                                    chartArea: { width: '70%' },
+                                    hAxis: {
+                                        title: 'Hour of Day',
+                                    },
+                                    vAxis: {
+                                        title: 'Number of Messages'
+                                    },
+                                    colors: ['#FBBC05']
+                                }}
+                            />
+                        </div>
+                </div>
           {/* Progress Bar - Điểm danh */}
-          <div className="mt-6 bg-white p-6 rounded-lg shadow">
+            <div className="mt-6 bg-white p-6 rounded-lg shadow">
                 <h2 className="text-xl font-semibold mb-4">Student Attendance</h2>
                 {attendanceData.length > 0 ? (
                 <div className="space-y-4">
@@ -117,7 +206,7 @@ function Dashboard() {
                                     style={{ width: `${item.attendance}%` }}
                                 ></div>
                             </div>
-                            {/* % điểm danh */}
+                            {/* % attendance */}
                             <span className="w-12 text-right text-gray-700">{item.attendance ?? 0}%</span>
                         </div>
                     ))}

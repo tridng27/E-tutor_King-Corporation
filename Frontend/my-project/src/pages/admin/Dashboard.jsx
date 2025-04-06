@@ -43,28 +43,32 @@ function Dashboard() {
 
     const fetchMessageData = async () => {
         try {
-            // For demo purposes, we'll use a fixed userID
-            // In a real app, you might get this from user selection or other logic
-            const userID = "1"; 
-            
-            // Get conversation data
+            const response1 = await apiService.get('/auth/me'); // với withCredentials: true
+            const userID = response1.data.user.UserID;
+    
+            if (!userID) {
+                console.error("UserID not found");
+                return;
+            }
+    
+            // Bước 3: Gọi API như bình thường
             const response = await apiService.getConversation(userID);
             const messages = response.data;
-
-            // Prepare timeline data (group by date)
+    
+            // Timeline Data
             const timelineMap = new Map();
             messages.forEach(msg => {
                 const date = new Date(msg.Timestamp).toLocaleDateString();
                 timelineMap.set(date, (timelineMap.get(date) || 0) + 1);
             });
-            
+    
             const timelineData = [["Date", "Messages"]];
             timelineMap.forEach((count, date) => {
                 timelineData.push([date, count]);
             });
             setMessageTimelineData(timelineData);
-
-            // Prepare messages by hour data
+    
+            // Messages by Hour Data
             const hoursData = [["Hour", "Messages"]];
             const hoursCount = Array(24).fill(0);
             messages.forEach(msg => {
@@ -75,7 +79,7 @@ function Dashboard() {
                 hoursData.push([`${hour}:00`, count]);
             });
             setMessagesByHourData(hoursData);
-
+    
         } catch (error) {
             console.error("Error fetching message data:", error);
         }
