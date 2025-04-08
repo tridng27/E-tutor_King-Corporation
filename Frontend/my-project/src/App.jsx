@@ -19,7 +19,8 @@ import ResourceDetail from "./components/course/ResourceDetail";
 import ResourceForm from "./components/course/ResourceForm";
 import AdminPage from "./pages/admin/AdminPage"; 
 import DirectMessages from "./pages/DirectMessages";
-import SubjectManagement from "./pages/admin/SubjectManagement"; // Added import for SubjectManagement
+import SubjectManagement from "./pages/admin/SubjectManagement";
+import StudentManagement from "./pages/admin/StudentManagement";
 
 function App() {
   return (
@@ -68,6 +69,15 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['Admin']}>
                 <Timetable />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/admin/student"
+            element={
+              <ProtectedRoute allowedRoles={['Admin']}>
+                <StudentManagement />
               </ProtectedRoute>
             }
           />

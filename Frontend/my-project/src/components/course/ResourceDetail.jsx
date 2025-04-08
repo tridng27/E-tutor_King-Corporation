@@ -101,7 +101,7 @@ function ResourceDetail() {
           <div className="mx-auto p-4 space-y-2">
             <div className="p-8 flex flex-col md:flex-row items-start justify-between rounded-lg">
               <div className="max-w-lg">
-                <p className="uppercase text-sm font-semibold tracking-wide text-gray-700">Course</p>
+                <p className="uppercase text-sm font-semibold tracking-wide text-gray-700">Material</p>
                 <h1 className="text-4xl font-bold text-gray-900 mt-2">{resource?.title || "Learn Explainable AI"}</h1>
                 <p className="text-gray-700 mt-4 text-sm">Uploaded by: {resource?.tutorId === null ? "Admin (System)" : resource?.tutorName}</p>
                 <p className="text-gray-700 text-xs">{resource?.uploadDate ? new Date(resource.uploadDate).toLocaleDateString() : 'Unknown'}</p>
@@ -110,7 +110,7 @@ function ResourceDetail() {
                     onClick={handleDownload}
                     className="mt-6 bg-indigo-600 text-white px-6 py-3 rounded-md text-lg font-semibold hover:bg-indigo-700 transition"
                   >
-                    Download course
+                    Download file
                   </button>
                 )}
               </div>
@@ -195,7 +195,7 @@ function ResourceDetail() {
                 onClick={() => navigate('/course')}
                 className="border px-4 py-2 rounded-lg hover:bg-gray-100"
               >
-                Back to Resources
+                Back to all Materials
               </button>
             </div>
           </div>

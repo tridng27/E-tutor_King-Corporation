@@ -86,6 +86,14 @@ function StudentManagement() {
         (student.Email && student.Email.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 12;
+    
+    const totalPages = Math.ceil(filteredStudents.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const currentStudents = filteredStudents.slice(startIndex, startIndex + itemsPerPage);
+
+    
     const handleDelete = (student) => {
         setStudentToDelete(student);
     };
@@ -174,11 +182,10 @@ function StudentManagement() {
     };
 
     return (
-        <div className="relative">
-            <div className="flex h-full">
+        <div className="flex h-screen">
                 <Sidebar/>
                
-                <div className="flex-1 p-6 ml-16">
+                <div className="flex-1 p-6 ml-16 overflow-y-auto">
                     {/* Admin Actions Bar */}
                     <div className="flex items-center justify-between mb-6">
                         <h1 className="text-2xl font-bold">Admin Dashboard</h1>
@@ -202,77 +209,9 @@ function StudentManagement() {
                             </button>
                         </div>      
                     </div>
-                    
-                    
-                    {/* Search Bar */}
-                    <div className="flex items-center gap-2 mb-4 border rounded-lg p-2 shadow-sm">
-                        <input
-                            type="text"
-                            placeholder="Search by name"
-                            className="flex-1 p-2 outline-none"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                        <Search className="text-gray-500 cursor-pointer" />
-                    </div>
 
-                    {/* Students List */}
-                    <table className="w-full border-collapse bg-white shadow-md rounded-lg overflow-hidden">
-                        <thead>
-                            <tr className="bg-gray-200 text-gray-700 text-left">
-                                <th className="p-3 border">Name</th>
-                                <th className="p-3 border">Email</th>
-                                <th className="p-3 border">Birth Date</th>
-                                <th className="p-3 border">Gender</th>
-                                <th className="p-3 border text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredStudents.length > 0 ? (
-                                filteredStudents.map((student) => (
-                                    <tr key={student.UserID} className="hover:bg-gray-100 transition">
-                                        <td className="p-3 border">{student.Name}</td>
-                                        <td className="p-3 border">{student.Email || 'N/A'}</td>
-                                        <td className="p-3 border">{new Date(student.Birthdate).toLocaleDateString('vi-VN')}</td>
-                                        <td className="p-3 border">{student.Gender}</td>
-                                        <td className="p-3 border text-center">
-                                            <div className="flex justify-center gap-2">
-                                                <button
-                                                    className="p-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md transition"
-                                                    onClick={() => handleManageSubjects(student)}
-                                                    title="Manage Subjects"
-                                                >
-                                                    <BookOpen size={16} />
-                                                </button>
-                                                <button
-                                                    className="p-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md transition"
-                                                    onClick={() => handleEdit(student)}
-                                                    title="Edit"
-                                                >
-                                                    <Edit2 size={16} />
-                                                </button>
-                                                <button
-                                                    className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition"
-                                                    onClick={() => handleDelete(student)}
-                                                    title="Delete"
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan="5" className="text-center p-4 text-gray-500">No students found.</td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-
-
-                    {/* Tutor Infographic (Enhanced) */}
-                    <div className="flex flex-col items-center justify-center min-h-screen p-4">
+                     {/* Tutor Infographic (Enhanced) */}
+                     <div className="flex flex-col items-center justify-center p-4">
                         {/* Tutor Selector */}
                         <div className="w-full max-w-xl mb-4">
                             <select
@@ -313,7 +252,7 @@ function StudentManagement() {
                                                         </span>
                                                         <button
                                                             onClick={() => handleRemoveTutorFromClass(cls.ClassID)}
-                                                            className="text-red-500 hover:text-red-700 text-xs"
+                                                            className="text-red-500 text-xs px-2 hover:underline"
                                                             title="Remove from class"
                                                         >
                                                             Remove
@@ -358,10 +297,98 @@ function StudentManagement() {
                             </button>
                         </div>
                     </div>
+
+                    {/* Search Bar */}
+                    <div className="flex items-center gap-2 mb-4 border rounded-lg p-2 shadow-sm">
+                        <input
+                            type="text"
+                            placeholder="Search by name"
+                            className="flex-1 p-2 outline-none"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                        <Search className="text-gray-500 cursor-pointer" />
+                    </div>
+
+                    {/* Students List */}
+                    <table className="w-full border-collapse bg-white shadow-md rounded-lg overflow-hidden">
+                        <thead>
+                            <tr className="bg-gray-200 text-gray-700 text-left">
+                                <th className="p-3 border">Name</th>
+                                <th className="p-3 border">Email</th>
+                                <th className="p-3 border">Birth Date</th>
+                                <th className="p-3 border">Gender</th>
+                                <th className="p-3 border text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filteredStudents.length > 0 ? (
+                                currentStudents.map((student) => (
+                                    <tr key={student.UserID} className="hover:bg-gray-100 transition">
+                                        <td className="p-3 border">{student.Name}</td>
+                                        <td className="p-3 border">{student.Email || 'N/A'}</td>
+                                        <td className="p-3 border">{new Date(student.Birthdate).toLocaleDateString('vi-VN')}</td>
+                                        <td className="p-3 border">{student.Gender}</td>
+                                        <td className="p-3 border text-center">
+                                            <div className="flex justify-center gap-2">
+                                                <button
+                                                    className="p-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md transition"
+                                                    onClick={() => handleManageSubjects(student)}
+                                                    title="Manage Subjects"
+                                                >
+                                                    <BookOpen size={16} />
+                                                </button>
+                                                <button
+                                                    className="p-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md transition"
+                                                    onClick={() => handleEdit(student)}
+                                                    title="Edit"
+                                                >
+                                                    <Edit2 size={16} />
+                                                </button>
+                                                <button
+                                                    className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition"
+                                                    onClick={() => handleDelete(student)}
+                                                    title="Delete"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="5" className="text-center p-4 text-gray-500">No students found.</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+
+                    <div className="flex justify-between items-center mt-4 px-2">
+                        <span className="text-sm text-gray-600">
+                            Page {currentPage} of {totalPages}
+                        </span>
+                        <div className="space-x-2">
+                            <button
+                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                            disabled={currentPage === 1}
+                            className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+                            >
+                            Previous
+                            </button>
+                            <button
+                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                            disabled={currentPage === totalPages}
+                            className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+                            >
+                            Next
+                            </button>
+                        </div>
+                    </div>
+
                 </div>
 
                 <RightSidebar/>
-            </div>
 
             {showStudentInfo && (
                 <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-50">
@@ -420,7 +447,7 @@ function StudentManagement() {
                         <p className="mb-6">Are you sure you want to delete student "{studentToDelete.Name}"? This action cannot be undone.</p>
                         <div className="flex justify-end gap-3">
                             <button 
-                                className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300"
+                                className="px-4 py-2 border rounded-md bg-red-500 hover:bg-red-600 text-white"
                                 onClick={() => setStudentToDelete(null)}
                             >
                                 Cancel

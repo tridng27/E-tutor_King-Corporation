@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/sidebar';
-import AdminSidebar from '../components/admin/adminSidebar';
 import { GlobalContext } from '../context/GlobalContext';
 import { BadgeCheck } from 'lucide-react';
+import RightSidebar from '../components/rightSidebar';
+
 
 function Course() {
   const [resources, setResources] = useState([]);
@@ -48,17 +49,16 @@ function Course() {
   });
 
   return (
-    <div className="relative">
-      <div className="flex h-screen">
+    <div className="flex h-screen">
         <Sidebar />
 
-        <div className="flex-1 p-6 ml-16 transition-all duration-300 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto transition-all duration-300 ml-10 md:ml-16 pl-4 md:p-6">
           <div className="flex justify-between items-center mb-6">
             
             {hasRole(['Admin', 'Tutor']) && (
               <button 
                 onClick={() => navigate('/resource/add')}
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold mt-1 ml-6 py-2 px-4 md:py-3 md:px-6 text-sm md:text-base rounded"
               >
                 Add New Material
               </button>
@@ -95,7 +95,7 @@ function Course() {
             <div className="relative w-full max-w-lg">
               <input
                 type="text" 
-                placeholder="Search materials..." 
+                placeholder="Search..." 
                 className="w-full px-4 py-3 rounded-lg text-gray-700 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={searchTerm}
                 onChange={handleSearchChange}
@@ -125,44 +125,57 @@ function Course() {
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-4 p-4">
-              {filteredResources.map(resource => (
-                <div key={resource.id} className="rounded-lg border-[1px] border-black hover:-translate-y-1 hover:translate-x-1 hover:border-l-4 hover:border-b-4 transition-all duration-300 shadow-md w-[320px] h-[280px]">
-                  <div className="bg-[#EAFDC6] rounded-t-md">
-                    <h4 className="text-xl font-bold mb-2 p-2">{resource.title || 'Untitled'}</h4>
-                  </div>
-                  <div className="p-4 ">
-                    <p className="text-gray-600 text-sm">
-                      {resource.description 
-                        ? (resource.description.length > 150 
-                            ? `${resource.description.substring(0, 150)}...` 
-                            : resource.description)
-                        : 'No description available'}
-                    </p>
-                    <div className="flex justify-between items-center mt-2">
-                      <span className="text-xs text-gray-500">
-                        {new Date(resource.uploadDate).toLocaleDateString()}
-                      </span>
-                      <button 
-                        className="bg-green-100 text-green-600 px-3 py-1 rounded-md w-fit"
-                        onClick={() => navigate(`/resource/${resource.id}`)}
-                      >
-                        View Details
-                      </button>
-                    </div>
-                    <div className="border-t border-b border-dotted border-black mt-2 flex items-center space-x-2 p-1">
-                      <BadgeCheck size={20} strokeWidth={1.25} className="text-sm"/>
-                      <p>With <span className="font-semibold">Certificate</span></p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-4">
+  {filteredResources.map(resource => (
+    <div
+      key={resource.id}
+      className="w-full rounded-lg border border-black hover:-translate-y-1 hover:translate-x-1 hover:border-l-4 hover:border-b-4 transition-all duration-300 shadow-md min-h-[260px]"
+    >
+      <div className="bg-[#EAFDC6] rounded-t-md">
+        <h4 className="text-xl font-bold mb-2 p-2">
+          {resource.title
+            ? (resource.title.length > 25
+                ? `${resource.title.substring(0, 25)}...`
+                : resource.title)
+            : 'Untitled'}
+        </h4>
+      </div>
+      <div className="p-4">
+        <p className="text-gray-600 text-sm h-[110px] overflow-hidden text-ellipsis">
+          {resource.description
+            ? (resource.description.length > 150
+                ? `${resource.description.substring(0, 150)}...`
+                : resource.description)
+            : 'No description available'}
+        </p>
+        <div className="flex justify-between items-center mt-2">
+          <span className="text-xs text-gray-500">
+            {new Date(resource.uploadDate).toLocaleDateString()}
+          </span>
+          <button
+            className="bg-green-100 text-green-600 px-3 py-1 rounded-md w-fit"
+            onClick={() => navigate(`/resource/${resource.id}`)}
+          >
+            View Details
+          </button>
+        </div>
+        <div className="border-t border-b border-dotted border-black mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 p-1">
+          <BadgeCheck size={18} strokeWidth={1.25} className="shrink-0" />
+          <p className="text-sm">
+            With <span className="font-semibold">Certificate</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  ))}
+</div>
+
           )}
         </div>
 
-        {userRole === 'Admin' && <AdminSidebar />}
-      </div>
+        <div className="hidden md:block">
+          <RightSidebar />
+        </div>
     </div>
   );
 }

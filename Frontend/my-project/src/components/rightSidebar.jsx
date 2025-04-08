@@ -99,7 +99,7 @@ const handleAddClass = async (newClass) => {
     };
 
     return (
-        <div className="w-1/5 bg-gray-100 p-6">
+        <div className="hidden md:block md:w-[280px] bg-gray-100 p-6 h-screen">
             <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-bold">Classes</h3>
                 {user?.Role === "Admin" && (

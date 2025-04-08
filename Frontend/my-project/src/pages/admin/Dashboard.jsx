@@ -82,47 +82,45 @@ function Dashboard() {
     };
 
     return (
-        <div className="relative">
-            <div className="flex h-full">
+        <div className="flex h-screen">
                 <Sidebar />
 
-                <div className="flex-1 p-6 ml-16">
+                <div className="flex-1 p-6 ml-16 overflow-y-auto">
                     <div className="mb-6">
                         <h1 className="text-2xl font-bold">Admin Dashboard</h1>
                     </div>
 
                     {/* MIS Dashboard Table */}
-                    <div className="bg-white rounded-lg shadow p-4 w-full mb-10">
-                        <h2 className="text-xl font-semibold mb-4">MIS Dashboard - Class Overview</h2>
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full bg-white border border-gray-200 text-sm text-gray-700">
-                                <thead className="bg-gray-100">
-                                    <tr>
-                                        <th className="border px-4 py-2">Class ID</th>
-                                        <th className="border px-4 py-2">Class Name</th>
-                                        <th className="border px-4 py-2">Student Count</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {classData.map((classItem) => (
-                                        <tr key={classItem.ClassID}>
-                                            <td className="border px-4 py-2">{classItem.ClassID}</td>
-                                            <td className="border px-4 py-2">{classItem.Name}</td>
-                                            <td className="border px-4 py-2">
-                                                {
-                                                    classStudentCount.find(item => item[0] === classItem.Name)?.[1] ?? 0
-                                                }
-                                            </td>
+                    <div className="flex flex-row gap-6 mb-10">
+                        <div className="p-4 w-1/3">
+                            <h2 className="text-xl font-semibold mb-4">MIS Dashboard - Class Overview</h2>
+                            <div className="overflow-x-auto">
+                                <table className="w-full border-collapse bg-white shadow-md rounded-lg overflow-hidden">
+                                    <thead>
+                                        <tr className="bg-gray-200 text-gray-700 text-left" >
+                                            <th className="border px-4 py-2">Class ID</th>
+                                            <th className="border px-4 py-2">Class Name</th>
+                                            <th className="border px-4 py-2">Student Count</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        {classData.map((classItem) => (
+                                            <tr key={classItem.ClassID} className="hover:bg-gray-100 transition">
+                                                <td className="border px-4 py-2">{classItem.ClassID}</td>
+                                                <td className="border px-4 py-2">{classItem.Name}</td>
+                                                <td className="border px-4 py-2">
+                                                    {
+                                                        classStudentCount.find(item => item[0] === classItem.Name)?.[1] ?? 0
+                                                    }
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                                
+                            </div>
                         </div>
-                    </div>
-
-                    {/* Original Class Charts */}
-                    <div className="flex flex-col gap-6 mb-10">
-                        <div className="bg-white rounded-lg shadow p-4 w-full">
+                        <div className="bg-white shadow p-4 w-2/3">
                             <h2 className="text-xl font-semibold mb-4">Class Enrollment Percentage</h2>
                             <Chart
                                 chartType="PieChart"
@@ -136,8 +134,11 @@ function Dashboard() {
                                 }}
                             />
                         </div>
+                    </div>
 
-                        <div className="bg-white rounded-lg shadow p-4 w-full">
+                    {/* Original Class Charts */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                        <div className="bg-white shadow p-4">
                             <h2 className="text-xl font-semibold mb-4">Student Count by Class</h2>
                             <Chart
                                 chartType="BarChart"
@@ -157,11 +158,7 @@ function Dashboard() {
                                 }}
                             />
                         </div>
-                    </div>
-
-                    {/* New Message Charts */}
-                    <div className="flex flex-col gap-6 mb-10">
-                        <div className="bg-white rounded-lg shadow p-4 w-full">
+                        <div className="bg-white shadow p-4">
                             <h2 className="text-xl font-semibold mb-4">Message Activity Timeline</h2>
                             <Chart
                                 chartType="LineChart"
@@ -185,7 +182,7 @@ function Dashboard() {
                             />
                         </div>
 
-                        <div className="bg-white rounded-lg shadow p-4 w-full">
+                        <div className="bg-white shadow p-4">
                             <h2 className="text-xl font-semibold mb-4">Messages by Hour of Day</h2>
                             <Chart
                                 chartType="BarChart"
@@ -209,7 +206,6 @@ function Dashboard() {
                 </div>
 
                 <RightSidebar />
-            </div>
         </div>
     );
 }

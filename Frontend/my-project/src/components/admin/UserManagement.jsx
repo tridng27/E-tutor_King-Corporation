@@ -8,6 +8,16 @@ const UserManagement = () => {
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 12;
+
+  const totalPages = Math.ceil(users.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentUsers = users.slice(startIndex, startIndex + itemsPerPage);
+
+  const handlePrev = () => setCurrentPage(prev => Math.max(prev - 1, 1));
+  const handleNext = () => setCurrentPage(prev => Math.min(prev + 1, totalPages));
+
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -32,11 +42,19 @@ const UserManagement = () => {
     try {
       await apiService.assignUserRole(userId, requestedRole || 'Student');
       setSuccessMessage(`User approved successfully as ${requestedRole || 'Student'}`);
-      fetchUsers(); // Refresh user lists
+      fetchUsers(); 
+      setTimeout(() => {
+        setSuccessMessage('');
+      }, 2000);
+      
     } catch (error) {
       setError('Failed to approve user: ' + error.message);
+      setTimeout(() => {
+        setError('');
+      }, 2000);
     }
   };
+  
 
   const handleDeleteUser = async (userId) => {
     if (window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
@@ -165,7 +183,7 @@ const UserManagement = () => {
               </tr>
             </thead>
             <tbody>
-              {users.map(user => (
+              {currentUsers.map(user => (
                 <tr key={user.UserID} className="hover:bg-gray-100 transition">
                   <td className="px-4 py-2 border">{user.UserID}</td>
                   <td className="px-4 py-2 border">{user.Name}</td>
@@ -213,6 +231,27 @@ const UserManagement = () => {
               ))}
             </tbody>
           </table>
+          <div className="flex justify-between items-center mt-4 px-2">
+            <span className="text-sm text-gray-600">
+              Page {currentPage} of {totalPages}
+            </span>
+            <div className="space-x-2">
+              <button
+                onClick={handlePrev}
+                disabled={currentPage === 1}
+                className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+              >
+                Previous
+              </button>
+              <button
+                onClick={handleNext}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
