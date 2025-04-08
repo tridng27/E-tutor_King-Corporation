@@ -16,7 +16,7 @@ function Class() {
     const [showTutorInfo, setShowTutorInfo] = useState(false);
     const [students, setStudents] = useState([]);
     const { classId } = useParams();
-
+    const { userRole } = useContext(GlobalContext);
     // Log for debugging
     useEffect(() => {
         console.log("Class component - currentTutor:", currentTutor);
@@ -51,6 +51,18 @@ function Class() {
       const studentName = student.User?.Name?.toLowerCase() || '';
       return studentName.includes(searchTerm.toLowerCase());
     });
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 12;
+
+    const totalPages = Math.ceil(filteredStudents.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const currentStudents = filteredStudents.slice(startIndex, startIndex + itemsPerPage);
+
+    const handlePrev = () => setCurrentPage(prev => Math.max(prev - 1, 1));
+    const handleNext = () => setCurrentPage(prev => Math.min(prev + 1, totalPages));
+
+
 
     const handleRemoveStudent = async (studentId) => {
       try {
@@ -87,132 +99,157 @@ function Class() {
     };
 
     return (
-      <div className="relative">
-        <div className="flex h-full ">
+      <div className="flex h-screen">
             <Sidebar/>
             
-            <div className="flex-1 p-6 ml-16">
-                <div className="flex items-center justify-end mb-6">
-                    <button 
+            <div className="flex-1 overflow-y-auto p-6 ml-16">
+                {userRole === 'Admin' && (
+                    <div className="flex items-center justify-end mb-6">
+                        <button 
                         className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
                         onClick={() => setShowStudentInfo(true)} 
-                    >
+                        >
                         <Plus size={18} />
                         <span>Add New Student</span>
-                    </button>
+                        </button>
+                    </div>
+                )}
+
+                {/* Tutor Infographic - Updated to use currentTutor from context */}
+                <div className="flex flex-col items-center justify-center p-4">
+                    <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-xl border relative">
+                        <h2 className="text-lg font-semibold text-center mb-4">Tutor Infographic</h2>
+                        <div className="flex items-start justify-between">
+                            <div className="space-y-2">
+                                <p className="font-semibold">Name: <span className="font-normal">{currentTutor?.User?.Name || "________"}</span></p>
+                                <p className="font-semibold">ID: <span className="font-normal">{currentTutor?.TutorID || "________"}</span></p>
+                                <p className="font-semibold">Subject: <span className="font-normal">{currentTutor?.Fix || "________"}</span></p>
+                                <p className="font-semibold">Email: <span className="font-normal">{currentTutor?.User?.Email || "________"}</span></p>
+                                <p className="font-semibold">Description:</p>
+                                {currentTutor ? (
+                                    <p className="text-sm text-gray-600">{currentTutor.Description || "No description available"}</p>
+                                ) : (
+                                    <>
+                                        <div className="border-b w-64"></div>
+                                        <div className="border-b w-64"></div>
+                                        <div className="border-b w-64"></div>
+                                    </>
+                                )}
+                            </div>
+                            <div className="w-24 h-24 bg-gray-300 rounded-full flex items-center justify-center">
+                                {currentTutor?.User?.Avatar ? (
+                                    <img 
+                                        src={currentTutor.User.Avatar} 
+                                        alt="Tutor Avatar" 
+                                        className="w-24 h-24 rounded-full object-cover"
+                                    />
+                                ) : (
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-16 h-16 text-gray-700">
+                                        <path d="M12 2a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm-8 16c0-3.314 3.582-6 8-6s8 2.686 8 6v2H4v-2Z" />
+                                    </svg>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                    {userRole === 'admin' && (
+                        <button 
+                            className="mt-4 px-6 py-2 bg-gray-800 text-white rounded-lg shadow-md hover:bg-gray-700"
+                            onClick={() => setShowTutorInfo(true)}
+                        >
+                            {currentTutor ? "Edit Tutor" : "Assign Tutor"}
+                        </button>
+                    )}
                 </div>
 
-            {/* Search Bar */}
+                 {/* Search Bar */}
                 <div className="flex items-center gap-2 mb-4 border rounded-lg p-2 shadow-sm">
-                <input 
-                    type="text" 
-                    placeholder="Search Students by name" 
-                    className="flex-1 p-2 outline-none"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <Search className="text-gray-500" />
-            </div>
+                    <input 
+                        type="text" 
+                        placeholder="Search Students by name" 
+                        className="flex-1 p-2 outline-none"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <Search className="text-gray-500" />
+                </div>
 
-              {/* Student List */}
-              <table className="w-full border-collapse bg-white shadow-md rounded-lg overflow-hidden">
-                <thead>
-                    <tr className="bg-gray-200 text-gray-700 text-left">
-                        <th className="p-3 border">Name</th>
-                        <th className="p-3 border">Student code</th>
-                        <th className="p-3 border">Date of birth</th>
-                        <th className="p-3 border">Gender</th>
-                        <th className="p-3 border text-center">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {filteredStudents.length > 0 ? (
-                    filteredStudents.map((student) => (
-                    <tr key={student.UserID} className="hover:bg-gray-100 transition">
-                        <td className="p-3 border">{student.User.Name}</td>
-                        <td className="p-3 border">{student.StudentID}</td>
-                        <td className="p-3 border">{new Date(student.User.Birthdate).toLocaleDateString('vi-VN')}</td>
-                        <td className="p-3 border">{student.User.Gender}</td>
-                        <td className="p-3 border text-center">
-                            <div className="flex justify-center gap-2">
-                                <button
+                {/* Student List */}
+                <table className="w-full border-collapse bg-white shadow-md rounded-lg overflow-hidden">
+                    <thead>
+                        <tr className="bg-gray-200 text-gray-700 text-left">
+                            <th className="p-3 border">Name</th>
+                            <th className="p-3 border">Student code</th>
+                            <th className="p-3 border">Date of birth</th>
+                            <th className="p-3 border">Gender</th>
+                            <th className="p-3 border text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {currentStudents.length > 0 ? (
+                            currentStudents.map((student) => (
+                            <tr key={student.UserID} className="hover:bg-gray-100 transition">
+                                <td className="p-3 border">{student.User.Name}</td>
+                                <td className="p-3 border">{student.StudentID}</td>
+                                <td className="p-3 border">{new Date(student.User.Birthdate).toLocaleDateString('vi-VN')}</td>
+                                <td className="p-3 border">{student.User.Gender}</td>
+                                <td className="p-3 border text-center">
+                                <div className="flex justify-center gap-2">
+                                    <button
                                     onClick={() => handleRemoveStudent(student.StudentID)}
                                     className={`px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-md transition
                                         ${deletingIds.includes(student.StudentID) ? 'opacity-50 cursor-not-allowed' : ''}`}
                                     disabled={deletingIds.includes(student.StudentID)}
-                                >
+                                    >
                                     {deletingIds.includes(student.StudentID) ? 'Đang xóa...' : 'Delete'}
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    ))
-                    ) : (
-                        <div className="text-center py-4 text-gray-500">
-                            {searchTerm ? 
-                                `No students found matching "${searchTerm}"` : 
-                                'No students in this class'
-                            }
-                        </div>
-                    )}
-                </tbody>
-              </table>
-                    
-              {/* Tutor Infographic - Updated to use currentTutor from context */}
-              <div className="flex flex-col items-center justify-center min-h-screen p-4">
-                <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-xl border relative">
-                    <h2 className="text-lg font-semibold text-center mb-4">Tutor Infographic</h2>
-                    <div className="flex items-start justify-between">
-                        <div className="space-y-2">
-                            <p className="font-semibold">Name: <span className="font-normal">{currentTutor?.User?.Name || "________"}</span></p>
-                            <p className="font-semibold">ID: <span className="font-normal">{currentTutor?.TutorID || "________"}</span></p>
-                            <p className="font-semibold">Subject: <span className="font-normal">{currentTutor?.Fix || "________"}</span></p>
-                            <p className="font-semibold">Email: <span className="font-normal">{currentTutor?.User?.Email || "________"}</span></p>
-                            <p className="font-semibold">Description:</p>
-                            {currentTutor ? (
-                                <p className="text-sm text-gray-600">{currentTutor.Description || "No description available"}</p>
-                            ) : (
-                                <>
-                                    <div className="border-b w-64"></div>
-                                    <div className="border-b w-64"></div>
-                                    <div className="border-b w-64"></div>
-                                </>
-                            )}
-                        </div>
-                        <div className="w-24 h-24 bg-gray-300 rounded-full flex items-center justify-center">
-                            {currentTutor?.User?.Avatar ? (
-                                <img 
-                                    src={currentTutor.User.Avatar} 
-                                    alt="Tutor Avatar" 
-                                    className="w-24 h-24 rounded-full object-cover"
-                                />
-                            ) : (
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-16 h-16 text-gray-700">
-                                    <path d="M12 2a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm-8 16c0-3.314 3.582-6 8-6s8 2.686 8 6v2H4v-2Z" />
-                                </svg>
-                            )}
-                        </div>
+                                    </button>
+                                </div>
+                                </td>
+                            </tr>
+                            ))
+                        ) : (
+                            <tr>
+                            <td colSpan={5} className="text-center py-4 text-gray-500">
+                                {searchTerm
+                                ? `No students found matching "${searchTerm}"`
+                                : 'No students in this class'}
+                            </td>
+                            </tr>
+                        )}
+                    </tbody>
+
+                </table>
+                <div className="flex justify-between items-center mt-4 px-2">
+                    <span className="text-sm text-gray-600">
+                        Page {currentPage} of {totalPages}
+                    </span>
+                    <div className="space-x-2">
+                        <button
+                        onClick={handlePrev}
+                        disabled={currentPage === 1}
+                        className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+                        >
+                        Previous
+                        </button>
+                        <button
+                        onClick={handleNext}
+                        disabled={currentPage === totalPages}
+                        className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+                        >
+                        Next
+                        </button>
                     </div>
                 </div>
-                <button 
-                    className="mt-4 px-6 py-2 bg-gray-800 text-white rounded-lg shadow-md hover:bg-gray-700"
-                    onClick={() => setShowTutorInfo(true)}
-                >
-                    {currentTutor ? "Edit Tutor" : "Assign Tutor"}
-                </button>
-              </div>
 
             </div>
 
             <RightSidebar/>
-        </div>
 
         {showStudentInfo && (
           <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-50">
             <Studentlist 
             onClose={() => setShowStudentInfo(false)} 
             onConfirm={handleAddStudent}
-            classId={classId} // Truyền classId vào đây
+            classId={classId}
             />
           </div>
         )}

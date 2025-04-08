@@ -73,6 +73,15 @@ function Dashboard() {
         String(student.StudentID).includes(searchTerm)
     );
 
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 12;
+
+    const totalPages = Math.ceil(filteredStudents.length / itemsPerPage);
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const currentStudents = filteredStudents.slice(startIndex, startIndex + itemsPerPage);
+
+
     // Handle editing student scores and attendance
     const handleEdit = (student) => {
         setEditingStudent({
@@ -128,13 +137,11 @@ function Dashboard() {
     };
 
     return (
-        <div className="relative">
-            <div className="flex h-screen">
+        <div className="flex h-screen">
                 <Sidebar />
 
                 {/* Main content */}
-                <div className="flex-1 p-6 ml-16 transition-all duration-300 overflow-y-auto">
-                    <div className="bg-white p-6 rounded-lg shadow">
+                <div className="flex-1 p-6 ml-16 overflow-y-auto">
                         <h1 className="text-2xl font-bold mb-4">Tutor Dashboard</h1>
                         
                         {/* Tutor information */}
@@ -171,7 +178,7 @@ function Dashboard() {
                                                     : "bg-gray-200 hover:bg-gray-300"
                                             }`}
                                         >
-                                            {cls.ClassName}
+                                           { "Class " + (cls.ClassID)} 
                                         </button>
                                     ))
                                 )}
@@ -199,32 +206,31 @@ function Dashboard() {
                                 />
                             </div>
                         )}
-                    </div>
 
                     {/* Student list */}
                     {selectedClass && (
-                        <div className="mt-6 bg-white p-6 rounded-lg shadow">
+                        <div className="py-4">
                             {loading ? (
                                 <p>Loading students...</p>
                             ) : filteredStudents.length === 0 ? (
                                 <p>No students found in this class.</p>
                             ) : (
                                 <div className="overflow-x-auto">
-                                    <table className="w-full text-left border-collapse">
+                                    <table className="w-full border-collapse bg-white shadow-md rounded-lg overflow-hidden">
                                         <thead>
-                                            <tr className="border-b bg-gray-50">
-                                                <th className="p-2">Student ID</th>
-                                                <th className="p-2">Name</th>
-                                                <th className="p-2">Subjects</th>
-                                                <th className="p-2">Actions</th>
+                                            <tr className="bg-gray-200 text-gray-700 text-left" >
+                                                <th className="border px-4 py-2">Student ID</th>
+                                                <th className="border px-4 py-2">Name</th>
+                                                <th className="border px-4 py-2">Subjects</th>
+                                                <th className="border px-4 py-2">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {filteredStudents.map(student => (
-                                                <tr key={student.StudentID} className="border-b hover:bg-gray-50">
-                                                    <td className="p-2">{student.StudentID}</td>
-                                                    <td className="p-2">{student.User?.Name}</td>
-                                                    <td className="p-2">
+                                            {currentStudents.map(student => (
+                                                <tr key={student.StudentID} className="hover:bg-gray-100 transition">
+                                                    <td className="border px-4 py-2">{student.StudentID}</td>
+                                                    <td className="border px-4 py-2">{student.User?.Name}</td>
+                                                    <td className="border px-4 py-2">
                                                         {studentSubjects[student.StudentID]?.length > 0 ? (
                                                             <div className="space-y-1">
                                                                 {studentSubjects[student.StudentID].map(subject => (
@@ -251,7 +257,7 @@ function Dashboard() {
                                                             <span className="text-gray-500">No subjects assigned</span>
                                                         )}
                                                     </td>
-                                                    <td className="p-2">
+                                                    <td className="border px-4 py-2">
                                                         <button 
                                                             onClick={() => handleEdit(student)}
                                                             className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
@@ -264,6 +270,29 @@ function Dashboard() {
                                             ))}
                                         </tbody>
                                     </table>
+
+                                    <div className="flex justify-between items-center mt-4 px-2">
+                                        <span className="text-sm text-gray-600">
+                                            Page {currentPage} of {totalPages}
+                                        </span>
+                                        <div className="space-x-2">
+                                            <button
+                                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                            disabled={currentPage === 1}
+                                            className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+                                            >
+                                            Previous
+                                            </button>
+                                            <button
+                                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                            disabled={currentPage === totalPages}
+                                            className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+                                            >
+                                            Next
+                                            </button>
+                                        </div>
+                                    </div>
+
                                 </div>
                             )}
                         </div>
@@ -279,12 +308,12 @@ function Dashboard() {
                                 
                                 {editingStudent.subjects?.length > 0 ? (
                                     <div className="mb-4">
-                                        <table className="w-full border-collapse">
+                                        <table className="w-full border-collapse bg-white shadow-md rounded-lg overflow-hidden">
                                             <thead>
                                                 <tr className="bg-gray-100">
-                                                    <th className="p-2 text-left">Subject</th>
-                                                    <th className="p-2 text-left">Score (0-100)</th>
-                                                    <th className="p-2 text-left">Attendance (%)</th>
+                                                    <th className="border px-4 py-2">Subject</th>
+                                                    <th className="border px-4 py-2">Score (0-100)</th>
+                                                    <th className="border px-4 py-2">Attendance (%)</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -323,13 +352,13 @@ function Dashboard() {
                                 <div className="flex justify-end gap-2">
                                     <button
                                         onClick={handleCancel}
-                                        className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                                        className="px-4 py-2 border rounded-md bg-red-500 hover:bg-red-600 text-white"
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         onClick={handleSave}
-                                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                        className="px-4 py-2 border rounded-md bg-blue-500 text-white hover:bg-blue-600"
                                         disabled={loading}
                                     >
                                         {loading ? "Saving..." : "Save Changes"}
@@ -343,7 +372,6 @@ function Dashboard() {
                 {/* Right sidebar */}
                 <RightSidebar />
             </div>
-        </div>
     );
 }
 

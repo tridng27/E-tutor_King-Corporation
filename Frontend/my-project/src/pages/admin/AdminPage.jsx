@@ -4,16 +4,13 @@ import UserManagement from '../../components/admin/UserManagement';
 import Sidebar from '../../components/sidebar';
 
 const AdminPage = () => {
-  // Add a fallback for user to prevent the destructuring error
   const globalContext = useGlobal();
   const user = globalContext?.user || { Name: 'Admin' };
 
   return (
     <div className="min-h-screen bg-gray-100 flex">
-      {/* Add the Sidebar component */}
       <Sidebar />
       
-      {/* Main content with padding to account for sidebar */}
       <div className="flex-1 ml-16">
         <div className="container mx-auto px-4 py-8">
           <div className="bg-white shadow-md rounded-lg overflow-hidden">

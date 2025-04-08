@@ -182,12 +182,11 @@ function Timetable() {
     };
 
     return (
-        <div className="relative">
-            <div className="flex h-screen">
+        <div className="flex h-screen">
                 <Sidebar />
 
                 {/* Main content */}
-                <div className="flex-1 p-6 ml-16 overflow-auto">
+                <div className="flex-1 p-6 ml-16 overflow-y-auto">
                     <div className="mb-6">
                         <h1 className="text-2xl font-bold mb-4">Class Schedule</h1>
                         
@@ -294,7 +293,6 @@ function Timetable() {
                 </div>
 
                 <RightSidebar />
-            </div>
 
             {/* Modal for adding/editing timetable entries (admin only) */}
             {showModal && isAdmin && (

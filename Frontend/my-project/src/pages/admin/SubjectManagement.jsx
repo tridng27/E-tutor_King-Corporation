@@ -189,14 +189,14 @@ function SubjectManagement() {
                             <div className="flex gap-2">
                               <button
                                 onClick={handleUpdateSubject}
-                                className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+                                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
                                 disabled={loading}
                               >
                                 Save
                               </button>
                               <button
                                 onClick={() => setEditingSubject(null)}
-                                className="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600"
+                                className="px-4 py-2 border rounded-md bg-red-500 hover:bg-red-600 text-white"
                                 disabled={loading}
                               >
                                 Cancel
@@ -206,14 +206,14 @@ function SubjectManagement() {
                             <div className="flex gap-2">
                               <button
                                 onClick={() => setEditingSubject(subject)}
-                                className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                                 disabled={loading}
                               >
                                 Edit
                               </button>
                               <button
                                 onClick={() => handleDeleteSubject(subject.SubjectID)}
-                                className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
                                 disabled={loading}
                               >
                                 Delete
