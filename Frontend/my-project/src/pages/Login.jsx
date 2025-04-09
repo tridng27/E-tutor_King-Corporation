@@ -100,12 +100,12 @@ function Login() {
     <div className="flex h-screen">
 
       {/* Left Section - Illustration */}
-      <div className="w-1/2  flex flex-col justify-center items-center relative px-6">
+      <div className="hidden md:flex w-1/2 justify-center items-center p-6 bg-white">
         <img src="/illustration.png" className="" alt="User" />
       </div>
 
       {/* Right Section - Login Form */}
-      <div className="w-1/2 flex flex-col justify-center px-16 bg-white">
+      <div className="w-full md:w-1/2 flex flex-col justify-center px-6 sm:px-10 md:px-16 py-8 bg-white">
         <h1 className="text-3xl font-bold mb-2">Login</h1>
         <p className="text-gray-500 mb-6">See your growth and get consulting support!</p>
 

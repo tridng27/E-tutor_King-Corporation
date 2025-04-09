@@ -174,75 +174,79 @@ function Class() {
                 </div>
 
                 {/* Student List */}
-                <table className="w-full border-collapse bg-white shadow-md rounded-lg overflow-hidden">
-                    <thead>
-                        <tr className="bg-gray-200 text-gray-700 text-left">
-                            <th className="p-3 border">Name</th>
-                            <th className="p-3 border">Student code</th>
-                            <th className="p-3 border">Date of birth</th>
-                            <th className="p-3 border">Gender</th>
-                            <th className="p-3 border text-center">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {currentStudents.length > 0 ? (
-                            currentStudents.map((student) => (
-                            <tr key={student.UserID} className="hover:bg-gray-100 transition">
-                                <td className="p-3 border">{student.User.Name}</td>
-                                <td className="p-3 border">{student.StudentID}</td>
-                                <td className="p-3 border">{new Date(student.User.Birthdate).toLocaleDateString('vi-VN')}</td>
-                                <td className="p-3 border">{student.User.Gender}</td>
-                                <td className="p-3 border text-center">
-                                <div className="flex justify-center gap-2">
-                                    <button
-                                    onClick={() => handleRemoveStudent(student.StudentID)}
-                                    className={`px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-md transition
-                                        ${deletingIds.includes(student.StudentID) ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                    disabled={deletingIds.includes(student.StudentID)}
-                                    >
-                                    {deletingIds.includes(student.StudentID) ? 'Đang xóa...' : 'Delete'}
-                                    </button>
-                                </div>
+                <div className="overflow-x-auto w-full">
+                    <table className=" w-full border-collapse bg-white shadow-md rounded-lg text-xs md:text-sm">
+                        <thead>
+                            <tr className="bg-gray-200 text-gray-700 text-left text-xs md:text-base">
+                                <th className="p-1 md:p-3 border">Name</th>
+                                <th className="p-1 md:p-3 border">Student code</th>
+                                <th className="p-1 md:p-3 border">Date of birth</th>
+                                <th className="p-1 md:p-3 border">Gender</th>
+                                <th className="p-1 md:p-3 border text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {currentStudents.length > 0 ? (
+                                currentStudents.map((student) => (
+                                <tr key={student.UserID} className="hover:bg-gray-100 transition text-xs md:text-base">
+                                    <td className="p-1 md:p-3 border">{student.User.Name}</td>
+                                    <td className="p-1 md:p-3 border">{student.StudentID}</td>
+                                    <td className="p-1 md:p-3 border">{new Date(student.User.Birthdate).toLocaleDateString('vi-VN')}</td>
+                                    <td className="p-1 md:p-3 border">{student.User.Gender}</td>
+                                    <td className="p-1 md:p-3 border text-center">
+                                    <div className="flex justify-center gap-2">
+                                        <button
+                                        onClick={() => handleRemoveStudent(student.StudentID)}
+                                        className={`px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-md transition
+                                            ${deletingIds.includes(student.StudentID) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        disabled={deletingIds.includes(student.StudentID)}
+                                        >
+                                        {deletingIds.includes(student.StudentID) ? 'Đang xóa...' : 'Delete'}
+                                        </button>
+                                    </div>
+                                    </td>
+                                </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                <td colSpan={5} className="text-center py-4 text-gray-500">
+                                    {searchTerm
+                                    ? `No students found matching "${searchTerm}"`
+                                    : 'No students in this class'}
                                 </td>
-                            </tr>
-                            ))
-                        ) : (
-                            <tr>
-                            <td colSpan={5} className="text-center py-4 text-gray-500">
-                                {searchTerm
-                                ? `No students found matching "${searchTerm}"`
-                                : 'No students in this class'}
-                            </td>
-                            </tr>
-                        )}
-                    </tbody>
+                                </tr>
+                            )}
+                        </tbody>
 
-                </table>
-                <div className="flex justify-between items-center mt-4 px-2">
-                    <span className="text-sm text-gray-600">
-                        Page {currentPage} of {totalPages}
-                    </span>
-                    <div className="space-x-2">
-                        <button
-                        onClick={handlePrev}
-                        disabled={currentPage === 1}
-                        className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
-                        >
-                        Previous
-                        </button>
-                        <button
-                        onClick={handleNext}
-                        disabled={currentPage === totalPages}
-                        className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
-                        >
-                        Next
-                        </button>
+                    </table>
+                    <div className="flex justify-between items-center mt-4 px-2">
+                        <span className="text-sm text-gray-600">
+                            Page {currentPage} of {totalPages}
+                        </span>
+                        <div className="space-x-2">
+                            <button
+                            onClick={handlePrev}
+                            disabled={currentPage === 1}
+                            className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+                            >
+                            Previous
+                            </button>
+                            <button
+                            onClick={handleNext}
+                            disabled={currentPage === totalPages}
+                            className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+                            >
+                            Next
+                            </button>
+                        </div>
                     </div>
                 </div>
 
             </div>
 
-            <RightSidebar/>
+            <div className="hidden md:block">
+                <RightSidebar />
+            </div>
 
         {showStudentInfo && (
           <div className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-50">
