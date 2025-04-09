@@ -7,7 +7,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 
 
-const socket = io("http://localhost:5000");
+const socket = io("http://localhost:5000/meeting");
 
 function MeetingPage() {
     const { meetingId } = useParams();
@@ -751,39 +751,29 @@ function MeetingPage() {
                 <div className="flex flex-wrap items-center gap-2 md:gap-4">
                     {/* View mode selector */}
                     <div className="flex bg-gray-700 rounded-lg p-1">
-                        <button 
-                            onClick={() => {
-                                setViewMode("auto");
-                                // Clear pinned user when switching to auto mode
-                                setPinnedUser(null);
-                            }}
-                            className={`px-3 py-1 rounded-lg text-sm ${viewMode === "auto" ? "bg-blue-600" : "hover:bg-gray-600"}`}
-                            title="Automatic layout based on participants"
-                        >
-                            Auto
-                        </button>
-                        <button 
-                            onClick={() => {
-                                setViewMode("focus");
-                                // Keep pinned user when switching to focus mode
-                            }}
-                            className={`px-3 py-1 rounded-lg text-sm ${viewMode === "focus" ? "bg-blue-600" : "hover:bg-gray-600"}`}
-                            title="Focus on one participant"
-                        >
-                            Focus
-                        </button>
-                        <button 
-                            onClick={() => {
-                                setViewMode("grid");
-                                // Clear pinned user when switching to grid mode
-                                setPinnedUser(null);
-                            }}
-                            className={`px-3 py-1 rounded-lg text-sm ${viewMode === "grid" ? "bg-blue-600" : "hover:bg-gray-600"}`}
-                            title="Grid view of all participants"
-                        >
-                            Grid
-                        </button>
-                    </div>
+    <button 
+        onClick={() => {
+            setViewMode("auto");
+            // Clear pinned user when switching to auto mode
+            setPinnedUser(null);
+        }}
+        className={`px-3 py-1 rounded-lg text-sm ${viewMode === "auto" ? "bg-blue-600" : "hover:bg-gray-600"}`}
+        title="Automatic layout based on participants"
+    >
+        Auto
+    </button>
+    <button 
+        onClick={() => {
+            setViewMode("focus");
+            // Keep pinned user when switching to focus mode
+        }}
+        className={`px-3 py-1 rounded-lg text-sm ${viewMode === "focus" ? "bg-blue-600" : "hover:bg-gray-600"}`}
+        title="Focus on one participant"
+    >
+        Focus
+    </button>
+    {/* Removed the Grid button */}
+</div>
                     {/* Display participant count without click functionality */}
         <div className="flex items-center bg-gray-700 px-3 py-1 rounded">
             <span>{participants} Participants</span>
@@ -902,42 +892,45 @@ function MeetingPage() {
             )}
             
             {/* Participants list overlay - simplified */}
-            {showParticipants && (
-                <div className="absolute right-0 top-16 bg-gray-800 rounded-lg shadow-lg w-64 z-10 mr-4">
-                    <div className="p-3 border-b border-gray-700 font-medium flex justify-between items-center">
-                        <span>Participants</span>
-                        <button 
-                            onClick={() => setShowParticipants(false)}
-                            className="text-gray-400 hover:text-white"
-                        >
-                            ✕
-                        </button>
-                    </div>
-                    <div className="p-2 max-h-64 overflow-y-auto">
-                        {/* Add yourself to the list first */}
-                        <div className="p-2 hover:bg-gray-700 rounded flex items-center">
-                            <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center mr-2">
-                                Y
-                            </div>
-                            <span>You</span>
-                        </div>
-                        
-                        {participantsList.length === 0 ? (
-                            <p className="text-gray-500 text-center my-2">No other participants</p>
-                        ) : (
-                            participantsList.map((participant, index) => (
-                                <div key={index} className="p-2 hover:bg-gray-700 rounded flex items-center">
-                                    <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center mr-2">
-                                        P
-                                    </div>
-                                    <span>Participant</span>
-                                </div>
-                            ))
-                        )}
-                    </div>
+            {/* Participants list overlay - simplified */}
+{showParticipants && (
+    <div className="absolute right-0 top-16 bg-gray-800 rounded-lg shadow-lg w-64 z-10 mr-4">
+        <div className="p-3 border-b border-gray-700 font-medium flex justify-between items-center">
+            <span>Participants ({participants})</span>
+            <button 
+                onClick={() => setShowParticipants(false)}
+                className="text-gray-400 hover:text-white"
+            >
+                ✕
+            </button>
+        </div>
+        <div className="p-2 max-h-64 overflow-y-auto">
+            {/* Only add yourself once - you're already counted in the participants list */}
+            <div className="p-2 hover:bg-gray-700 rounded flex items-center">
+                <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center mr-2">
+                    Y
                 </div>
-            )}
+                <span>You</span>
+            </div>
             
+            {/* Show other participants (excluding yourself) */}
+            {participantsList.length <= 1 ? (
+                <p className="text-gray-500 text-center my-2">No other participants</p>
+            ) : (
+                // Skip the first entry (which is you) and show the rest
+                participantsList.slice(1).map((participant, index) => (
+                    <div key={index} className="p-2 hover:bg-gray-700 rounded flex items-center">
+                        <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center mr-2">
+                            P
+                        </div>
+                        <span>Participant</span>
+                    </div>
+                ))
+            )}
+        </div>
+    </div>
+)}
+
             {/* Control bar */}
             <div className="flex justify-center items-center p-4 bg-gray-800 gap-4 flex-wrap">
                 {/* Camera toggle button */}

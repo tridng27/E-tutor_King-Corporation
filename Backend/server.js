@@ -240,8 +240,8 @@ app.get("/api/test-email", async (req, res) => {
 });
 
 // Start Meeting Service with the existing io instance
-setupMeetingService(server, io);
-
+const meetingIo = setupMeetingService(server, io);
+console.log('Meeting service initialized with namespace:', meetingIo.name);
 // Sync database and start server
 db.sequelize
   .sync({ alter: true })

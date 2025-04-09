@@ -4,7 +4,7 @@ require("dotenv").config();
 const sequelize = new Sequelize(
   process.env.DB_NAME,
   process.env.DB_USER,
-  process.env.DB_Password, // Match the case in your .env file
+  process.env.DB_PASSWORD, // Match the case in your .env file
   {
     host: process.env.DB_HOST,
     port: process.env.DB_PORT, // Add port configuration
