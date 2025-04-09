@@ -68,24 +68,13 @@ function Signup() {
   return (
       <div className="flex h-screen">
       {/* Left Section - Login Form */}
-      <div className="w-1/2 flex flex-col justify-center items-center relative px-6">
+      <div className="hidden md:flex w-1/2 justify-center items-center p-6 bg-white">
         <img src="/illustration.png" className="" alt="User" />
       </div>
 
-      <div className="w-1/2 flex flex-col justify-center px-16 bg-white">
+      <div className="w-full md:w-1/2 flex flex-col justify-center px-6 sm:px-10 md:px-16 py-8 bg-white">
         <h1 className="text-3xl font-bold mb-2">Sign Up</h1>
         <p className="text-gray-500 mb-6">See your growth and get consulting support!</p>
-
-        <button className="w-full flex items-center justify-center gap-2 py-3 border text-gray-600 shadow-md mb-4 rounded-3xl">
-          <img src="https://www.svgrepo.com/show/303108/google-icon-logo.svg" className="w-5 h-5" alt="Google logo" />
-          Sign in with Google
-        </button>
-        
-        <div className="flex items-center my-4">
-          <div className="flex-grow border-t border-gray-300"></div>
-          <span className="mx-4 text-gray-400 text-sm">or Sign up with Email</span>
-          <div className="flex-grow border-t border-gray-300"></div>
-        </div>
 
         <form onSubmit={handleSignup}> 
           <input 
@@ -106,9 +95,9 @@ function Signup() {
             required
           />
 
-          <div className="w-full p-3 border mb-3 text-gray-700 rounded-3xl">
+          <div className="w-full p-3 border mb-3 text-gray-700 rounded-3xl flex-row flex">
             <label className="block text-gray-500 mb-1">I want to join as:</label>
-            <div className="flex gap-4">
+            <div className="flex gap-4 px-2">
               <label className="flex items-center">
                 <input 
                   type="radio" 
@@ -120,7 +109,7 @@ function Signup() {
                 />
                 Student
               </label>
-              <label className="flex items-center">
+              <label className="flex items-center px-2">
                 <input 
                   type="radio" 
                   name="role" 
