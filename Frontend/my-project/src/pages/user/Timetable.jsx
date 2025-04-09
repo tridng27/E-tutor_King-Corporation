@@ -191,33 +191,34 @@ function Timetable() {
                         <h1 className="text-2xl font-bold mb-4">Class Schedule</h1>
                         
                         {/* Week navigation */}
-                        <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
                             <div className="flex items-center space-x-2">
                                 <button 
-                                    onClick={goToPreviousWeek}
-                                    className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                                onClick={goToPreviousWeek}
+                                className="px-2 py-1 sm:px-3 sm:py-1 text-xs md:text-sm  bg-gray-200 rounded hover:bg-gray-300"
                                 >
-                                    &lt; Previous Week
+                                &lt; Previous Week
                                 </button>
                                 <button 
-                                    onClick={goToCurrentWeek}
-                                    className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                onClick={goToCurrentWeek}
+                                className="px-2 py-1 sm:px-3 sm:py-1 text-xs md:text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
                                 >
-                                    Current Week
+                                Current Week
                                 </button>
                                 <button 
-                                    onClick={goToNextWeek}
-                                    className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                                onClick={goToNextWeek}
+                                className="px-2 py-1 sm:px-3 sm:py-1 text-xs md:text-sm bg-gray-200 rounded hover:bg-gray-300"
                                 >
-                                    Next Week &gt;
+                                Next Week &gt;
                                 </button>
                             </div>
                             <div>
-                                <span className="font-semibold">
-                                    {format(daysOfWeek[0].date, 'MMM dd')} - {format(daysOfWeek[6].date, 'MMM dd, yyyy')}
+                                <span className="text-xs sm:text-sm md:text-base font-semibold">
+                                {format(daysOfWeek[0].date, 'MMM dd')} - {format(daysOfWeek[6].date, 'MMM dd, yyyy')}
                                 </span>
                             </div>
                         </div>
+
 
                         {/* Week selector dropdown */}
                         <div className="mb-4">
@@ -241,53 +242,58 @@ function Timetable() {
                         ) : error ? (
                             <div className="text-center text-red-500 py-4">{error}</div>
                         ) : (
-                            <table className="table-auto border-collapse border border-gray-300 w-full text-left">
-                                <thead>
+                            <div className="w-full overflow-x-auto">
+                                <table className="table-auto md:table-fixed border-collapse border border-gray-300 w-full text-left text-xs sm:text-sm">
+                                    <thead>
                                     <tr className="bg-gray-200">
-                                        <th className="border border-gray-300 px-4 py-2 w-24">Time</th>
+                                        <th className="border border-gray-300 px-2 py-1 sm:px-4 sm:py-2 min-w-[70px] sm:min-w-[96px]">Time</th>
                                         {daysOfWeek.map(day => (
-                                            <th key={day.formattedDate} className="border border-gray-300 px-4 py-2">
-                                                <div className="font-bold">{day.dayName}</div>
-                                                <div className="text-sm">{day.fullDate}</div>
-                                            </th>
+                                        <th key={day.formattedDate} className="border border-gray-300 px-2 py-1 sm:px-4 sm:py-2">
+                                            <div className="font-bold break-words">{day.dayName}</div>
+                                            <div className="text-[10px] sm:text-sm break-words">{day.fullDate}</div>
+                                        </th>
                                         ))}
                                     </tr>
-                                </thead>
-                                <tbody>
+                                    </thead>
+                                    <tbody>
                                     {timeSlots.map(slot => (
                                         <tr key={slot.id}>
-                                            <th className="border border-gray-300 bg-gray-100 px-4 py-2">
-                                                <div className="font-bold">{slot.name}</div>
-                                                <div className="text-sm">{slot.time}</div>
-                                            </th>
-                                            {daysOfWeek.map(day => {
-                                                const timetable = getTimetableForSlot(day.formattedDate, slot);
-                                                const classDetails = timetable ? getClassDetails(timetable.ClassID) : null;
-                                                
-                                                return (
-                                                    <td 
-                                                        key={`${day.formattedDate}-${slot.id}`} 
-                                                        className={`border border-gray-300 px-4 py-2 ${isAdmin ? 'cursor-pointer hover:bg-gray-50' : ''} ${timetable ? 'bg-blue-50' : ''}`}
-                                                        onClick={() => handleSlotClick(day, slot)}
-                                                    >
-                                                        {timetable && classDetails ? (
-                                                            <div>
-                                                                <div className="font-semibold">{classDetails.Name}</div>
-                                                                <div className="text-sm text-gray-600">{timetable.TimetableLocation}</div>
-                                                                <div className="text-xs text-gray-500">
-                                                                    {format(new Date(timetable.TimetableSchedule), 'h:mm a')}
-                                                                </div>
-                                                            </div>
-                                                        ) : isAdmin ? (
-                                                            <div className="text-gray-400 text-sm text-center">Click to add class</div>
-                                                        ) : null}
-                                                    </td>
-                                                );
-                                            })}
+                                        <th className="border border-gray-300 bg-gray-100 px-2 py-1 sm:px-4 sm:py-2">
+                                            <div className="font-bold break-words">{slot.name}</div>
+                                            <div className="text-[10px] sm:text-sm break-words">{slot.time}</div>
+                                        </th>
+                                        {daysOfWeek.map(day => {
+                                            const timetable = getTimetableForSlot(day.formattedDate, slot);
+                                            const classDetails = timetable ? getClassDetails(timetable.ClassID) : null;
+
+                                            return (
+                                            <td
+                                                key={`${day.formattedDate}-${slot.id}`}
+                                                className={`border border-gray-300 px-2 py-1 sm:px-4 sm:py-2 font-semibold break-keep whitespace-nowrap text-ellipsis overflow-hidden
+                                                ${isAdmin ? 'cursor-pointer hover:bg-gray-50' : ''} 
+                                                ${timetable ? 'bg-blue-50' : ''}`}
+                                                onClick={() => handleSlotClick(day, slot)}
+                                            >
+                                                {timetable && classDetails ? (
+                                                <div className="space-y-1">
+                                                    <div className="font-semibold">{classDetails.Name}</div>
+                                                    <div className="text-[10px] sm:text-xs text-gray-600">{timetable.TimetableLocation}</div>
+                                                    <div className="text-[10px] sm:text-xs text-gray-500">
+                                                    {format(new Date(timetable.TimetableSchedule), 'h:mm a')}
+                                                    </div>
+                                                </div>
+                                                ) : isAdmin ? (
+                                                <div className="text-gray-400 text-[10px] sm:text-sm text-center">Click to add class</div>
+                                                ) : null}
+                                            </td>
+                                            );
+                                        })}
                                         </tr>
                                     ))}
-                                </tbody>
-                            </table>
+                                    </tbody>
+                                </table>
+                            </div>
+
                         )}
                     </div>
                 </div>
