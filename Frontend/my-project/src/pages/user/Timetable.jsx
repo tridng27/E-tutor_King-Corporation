@@ -385,12 +385,11 @@ function Timetable() {
                                 &lt; Prev
                             </button>
                             <button
-    onClick={goToCurrentWeek}
-    className="px-3 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium bg-blue-600 bg-opacity-20 text-blue-700 border border-blue-600 rounded-md shadow-sm hover:bg-opacity-30 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
->
-    Today
-</button>
-
+                                onClick={goToCurrentWeek}
+                                className="px-3 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium bg-blue-600 bg-opacity-20 text-blue-700 border border-blue-600 rounded-md shadow-sm hover:bg-opacity-30 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                            >
+                                Today
+                            </button>
                             <button
                                 onClick={goToNextWeek}
                                 className="px-3 py-1 md:px-4 md:py-2 text-xs md:text-sm font-medium bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"

@@ -243,7 +243,7 @@ function Sidebar() {
                             <BookHeart className="w-6 h-6 text-[#31A0FE] min-w-[24px]" />
                         </div>
                         <span className={`text-gray-700 transition-all duration-300 ${isSidebarOpen ? "block" : "hidden"}`}>
-                            Course
+                            Material
                         </span>
                     </a>
 
