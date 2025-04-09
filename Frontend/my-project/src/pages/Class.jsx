@@ -69,7 +69,7 @@ function Class() {
         setDeletingIds(prev => [...prev, studentId]);
           // 1. Xác nhận từ người dùng
           const isConfirmed = window.confirm(
-              `Bạn có chắc muốn xóa học sinh ${studentId} khỏi lớp học?`
+              `Are you sure you want to delete student ${studentId} from the class?`
           );
           
           if (!isConfirmed) return;
@@ -81,7 +81,7 @@ function Class() {
           setStudents(prev => prev.filter(student => student.StudentID !== studentId));
   
           // 4. Thông báo thành công
-          alert(`Đã xóa học sinh ${studentId} thành công!`);
+          alert(`Student ${studentId} deleted successfully!`);
           
       } catch (error) {
           console.error("Error details:", {
@@ -92,7 +92,7 @@ function Class() {
           // 5. Khôi phục danh sách nếu có lỗi
           fetchStudents();
           
-          alert(`Xóa thất bại: ${error.response?.data?.message || error.message}`);
+          alert(`Delete fail: ${error.response?.data?.message || error.message}`);
       } finally {
         setDeletingIds(prev => prev.filter(id => id !== studentId));
       }

@@ -144,7 +144,7 @@ function Sidebar() {
                     {/* Home/Landing button */}
                     <a
                         href="#"
-                        className="flex items-center space-x-3 rounded-lg hover:bg-gray-100 p-2"
+                        className="flex items-center space-x-3 rounded-lg hover:bg-gray-100 p-1"
                         onClick={handleHomeClick}
                     >
                         {/* Add min-width and center the icon when sidebar is collapsed */}
@@ -159,7 +159,7 @@ function Sidebar() {
                     {/* Dashboard button */}
                     <a
                         href="#"
-                        className="flex items-center space-x-3 rounded-lg hover:bg-gray-100 p-2"
+                        className="flex items-center space-x-3 rounded-lg hover:bg-gray-100 p-1"
                         onClick={handleDashboardClick}
                     >
                         <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>
@@ -174,7 +174,7 @@ function Sidebar() {
                     {userRole === 'Admin' && (
                         <a
                             href="#"
-                            className="flex items-center space-x-3 rounded-lg hover:bg-gray-100 p-2"
+                            className="flex items-center space-x-3 rounded-lg hover:bg-gray-100 p-1"
                             onClick={handleAdminClick}
                         >
                             <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>
@@ -190,7 +190,7 @@ function Sidebar() {
                     {userRole === 'Admin' && (
                         <a
                             href="#"
-                            className="flex items-center space-x-3 rounded-lg hover:bg-gray-100 p-2"
+                            className="flex items-center space-x-3 rounded-lg hover:bg-gray-100 p-1"
                             onClick={handleSubjectsClick}
                         >
                             <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>
@@ -206,7 +206,7 @@ function Sidebar() {
                     {userRole === 'Admin' && (
                         <a
                             href="#"
-                            className="flex items-center space-x-3 rounded-lg hover:bg-gray-100 p-2"
+                            className="flex items-center space-x-3 rounded-lg hover:bg-gray-100 p-1"
                             onClick={handleStudentManagementClick}
                         >
                             <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>
@@ -221,7 +221,7 @@ function Sidebar() {
                     {/* Timetable button - Updated to use the common route */}
                     <a
                         href="#"
-                        className="flex items-center space-x-3 rounded-lg hover:bg-gray-100 p-2"
+                        className="flex items-center space-x-3 rounded-lg hover:bg-gray-100 p-1"
                         onClick={handleTTableClick}
                     >
                         {/* Add min-width and center the icon when sidebar is collapsed */}
@@ -236,7 +236,7 @@ function Sidebar() {
                     {/* Course button - Updated to use handleCourseClick */}
                     <a 
                         href="#" 
-                        className="flex items-center space-x-3 rounded-lg hover:bg-gray-100 p-2"
+                        className="flex items-center space-x-3 rounded-lg hover:bg-gray-100 p-1"
                         onClick={handleCourseClick}
                     >
                         <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>
@@ -249,7 +249,7 @@ function Sidebar() {
 
                     <a
                         href="#"
-                        className="flex items-center space-x-3 rounded-lg hover:bg-gray-100 p-2"
+                        className="flex items-center space-x-3 rounded-lg hover:bg-gray-100 p-1"
                         onClick={handleSocialClick}
                     >
                         <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>
@@ -267,7 +267,7 @@ function Sidebar() {
                         {/* Messages button - Updated to navigate to direct messages */}
                         <a 
                             href="#" 
-                            className="flex items-center space-x-3 rounded-lg hover:bg-gray-100 p-2"
+                            className="flex items-center space-x-3 rounded-lg hover:bg-gray-100 p-1"
                             onClick={handleMessagesClick}
                         >
                             <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>
@@ -288,7 +288,7 @@ function Sidebar() {
                         {/* FIXED: Changed from nested <a> and <Link> to just <Link> */}
                         <Link 
                             to={`/meeting/${uuidv4()}`} 
-                            className="flex items-center space-x-3 rounded-lg hover:bg-gray-100 p-2"
+                            className="flex items-center space-x-3 rounded-lg hover:bg-gray-100 p-1"
                         >
                             <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>
                                 <PhoneCall className="w-6 h-6 text-[#31A0FE] min-w-[24px]" />
@@ -303,7 +303,7 @@ function Sidebar() {
                     <div className="absolute bottom-5 left-0 right-0 px-5">
                         <a
                             href="#"
-                            className="flex items-center space-x-3 rounded-lg hover:bg-gray-100 p-2 text-red-500"
+                            className="flex items-center space-x-3 rounded-lg hover:bg-gray-100 p-1 text-red-500"
                             onClick={handleLogoutClick}
                         >
                             <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>

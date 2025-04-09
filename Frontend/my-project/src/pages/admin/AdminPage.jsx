@@ -15,7 +15,7 @@ const AdminPage = () => {
       <div className="flex-1 ml-16 flex flex-col overflow-hidden">
         <div className="p-4 md:p-6 overflow-y-auto">
           <div className="mb-6">
-            <h1 className="text-xl md:text-2xl font-bold text-gray-800">User Management</h1>
+            <h1 className="text-xl md:text-2xl font-bold text-gray-800">Admin Management</h1>
             <p className="text-sm text-gray-500 mt-1">Welcome, {user.Name}</p>
           </div>
           
