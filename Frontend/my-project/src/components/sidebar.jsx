@@ -1,6 +1,18 @@
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { LayoutDashboard, Calendar, MessageSquare, PhoneCall, Home, LogOut, BookHeart, Earth, Users } from "lucide-react";
+import { 
+    LayoutDashboard, 
+    Calendar, 
+    MessageSquare, 
+    PhoneCall, 
+    Home, 
+    LogOut, 
+    BookHeart, 
+    Earth, 
+    Users, 
+    GraduationCap, 
+    BookOpen
+} from "lucide-react";
 import { GlobalContext } from "../context/GlobalContext";
 import { jwtDecode } from "jwt-decode";
 import { v4 as uuidv4 } from "uuid";
@@ -98,6 +110,18 @@ function Sidebar() {
         e.preventDefault();
         navigate('/messages');
     };
+    
+    // NEW: Handle navigation to subject management (Admin only)
+    const handleSubjectsClick = (e) => {
+        e.preventDefault();
+        navigate('/admin/subjects');
+    };
+
+    // NEW: Handle navigation to student management (Admin only)
+    const handleStudentManagementClick = (e) => {
+        e.preventDefault();
+        navigate('/admin/student');
+    };
 
     return (
         <div>
@@ -158,6 +182,38 @@ function Sidebar() {
                             </div>
                             <span className={`text-gray-700 transition-all duration-300 ${isSidebarOpen ? "block" : "hidden"}`}>
                                 ManagerTool
+                            </span>
+                        </a>
+                    )}
+                    
+                    {/* NEW: Subject Management - Admin only */}
+                    {userRole === 'Admin' && (
+                        <a
+                            href="#"
+                            className="flex items-center space-x-3 rounded-lg hover:bg-gray-100 p-2"
+                            onClick={handleSubjectsClick}
+                        >
+                            <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>
+                                <BookOpen className="w-6 h-6 text-[#31A0FE] min-w-[24px]" />
+                            </div>
+                            <span className={`text-gray-700 transition-all duration-300 ${isSidebarOpen ? "block" : "hidden"}`}>
+                                SubjectManager
+                            </span>
+                        </a>
+                    )}
+
+                    {/* NEW: Student Management - Admin only */}
+                    {userRole === 'Admin' && (
+                        <a
+                            href="#"
+                            className="flex items-center space-x-3 rounded-lg hover:bg-gray-100 p-2"
+                            onClick={handleStudentManagementClick}
+                        >
+                            <div className={`flex ${!isSidebarOpen ? "justify-center w-full" : ""}`}>
+                                <GraduationCap className="w-6 h-6 text-[#31A0FE] min-w-[24px]" />
+                            </div>
+                            <span className={`text-gray-700 transition-all duration-300 ${isSidebarOpen ? "block" : "hidden"}`}>
+                                StudentManager
                             </span>
                         </a>
                     )}
