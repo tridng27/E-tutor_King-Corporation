@@ -14,30 +14,30 @@ const apiService = {
   put: (url, data, config = {}) => apiClient.put(url, data, { ...config, withCredentials: true }),
   delete: (url, config = {}) => apiClient.delete(url, { ...config, withCredentials: true }),
 
-  // Lấy danh sách lớp học
+  // Get all classes
   getAllClasses: () => apiClient.get('/classes').then(res => res.data),
   
-  // Lấy thông tin lớp học theo ID
+  // Get class by ID
   getClassById: (classId) => apiClient.get(`/classes/${classId}`),
   
-  // Tạo lớp học mới
+  // Create a new class
   createClass: (classData) => apiClient.post('/classes', classData),
   
-  // Cập nhật thông tin lớp học
+  // Update  class information
   updateClass: (classId, classData) => apiClient.put(`/classes/${classId}`, classData),
   
-  // Xóa lớp học
+  // Delete class
   deleteClass: (classId) => apiClient.delete(`/classes/${classId}`),
   
-  // Lấy danh sách học sinh
+  // Get all students
   getAllStudents: () => apiClient.get('/students').then(res => res.data),
   
-  // Lấy thông tin học sinh theo ID
+  // Get student by ID
   getStudentById: (UserID) => apiClient.get(`/students/${UserID}`),
   
-  // Tạo học sinh mới (chỉ dành cho Admin)
+  // Create a new student (Admin only)
   createStudent: (studentData) => {
-    // Validate dữ liệu trước khi gửi
+    // Validate data before sending
     const requiredFields = ['Name', 'Email', 'Password', 'Birthdate', 'Gender'];
     const missingFields = requiredFields.filter(field => !studentData[field]);
     
@@ -48,13 +48,13 @@ const apiService = {
     return apiClient.post('/students', studentData);
   },
   
-  // Cập nhật thông tin học sinh (chỉ dành cho Admin)
+  // Update student information (Admin only)
   updateStudent: (UserID, studentData) => apiClient.put(`/students/${UserID}`, studentData),
 
-  // Xóa học sinh (chỉ dành cho Admin)
+  // Detele student (Admin only)
   deleteStudent: (UserID) => apiClient.delete(`/students/${UserID}`).then(res => res.data),
 
-  // Lấy thông tin điểm số và điểm danh của học sinh
+  // Get student performance by student ID
   getStudentPerformance: (UserID) => apiClient.get(`/students/${UserID}/performance`),
   
   // File upload with multipart/form-data
@@ -327,21 +327,23 @@ const apiService = {
     }
   },  
   
-  assignStudentToClass: async (classId, studentId) => {
+  assignStudentToClass: async (classId, userId) => {
     try {
-      console.log(`Attempting to assign student ${studentId} to class ${classId}`);
-      console.log(`Using URL: /class-students/${classId}/students`);
-      console.log(`With payload:`, { StudentID: String(studentId) });
+      console.log(`Attempting to assign user ${userId} to class ${classId}`);
       
-      const response = await apiClient.post(`/class-students/${classId}/students`, {
-        StudentID: String(studentId)
+      const url = `/class-students/${classId}/students`;
+      console.log(`Using URL: ${url}`);
+      console.log(`With payload:`, { UserID: Number(userId) });
+      
+      const response = await apiClient.post(url, {
+        UserID: Number(userId)  // Changed from StudentID to UserID
       });
       
       console.log("Success response:", response.data);
       return response.data;
     } catch (error) {
       console.error("Error assigning student:", error);
-      console.error("Error details:", {
+      console.error("Error details:", error.response?.data || {
         status: error.response?.status,
         statusText: error.response?.statusText,
         data: error.response?.data,
