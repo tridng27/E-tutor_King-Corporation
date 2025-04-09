@@ -11,6 +11,7 @@ const MessageArea = ({ partner, messages: initialMessages, onSendMessage, loadin
   const messagesEndRef = useRef(null);
   const socketRef = useRef(null);
   const typingTimeoutRef = useRef(null);
+  const currentPartnerIdRef = useRef(null);
   
   // Debug logs to help identify issues
   useEffect(() => {
@@ -18,6 +19,14 @@ const MessageArea = ({ partner, messages: initialMessages, onSendMessage, loadin
     console.log("Partner:", partner?.UserID);
     console.log("Initial messages:", initialMessages?.length);
   }, [currentUser, partner, initialMessages]);
+  
+  // Update the partner ID ref whenever the partner changes
+  useEffect(() => {
+    if (partner?.UserID) {
+      currentPartnerIdRef.current = String(partner.UserID);
+      console.log('Updated current partner ID ref to:', currentPartnerIdRef.current);
+    }
+  }, [partner?.UserID]);
   
   // Initialize socket connection
   useEffect(() => {
@@ -51,6 +60,16 @@ const MessageArea = ({ partner, messages: initialMessages, onSendMessage, loadin
     socketRef.current.on('receive_message', (message) => {
       console.log('Received message via socket:', message);
       
+      // Get the current partner ID from the ref
+      const currentPartnerId = currentPartnerIdRef.current;
+      
+      // Add debug logs to check types
+      console.log('Checking message relevance:');
+      console.log('- Message SenderID:', message.SenderID, 'type:', typeof message.SenderID);
+      console.log('- Current User ID:', currentUser?.UserID, 'type:', typeof currentUser?.UserID);
+      console.log('- Message ReceiverID:', message.ReceiverID, 'type:', typeof message.ReceiverID);
+      console.log('- Current Partner ID (from ref):', currentPartnerId, 'type:', typeof currentPartnerId);
+      
       setMessages(prevMessages => {
         // Check if message already exists to prevent duplicates
         const exists = prevMessages.some(m => m.MessageID === message.MessageID);
@@ -59,10 +78,10 @@ const MessageArea = ({ partner, messages: initialMessages, onSendMessage, loadin
           return prevMessages;
         }
         
-        // Only add message if it's part of this conversation
+        // Only add message if it's part of this conversation - FIXED with string comparison and ref
         const isRelevantMessage = 
-          (message.SenderID === currentUser?.UserID && message.ReceiverID === partner?.UserID) ||
-          (message.SenderID === partner?.UserID && message.ReceiverID === currentUser?.UserID);
+          (String(message.SenderID) === String(currentUser?.UserID) && String(message.ReceiverID) === currentPartnerId) ||
+          (String(message.SenderID) === currentPartnerId && String(message.ReceiverID) === String(currentUser?.UserID));
         
         console.log('Is message relevant to this conversation?', isRelevantMessage);
         
@@ -75,7 +94,7 @@ const MessageArea = ({ partner, messages: initialMessages, onSendMessage, loadin
       });
       
       // If we receive a message from partner, they're no longer typing
-      if (message.SenderID === partner?.UserID) {
+      if (String(message.SenderID) === currentPartnerId) {
         setPartnerTyping(false);
       }
     });
@@ -83,7 +102,8 @@ const MessageArea = ({ partner, messages: initialMessages, onSendMessage, loadin
     // Listen for typing indicators
     socketRef.current.on('user_typing', (data) => {
       console.log('Typing indicator received:', data);
-      if (data.userID === partner?.UserID) {
+      const currentPartnerId = currentPartnerIdRef.current;
+      if (String(data.userID) === currentPartnerId) {
         setPartnerTyping(data.isTyping);
       }
     });
@@ -135,8 +155,8 @@ const MessageArea = ({ partner, messages: initialMessages, onSendMessage, loadin
     if (!isTyping && socketRef.current && socketRef.current.connected && partner?.UserID) {
       setIsTyping(true);
       socketRef.current.emit('typing', {
-        senderID: currentUser.UserID,
-        receiverID: partner.UserID,
+        senderID: String(currentUser.UserID),  // Ensure string type
+        receiverID: String(partner.UserID),    // Ensure string type
         isTyping: true
       });
     }
@@ -151,8 +171,8 @@ const MessageArea = ({ partner, messages: initialMessages, onSendMessage, loadin
       if (socketRef.current && socketRef.current.connected && partner?.UserID) {
         setIsTyping(false);
         socketRef.current.emit('typing', {
-          senderID: currentUser.UserID,
-          receiverID: partner.UserID,
+          senderID: String(currentUser.UserID),  // Ensure string type
+          receiverID: String(partner.UserID),    // Ensure string type
           isTyping: false
         });
       }
@@ -162,12 +182,13 @@ const MessageArea = ({ partner, messages: initialMessages, onSendMessage, loadin
   const handleSubmit = (e) => {
     e.preventDefault();
     if (newMessage.trim() && socketRef.current && socketRef.current.connected && partner?.UserID) {
-      console.log('Sending message to:', partner.UserID);
+      console.log('Sending message to:', partner.UserID, 'type:', typeof partner.UserID);
+      console.log('Current user ID:', currentUser.UserID, 'type:', typeof currentUser.UserID);
       
-      // Send message through socket only
+      // Send message through socket only - FIXED with string conversion
       socketRef.current.emit('send_message', {
-        senderID: currentUser.UserID,
-        receiverID: partner.UserID,
+        senderID: String(currentUser.UserID),  // Ensure string type
+        receiverID: String(partner.UserID),    // Ensure string type
         content: newMessage
       });
       
@@ -179,8 +200,8 @@ const MessageArea = ({ partner, messages: initialMessages, onSendMessage, loadin
       setIsTyping(false);
       if (socketRef.current && socketRef.current.connected) {
         socketRef.current.emit('typing', {
-          senderID: currentUser.UserID,
-          receiverID: partner.UserID,
+          senderID: String(currentUser.UserID),  // Ensure string type
+          receiverID: String(partner.UserID),    // Ensure string type
           isTyping: false
         });
       }
@@ -225,7 +246,8 @@ const MessageArea = ({ partner, messages: initialMessages, onSendMessage, loadin
           </div>
         ) : (
           messages.map((message) => {
-            const isSentByMe = message.SenderID === currentUser?.UserID;
+            // FIXED: Use string comparison for sender ID
+            const isSentByMe = String(message.SenderID) === String(currentUser?.UserID);
             
             return (
               <div 
@@ -251,8 +273,8 @@ const MessageArea = ({ partner, messages: initialMessages, onSendMessage, loadin
           })
         )}
         
-        {/* Typing indicator */}
-        {partnerTyping && (
+                {/* Typing indicator */}
+                {partnerTyping && (
           <div className="self-start max-w-[70%] mb-3">
             <div className="px-4 py-2 bg-gray-100 text-gray-500 rounded-2xl rounded-bl-sm">
               <div className="flex space-x-1">
@@ -295,3 +317,4 @@ const MessageArea = ({ partner, messages: initialMessages, onSendMessage, loadin
 };
 
 export default MessageArea;
+

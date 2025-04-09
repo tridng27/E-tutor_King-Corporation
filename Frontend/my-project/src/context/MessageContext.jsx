@@ -1,4 +1,4 @@
-import { createContext, useState, useContext, useEffect } from "react";
+import { createContext, useState, useContext, useEffect, useCallback } from "react";
 import apiService from "../services/apiService";
 
 export const MessageContext = createContext(null);
@@ -26,7 +26,7 @@ export const MessageProvider = ({ children }) => {
   }, [conversations]);
 
   // Fetch all conversations
-  const fetchConversations = async () => {
+  const fetchConversations = useCallback(async () => {
     try {
       setLoading(true);
       const response = await apiService.getUserConversations();
@@ -36,11 +36,12 @@ export const MessageProvider = ({ children }) => {
       setError('Failed to load conversations');
       setLoading(false);
     }
-  };
+  }, []);
 
   // Fetch messages for a specific conversation
-  const fetchMessages = async (userID) => {
+  const fetchMessages = useCallback(async (userID) => {
     try {
+      console.log("Fetching messages for user ID:", userID);
       setLoading(true);
       const response = await apiService.getConversation(userID);
       setMessages(response.data);
@@ -61,14 +62,16 @@ export const MessageProvider = ({ children }) => {
         fetchConversations();
       }
     } catch (error) {
+      console.error("Error fetching messages:", error);
       setError('Failed to load messages');
       setLoading(false);
     }
-  };
+  }, [fetchConversations]);
 
   // Send a message
-  const sendMessage = async (receiverID, content) => {
+  const sendMessage = useCallback(async (receiverID, content) => {
     try {
+      console.log("Sending message to receiver ID:", receiverID);
       await apiService.sendDirectMessage(receiverID, content);
       // Refresh messages
       await fetchMessages(receiverID);
@@ -76,33 +79,42 @@ export const MessageProvider = ({ children }) => {
       await fetchConversations();
       return true;
     } catch (error) {
+      console.error("Error sending message:", error);
       setError('Failed to send message');
       return false;
     }
-  };
+  }, [fetchMessages, fetchConversations]);
 
   // Search users
-  // In MessageContext.jsx
-const searchUsers = async (query) => {
+  const searchUsers = useCallback(async (query) => {
     try {
-      console.log("Searching for users with query:", query); // Add this for debugging
+      console.log("Searching for users with query:", query);
       const response = await apiService.searchUsers(query);
-      console.log("Search results:", response); // Add this for debugging
-      return response.data || []; // Make sure we're returning the data array
+      console.log("Search results:", response);
+      return response.data || [];
     } catch (error) {
       console.error("Failed to search users:", error);
       setError('Failed to search users');
       return [];
     }
-  };
+  }, []);
 
-  // Select a conversation
-  const selectConversation = async (conversation) => {
+  // Select a conversation - FIXED VERSION
+  const selectConversation = useCallback((conversation) => {
+    console.log("Selecting conversation with partner:", conversation?.partner?.UserID);
+    
+    // First update the current conversation state
     setCurrentConversation(conversation);
-    if (conversation) {
-      await fetchMessages(conversation.partner.UserID);
+    
+    // Then fetch messages if we have a conversation
+    if (conversation && conversation.partner) {
+      // We don't need to await this - it will update the messages state when done
+      fetchMessages(conversation.partner.UserID);
+    } else {
+      // Clear messages if no conversation is selected
+      setMessages([]);
     }
-  };
+  }, [fetchMessages]);
 
   return (
     <MessageContext.Provider
