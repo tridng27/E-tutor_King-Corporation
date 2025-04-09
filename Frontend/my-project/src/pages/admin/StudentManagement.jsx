@@ -462,23 +462,23 @@ function StudentManagement() {
                                 <span className="text-sm text-gray-600">
                                     Page {currentPage} of {totalPages}
                                 </span>
-                                <div className="space-x-2">
-                                <button
-                                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                                    disabled={currentPage === 1}
-                                    className="px-3 py-1 bg-gray-200 bg-opacity-50 border border-gray-300 rounded disabled:opacity-50 flex items-center"
-                                >
-                                    <ChevronLeft size={16} className="mr-1" />
-                                    <span className="hidden sm:inline">Previous</span>
-                                </button>
-                                <button
-                                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                                    disabled={currentPage === totalPages}
-                                    className="px-3 py-1 bg-gray-200 bg-opacity-50 border border-gray-300 rounded disabled:opacity-50 flex items-center"
-                                >
-                                    <span className="hidden sm:inline">Next</span>
-                                    <ChevronRight size={16} className="ml-1" />
-                                </button>
+                                <div className="flex flex-row">
+                                    <button
+                                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                        disabled={currentPage === 1}
+                                        className="px-3 py-2 mx-1 bg-gray-200 bg-opacity-50 border border-gray-300 rounded disabled:opacity-50 flex items-center w-[100px] justify-center"
+                                    >
+                                        <ChevronLeft size={16} className="mr-1" />
+                                        <span className="hidden sm:inline">Previous</span>
+                                    </button>
+                                    <button
+                                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                        disabled={currentPage === totalPages}
+                                        className="px-3 py-2 mx-1 bg-gray-200 bg-opacity-50 border border-gray-300 rounded disabled:opacity-50 flex items-center w-[100px] justify-center"
+                                    >
+                                        <span className="hidden sm:inline">Next</span>
+                                        <ChevronRight size={16} className="ml-1" />
+                                    </button>
                                 </div>
                             </div>
                         </>

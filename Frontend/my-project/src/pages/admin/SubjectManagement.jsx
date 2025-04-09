@@ -303,74 +303,74 @@ function SubjectManagement() {
                           <span>Save</span>
                         </button>
                         <button
-                                                    onClick={() => setEditingSubject(null)}
-                                                    className="flex-1 py-2 bg-red-500 bg-opacity-20 text-red-700 border border-red-500 rounded-lg hover:bg-opacity-30 transition-colors flex items-center justify-center gap-1"
-                                                    disabled={loading}
-                                                  >
-                                                    <X size={16} />
-                                                    <span>Cancel</span>
-                                                  </button>
-                                                </div>
-                                              ) : (
-                                                <div className="flex gap-2">
-                                                  <button
-                                                    onClick={() => setEditingSubject(subject)}
-                                                    className="flex-1 py-2 bg-blue-600 bg-opacity-20 text-blue-700 border border-blue-600 rounded-lg hover:bg-opacity-30 transition-colors flex items-center justify-center gap-1"
-                                                    disabled={loading}
-                                                  >
-                                                    <Edit2 size={16} />
-                                                    <span>Edit</span>
-                                                  </button>
-                                                  <button
-                                                    onClick={() => handleDeleteSubject(subject.SubjectID)}
-                                                    className="flex-1 py-2 bg-red-500 bg-opacity-20 text-red-700 border border-red-500 rounded-lg hover:bg-opacity-30 transition-colors flex items-center justify-center gap-1"
-                                                    disabled={loading}
-                                                  >
-                                                    <Trash2 size={16} />
-                                                    <span>Delete</span>
-                                                  </button>
-                                                </div>
-                                              )}
-                                            </div>
-                                          ))}
-                                        </div>
-                          
-                                        {/* Pagination */}
-                                        {totalPages > 1 && (
-                                          <div className="flex justify-between items-center mt-4 px-2 bg-white rounded-lg shadow-sm p-3">
-                                            <span className="text-sm text-gray-600">
-                                              Page {currentPage} of {totalPages}
-                                            </span>
-                                            <div className="space-x-2">
-                                              <button
-                                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                                                disabled={currentPage === 1}
-                                                className="px-3 py-1 bg-gray-200 bg-opacity-50 border border-gray-300 rounded disabled:opacity-50 flex items-center"
-                                              >
-                                                <ChevronLeft size={16} className="mr-1" />
-                                                <span className="hidden sm:inline">Previous</span>
-                                              </button>
-                                              <button
-                                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                                                disabled={currentPage === totalPages}
-                                                className="px-3 py-1 bg-gray-200 bg-opacity-50 border border-gray-300 rounded disabled:opacity-50 flex items-center"
-                                              >
-                                                <span className="hidden sm:inline">Next</span>
-                                                <ChevronRight size={16} className="ml-1" />
-                                              </button>
-                                            </div>
-                                          </div>
-                                        )}
-                                      </>
-                                    )}
-                                  </div>
-                                </div>
-                          
-                                {/* Right sidebar */}
-                                <RightSidebar />
-                              </div>
-                            );
-                          }
-                          
-                          export default SubjectManagement;
+                         onClick={() => setEditingSubject(null)}
+                         className="flex-1 py-2 bg-red-500 bg-opacity-20 text-red-700 border border-red-500 rounded-lg hover:bg-opacity-30 transition-colors flex items-center justify-center gap-1"
+                         disabled={loading}
+                       >
+                         <X size={16} />
+                         <span>Cancel</span>
+                       </button>
+                     </div>
+                   ) : (
+                     <div className="flex gap-2">
+                       <button
+                         onClick={() => setEditingSubject(subject)}
+                         className="flex-1 py-2 bg-blue-600 bg-opacity-20 text-blue-700 border border-blue-600 rounded-lg hover:bg-opacity-30 transition-colors flex items-center justify-center gap-1"
+                         disabled={loading}
+                       >
+                         <Edit2 size={16} />
+                         <span>Edit</span>
+                       </button>
+                       <button
+                         onClick={() => handleDeleteSubject(subject.SubjectID)}
+                         className="flex-1 py-2 bg-red-500 bg-opacity-20 text-red-700 border border-red-500 rounded-lg hover:bg-opacity-30 transition-colors flex items-center justify-center gap-1"
+                         disabled={loading}
+                       >
+                         <Trash2 size={16} />
+                         <span>Delete</span>
+                       </button>
+                     </div>
+                   )}
+                 </div>
+               ))}
+             </div>
+
+             {/* Pagination */}
+             {totalPages > 1 && (
+               <div className="flex justify-between items-center mt-4 px-2 bg-white rounded-lg shadow-sm p-3">
+                 <span className="text-sm text-gray-600">
+                   Page {currentPage} of {totalPages}
+                 </span>
+                 <div className="flex flex-row">
+                   <button
+                     onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                     disabled={currentPage === 1}
+                     className="px-3 py-2 mx-1 bg-gray-200 bg-opacity-50 border border-gray-300 rounded disabled:opacity-50 flex items-center w-[100px] justify-center"
+                   >
+                     <ChevronLeft size={16} className="mr-1" />
+                     <span className="hidden sm:inline">Previous</span>
+                   </button>
+                   <button
+                     onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                     disabled={currentPage === totalPages}
+                     className="px-3 py-2 mx-1 bg-gray-200 bg-opacity-50 border border-gray-300 rounded disabled:opacity-50 flex items-center w-[100px] justify-center"
+                   >
+                     <span className="hidden sm:inline">Next</span>
+                     <ChevronRight size={16} className="ml-1" />
+                   </button>
+                 </div>
+               </div>
+             )}
+           </>
+         )}
+       </div>
+     </div>
+
+     {/* Right sidebar */}
+     <RightSidebar />
+   </div>
+ );
+}
+
+export default SubjectManagement;
                           
