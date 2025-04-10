@@ -119,7 +119,12 @@ function Timetable() {
         if (!isAdmin) return;
         
         const timetable = getTimetableForSlot(day.formattedDate, slot);
-        const timetableTime = `${day.formattedDate}T${slot.time.split(' - ')[0]}:00`;
+        
+        // Fix: Ensure hours have leading zeros
+        const timeStr = slot.time.split(' - ')[0];
+        const [hours, minutes] = timeStr.split(':');
+        const formattedHours = hours.padStart(2, '0');
+        const timetableTime = `${day.formattedDate}T${formattedHours}:${minutes}:00`;
         
         setSelectedSlot({ day, slot });
         setTimetableData({

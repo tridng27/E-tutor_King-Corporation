@@ -20,9 +20,6 @@
     "webrtc": "^1.14.1"
   },
   "scripts": {
-    "server": "json-server --watch db.json --port 5000",
-    "start": "node server.js",
-    "seed": "node seedData.js",
-    "postinstall": "npm run seed"
+    "server": "json-server --watch db.json --port 5000"
   }
 }
