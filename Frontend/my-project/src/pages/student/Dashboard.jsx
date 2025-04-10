@@ -1,6 +1,5 @@
 import { useEffect, useState, useContext } from "react";
 import Sidebar from "../../components/sidebar";
-import RightSidebar from "../../components/rightSidebar";
 import { Chart } from "react-google-charts";
 import apiService from "../../services/apiService";
 import { GlobalContext } from "../../context/GlobalContext";
