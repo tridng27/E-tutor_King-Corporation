@@ -12,6 +12,19 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
+        // Get token from localStorage
+        const token = localStorage.getItem('token');
+        
+        // If no token exists, user is not authenticated
+        if (!token) {
+          setUser(null);
+          setUserRole(null);
+          setIsAuthenticated(false);
+          localStorage.removeItem("user");
+          return;
+        }
+        
+        // Use the token to make the auth check request
         const response = await apiService.get("/auth/me");
         const userData = response.data.user;
         
@@ -20,18 +33,25 @@ export const AuthProvider = ({ children }) => {
         setIsAuthenticated(true);
         localStorage.setItem("user", JSON.stringify(userData));
       } catch (error) {
+        // If request fails, clear auth state
         setUser(null);
         setUserRole(null);
         setIsAuthenticated(false);
         localStorage.removeItem("user");
+        localStorage.removeItem("token"); // Also remove the token if auth check fails
       }
     };
     
     checkAuthStatus();
   }, []);
   
-  const login = (userData) => {
+  const login = (userData, token) => {
     try {
+      // Store the token in localStorage
+      if (token) {
+        localStorage.setItem('token', token);
+      }
+      
       setUser(userData);
       setUserRole(userData.Role);
       setIsAuthenticated(true);
@@ -48,10 +68,12 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error("Error during logout API call:", error);
     } finally {
+      // Clear auth state and remove token
       setUser(null);
       setUserRole(null);
       setIsAuthenticated(false);
       localStorage.removeItem("user");
+      localStorage.removeItem("token"); // Remove token from localStorage
     }
   };
 

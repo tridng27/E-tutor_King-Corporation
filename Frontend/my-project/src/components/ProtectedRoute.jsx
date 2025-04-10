@@ -23,7 +23,18 @@ function ProtectedRoute({ children, allowedRoles = [] }) {
      
       const checkAuth = async () => {
         try {
-          const response = await apiService.get("/auth/me");
+          // Get token from localStorage
+          const token = localStorage.getItem('token');
+          
+          // If we have a token in localStorage, use it for the request
+          const config = {};
+          if (token) {
+            config.headers = {
+              Authorization: `Bearer ${token}`
+            };
+          }
+          
+          const response = await apiService.get("/auth/me", config);
           console.log("ProtectedRoute: Auth check response:", response.data);
          
           const userData = response.data.user;
@@ -48,7 +59,7 @@ function ProtectedRoute({ children, allowedRoles = [] }) {
      
       checkAuth();
     }
-  }, [authChecked]); // Remove location.pathname from dependencies
+  }, [authChecked]);
  
   // If we're still checking, show a loading indicator
   if (!authChecked) {

@@ -8,6 +8,17 @@ const apiClient = axios.create({
   withCredentials: true // This is critical for cookies
 });
 
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 const apiService = {
   get: (url, config = {}) => apiClient.get(url, { ...config, withCredentials: true }),
   post: (url, data, config = {}) => apiClient.post(url, data, { ...config, withCredentials: true }),

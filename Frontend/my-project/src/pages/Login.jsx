@@ -62,24 +62,17 @@ function Login() {
     e.preventDefault();
     console.log("Login attempt with email:", email);
     redirectAttempted.current = false; // Reset redirect flag on new login attempt
-
+  
     try {
       const response = await apiService.post("/auth/login", { email, password });
       console.log("Login response:", response.data);
       
-      const { user } = response.data;
-
-      if (user) {
-        // Call the login function from context
-        login(user);
-        console.log("Login function called with user");
-        
-        // Also store the token in localStorage as a fallback
-        // You'll need to modify your backend to return the token as well
-        if (response.data.token) {
-          localStorage.setItem('token', response.data.token);
-          console.log("Token stored in localStorage as fallback");
-        }
+      const { user, token } = response.data;
+  
+      if (user && token) {
+        // Call the login function from context with both user and token
+        login(user, token);
+        console.log("Login function called with user and token");
         
         setSuccess("Login successful, redirecting...");
         setError("");
@@ -94,7 +87,7 @@ function Login() {
       setError(err.response?.data?.message || "Something went wrong. Please try again.");
       setSuccess("");
     }
-}
+  }
 
   return (
     <div className="flex h-screen">
