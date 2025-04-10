@@ -5,6 +5,21 @@ import { format, startOfWeek, addDays, addWeeks, subWeeks } from 'date-fns';
 import { useGlobal } from '../../context/GlobalContext';
 import apiService from '../../services/apiService';
 
+// Add these utility functions for time zone conversion
+const convertToVietnamTime = (utcDateString) => {
+    const date = new Date(utcDateString);
+    // Add 7 hours to convert from UTC to GMT+7 (Vietnam)
+    date.setHours(date.getHours() + 7);
+    return date;
+};
+
+const convertToUTC = (vietnamDateString) => {
+    const date = new Date(vietnamDateString);
+    // Subtract 7 hours to convert from GMT+7 (Vietnam) to UTC
+    date.setHours(date.getHours() - 7);
+    return date;
+};
+
 function Timetable() {
     const [timetables, setTimetables] = useState([]);
     const [classes, setClasses] = useState([]);
@@ -71,17 +86,17 @@ function Timetable() {
                 // Fetch timetables for the selected week
                 const timetablesData = await apiService.getAllTimetables(startDate, endDate);
                 
-                // Debug: Log the fetched timetables
+                // Debug: Log the fetched timetables with Vietnam time conversion
                 console.log('Fetched timetables:', timetablesData);
-                
-                // Debug: Check if any timetables match the current week
-                const currentDate = new Date();
-                const matchingTimetables = timetablesData.filter(t => {
-                    const tDate = new Date(t.TimetableDate);
-                    return format(tDate, 'yyyy-MM-dd') >= startDate && 
-                           format(tDate, 'yyyy-MM-dd') <= endDate;
-                });
-                console.log('Matching timetables for current week:', matchingTimetables);
+                if (timetablesData.length > 0) {
+                    console.log('Sample timetable with time conversion:');
+                    const sample = timetablesData[0];
+                    console.log('  UTC Date:', new Date(sample.TimetableDate).toISOString());
+                    console.log('  Vietnam Date:', convertToVietnamTime(sample.TimetableDate).toISOString());
+                    console.log('  UTC Schedule:', new Date(sample.TimetableSchedule).toISOString());
+                    console.log('  Vietnam Schedule:', convertToVietnamTime(sample.TimetableSchedule).toISOString());
+                    console.log('  Vietnam Time:', format(convertToVietnamTime(sample.TimetableSchedule), 'h:mm a'));
+                }
                 
                 // Fetch all classes for the dropdown
                 const classesData = await apiService.getAllClasses();
@@ -98,27 +113,26 @@ function Timetable() {
         };
         
         fetchData();
-    }, [currentWeek]);    
+    }, [currentWeek]);
     
     // Find timetable entry for a specific day and time slot
     const getTimetableForSlot = (dayDate, timeSlot) => {
         // Parse the time range from the slot
         const [startTimeStr] = timeSlot.time.split(' - ');
-        const [hours, minutes] = startTimeStr.split(':').map(Number);
+        const [slotHours, slotMinutes] = startTimeStr.split(':').map(Number);
         
         return timetables.find(timetable => {
-            // Format the timetable date to compare with dayDate
-            const timetableDate = format(new Date(timetable.TimetableDate), 'yyyy-MM-dd');
+            // Convert UTC timetable date to Vietnam time for comparison
+            const vietnamDate = convertToVietnamTime(timetable.TimetableDate);
+            const timetableDate = format(vietnamDate, 'yyyy-MM-dd');
             
-            // Get hours and minutes from the timetable schedule
-            const scheduleTime = new Date(timetable.TimetableSchedule);
+            // Convert UTC schedule time to Vietnam time
+            const scheduleTime = convertToVietnamTime(timetable.TimetableSchedule);
             const scheduleHours = scheduleTime.getHours();
             const scheduleMinutes = scheduleTime.getMinutes();
             
-            // Compare date and time with more tolerance (within the same hour)
-            return timetableDate === dayDate && 
-                   Math.abs(scheduleHours - hours) <= 1 && 
-                   (Math.abs(scheduleHours - hours) < 1 || Math.abs(scheduleMinutes - minutes) <= 30);
+            // Compare date and time (match by hour)
+            return timetableDate === dayDate && scheduleHours === slotHours;
         });
     };
     
@@ -133,18 +147,23 @@ function Timetable() {
         
         const timetable = getTimetableForSlot(day.formattedDate, slot);
         
-        // Fix: Ensure hours have leading zeros
-        const timeStr = slot.time.split(' - ')[0];
-        const [hours, minutes] = timeStr.split(':');
-        const formattedHours = hours.padStart(2, '0');
-        const timetableTime = `${day.formattedDate}T${formattedHours}:${minutes}:00`;
+        // Extract hours and minutes from the slot time
+        const [timeStr] = slot.time.split(' - ');
+        const [hours, minutes] = timeStr.split(':').map(Number);
+        
+        // Create a date object with the selected day and time in Vietnam time zone
+        const vietnamDateTime = new Date(`${day.formattedDate}T${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:00`);
+        
+        // Convert to UTC for storage
+        const utcDateTime = convertToUTC(vietnamDateTime);
+        const timetableTime = utcDateTime.toISOString();
         
         setSelectedSlot({ day, slot });
         setTimetableData({
             ClassID: timetable?.ClassID || '',
             TimetableDate: day.formattedDate,
             TimetableLocation: timetable?.TimetableLocation || 'Online',
-            TimetableSchedule: timetable?.TimetableSchedule || timetableTime
+            TimetableSchedule: timetable ? timetable.TimetableSchedule : timetableTime
         });
         setShowModal(true);
     };
@@ -154,14 +173,34 @@ function Timetable() {
         e.preventDefault();
         
         try {
+            // Create a copy of the timetable data for submission
+            const submissionData = { ...timetableData };
+            
+            // If this is a new entry (not an edit), ensure the time is in UTC
+            if (!getTimetableForSlot(selectedSlot.day.formattedDate, selectedSlot.slot)) {
+                // Extract the date part and time part
+                const datePart = selectedSlot.day.formattedDate;
+                const [timeStr] = selectedSlot.slot.time.split(' - ');
+                const [hours, minutes] = timeStr.split(':').map(Number);
+                
+                // Create a date in Vietnam time
+                const vietnamDate = new Date(`${datePart}T${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:00`);
+                
+                // Convert to UTC
+                const utcDate = convertToUTC(vietnamDate);
+                
+                // Update the submission data
+                submissionData.TimetableSchedule = utcDate.toISOString();
+            }
+            
             const timetable = getTimetableForSlot(selectedSlot.day.formattedDate, selectedSlot.slot);
             
             if (timetable) {
-                // Update existing timetable entry using the new method
-                await apiService.updateTimetable(timetable.TimetableID, timetableData);
+                // Update existing timetable entry
+                await apiService.updateTimetable(timetable.TimetableID, submissionData);
             } else {
-                // Create new timetable entry using the new method
-                await apiService.createTimetable(timetableData);
+                // Create new timetable entry
+                await apiService.createTimetable(submissionData);
             }
             
             // Refresh timetables data
@@ -183,7 +222,7 @@ function Timetable() {
             const timetable = getTimetableForSlot(selectedSlot.day.formattedDate, selectedSlot.slot);
             
             if (timetable) {
-                // Delete timetable entry using the new method
+                // Delete timetable entry
                 await apiService.deleteTimetable(timetable.TimetableID);
                 
                 // Refresh timetables data
@@ -247,9 +286,9 @@ function Timetable() {
                                                     </div>
                                                     <div className="flex items-center mt-1 text-xs text-gray-500">
                                                         <svg className="h-3 w-3 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
                                                         </svg>
-                                                        {format(new Date(timetable.TimetableSchedule), 'h:mm a')}
+                                                        {format(convertToVietnamTime(timetable.TimetableSchedule), 'h:mm a')}
                                                     </div>
                                                 </div>
                                             ) : isAdmin ? (
@@ -367,7 +406,7 @@ function Timetable() {
                                                 <svg className="h-3 w-3 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
                                                 </svg>
-                                                {format(new Date(timetable.TimetableSchedule), 'h:mm a')}
+                                                {format(convertToVietnamTime(timetable.TimetableSchedule), 'h:mm a')}
                                             </div>
                                         </div>
                                     ) : (
@@ -547,6 +586,9 @@ function Timetable() {
                                             onChange={(e) => setTimetableData({...timetableData, TimetableSchedule: e.target.value})}
                                             required
                                         />
+                                    </div>
+                                    <div className="mt-1 text-xs text-gray-500">
+                                        Note: Times are displayed in Vietnam time (GMT+7)
                                     </div>
                                 </div>
                             </div>
