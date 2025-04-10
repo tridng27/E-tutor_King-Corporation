@@ -10,9 +10,24 @@ const bcrypt = require("bcrypt");
 
 const seed = async () => {
   try {
-    // Sync database with { force: true } to recreate tables
+    // Check if data already exists to avoid duplicates in production
+    const adminExists = await User.findOne({ 
+      where: { Email: "admin@example.com" } 
+    });
+    
+    if (adminExists) {
+      console.log("✅ Seed data already exists, skipping...");
+      process.exit(0);
+      return;
+    }
+
+    // Sync database - Use alter:true in production to preserve existing data
     console.log("🔄 Syncing database...");
-    await sequelize.sync({ force: true });
+    // In development, you can use force:true, but in production use alter:true
+    const syncOptions = process.env.NODE_ENV === 'production' 
+      ? { alter: true } 
+      : { force: true };
+    await sequelize.sync(syncOptions);
     console.log("✅ Database synced!");
 
     // Create users with different roles
@@ -27,7 +42,10 @@ const seed = async () => {
       Role: "Admin",
       Birthdate: new Date("2001-08-20"),
       Gender: "Male",
-      RegisterDate: new Date()
+      RegisterDate: new Date(),
+      RequestedRole: null, // Set RequestedRole to null for admin users
+      createdAt: new Date(),
+      updatedAt: new Date()
     });
     await Admin.create({ 
       UserID: adminUser.UserID, 
@@ -72,7 +90,10 @@ const seed = async () => {
         Role: "Tutor",
         Birthdate: tutorData.Birthdate,
         Gender: tutorData.Gender,
-        RegisterDate: new Date()
+        RegisterDate: new Date(),
+        RequestedRole: "Tutor", // Set RequestedRole to match Role for tutors
+        createdAt: new Date(),
+        updatedAt: new Date()
       });
       
       await Tutor.create({ 
@@ -124,7 +145,10 @@ const seed = async () => {
         Role: "Student",
         Birthdate: studentData.Birthdate,
         Gender: studentData.Gender,
-        RegisterDate: new Date()
+        RegisterDate: new Date(),
+        RequestedRole: "Student", // Set RequestedRole to match Role for students
+        createdAt: new Date(),
+        updatedAt: new Date()
       });
       
       const student = await Student.create({ 
@@ -229,7 +253,10 @@ const seed = async () => {
         Role: null, // Null role for pending users
         Birthdate: userData.Birthdate,
         Gender: userData.Gender,
-        RegisterDate: new Date()
+        RegisterDate: new Date(),
+        RequestedRole: "Student", // Default RequestedRole for pending users
+        createdAt: new Date(),
+        updatedAt: new Date()
       });
       console.log(`✅ Pending user ${userData.Name} created!`);
     }
@@ -243,4 +270,9 @@ const seed = async () => {
   }
 };
 
-seed();
+// Check if this script is being run directly (not imported)
+if (require.main === module) {
+  seed();
+}
+
+module.exports = seed; // Export for potential programmatic use
