@@ -239,8 +239,24 @@ function Dashboard() {
         setEditingStudent(null);
     };
 
+    // Validate input for score and attendance
+    const validateInput = (value, min, max) => {
+        if (value === "" || value === null) return true; // Allow empty values
+        const numValue = Number(value);
+        return !isNaN(numValue) && numValue >= min && numValue <= max;
+    };
+
     // Handle input change for editing
     const handleInputChange = (subjectIndex, field, value) => {
+        // Validate input based on field type
+        if ((field === "Score" || field === "Attendance") && value !== "") {
+            const numValue = Number(value);
+            // If invalid, don't update state
+            if (isNaN(numValue) || numValue < 0 || numValue > 100) {
+                return;
+            }
+        }
+        
         const updatedSubjects = [...editingStudent.subjects];
         updatedSubjects[subjectIndex][field] = value;
         
@@ -434,7 +450,7 @@ function Dashboard() {
                                                     : "bg-gray-200 hover:bg-gray-300 text-gray-800"
                                             }`}
                                         >
-                                           Class {cls.ClassID}
+                                            {cls.Name || `Class ${cls.ClassID}`}
                                         </button>
                                     ))
                                 )}
@@ -770,18 +786,34 @@ function Dashboard() {
                                                                 max="100"
                                                                 value={subject.Score || ""}
                                                                 onChange={(e) => handleInputChange(idx, "Score", e.target.value)}
-                                                                className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                                                                className={`w-full p-2 border rounded focus:ring-2 focus:outline-none ${
+                                                                    validateInput(subject.Score, 0, 100) 
+                                                                        ? "focus:ring-blue-500 focus:border-blue-500" 
+                                                                        : "border-red-500 focus:ring-red-500 focus:border-red-500"
+                                                                }`}
                                                             />
+                                                            {!validateInput(subject.Score, 0, 100) && (
+                                                                <p className="text-red-500 text-xs mt-1">Score must be between 0 and 100</p>
+                                                            )}
                                                         </td>
                                                         <td className="p-2 flex items-center">
-                                                            <input
-                                                                type="number"
-                                                                min="0"
-                                                                max="100"
-                                                                value={subject.Attendance || ""}
-                                                                onChange={(e) => handleInputChange(idx, "Attendance", e.target.value)}
-                                                                className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                                                            />
+                                                            <div className="w-full">
+                                                                <input
+                                                                    type="number"
+                                                                    min="0"
+                                                                    max="100"
+                                                                    value={subject.Attendance || ""}
+                                                                    onChange={(e) => handleInputChange(idx, "Attendance", e.target.value)}
+                                                                    className={`w-full p-2 border rounded focus:ring-2 focus:outline-none ${
+                                                                        validateInput(subject.Attendance, 0, 100) 
+                                                                            ? "focus:ring-blue-500 focus:border-blue-500" 
+                                                                            : "border-red-500 focus:ring-red-500 focus:border-red-500"
+                                                                    }`}
+                                                                />
+                                                                {!validateInput(subject.Attendance, 0, 100) && (
+                                                                    <p className="text-red-500 text-xs mt-1">Attendance must be between 0 and 100</p>
+                                                                )}
+                                                            </div>
                                                             <button
                                                                 onClick={() => {
                                                                     const updatedSubjects = [...editingStudent.subjects];

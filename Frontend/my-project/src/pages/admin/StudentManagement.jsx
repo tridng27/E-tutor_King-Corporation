@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
+import { GlobalContext } from "../../context/GlobalContext";
 import RightSidebar from "../../components/rightSidebar";
 import Sidebar from "../../components/sidebar";
 import { Search, Plus, Edit2, Trash2, BookOpen, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -24,6 +25,7 @@ function StudentManagement() {
     const [studentToDelete, setStudentToDelete] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+    const { user } = useContext(GlobalContext);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -215,7 +217,7 @@ function StudentManagement() {
                             <BookOpen size={18} />
                             <span>Subject Management</span>
                         </Link>
-                        <button 
+                        {/* <button 
                             className="flex items-center gap-2 px-4 py-2 bg-green-600 bg-opacity-20 text-green-700 border border-green-600 rounded-lg hover:bg-opacity-30 transition-colors"
                             onClick={() => {
                                 setEditingStudent(null);
@@ -224,7 +226,7 @@ function StudentManagement() {
                         >
                             <Plus size={18} />
                             <span>Add New Student</span>
-                        </button>
+                        </button> */}
                         </div>      
                     </div>
 
@@ -247,94 +249,96 @@ function StudentManagement() {
                         </div>
                     ) : (
                         <>
-                            {/* Tutor Infographic (Enhanced) */}
-                            <div className="bg-white shadow-md rounded-lg p-4 md:p-6 mb-6">
-                                <h2 className="text-lg font-semibold text-center mb-4">Tutor Management</h2>
-                                
-                                {/* Tutor Selector */}
-                                <div className="w-full max-w-xl mx-auto mb-4">
-                                    <select
-                                        className="w-full p-2 border rounded-lg"
-                                        onChange={handleTutorChange}
-                                        value={currentTutor?.TutorID || ''}
-                                    >
-                                        <option value="" disabled>Select a tutor</option>
-                                        {tutors.map(tutor => (
-                                            <option key={tutor.TutorID} value={tutor.TutorID}>
-                                                {tutor.User?.Name || `Tutor ID: ${tutor.TutorID}`}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
+                            {/* Tutor Infographic - Only show for admin users */}
+                            {user?.Role === "Admin" && (
+                                <div className="bg-white shadow-md rounded-lg p-4 md:p-6 mb-6">
+                                    <h2 className="text-lg font-semibold text-center mb-4">Tutor Management</h2>
+                                    
+                                    {/* Tutor Selector */}
+                                    <div className="w-full max-w-xl mx-auto mb-4">
+                                        <select
+                                            className="w-full p-2 border rounded-lg"
+                                            onChange={handleTutorChange}
+                                            value={currentTutor?.TutorID || ''}
+                                        >
+                                            <option value="" disabled>Select a tutor</option>
+                                            {tutors.map(tutor => (
+                                                <option key={tutor.TutorID} value={tutor.TutorID}>
+                                                    {tutor.User?.Name || `Tutor ID: ${tutor.TutorID}`}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
 
-                                {/* Use key to force re-render when tutor changes */}
-                                <div key={`tutor-info-${currentTutor?.TutorID || 'none'}`} className="bg-white border rounded-lg p-4 md:p-6 w-full max-w-xl mx-auto relative">
-                                    <div className="flex flex-col md:flex-row md:items-start justify-between">
-                                        <div className="space-y-2 mb-4 md:mb-0 md:flex-1">
-                                            <p className="font-semibold">Name: <span className="font-normal">{currentTutor?.User?.Name || '________'}</span></p>
-                                            <p className="font-semibold">ID: <span className="font-normal">{currentTutor?.TutorID || '________'}</span></p>
-                                            <p className="font-semibold">Email: <span className="font-normal">{currentTutor?.User?.Email || '________'}</span></p>
-                                            <p className="font-semibold">Specialization: <span className="font-normal">{currentTutor?.Fix || '________'}</span></p>
-                                            <p className="font-semibold">Description:</p>
-                                            <p className="text-sm text-gray-600">{currentTutor?.Description || 'No description available'}</p>
+                                    {/* Use key to force re-render when tutor changes */}
+                                    <div key={`tutor-info-${currentTutor?.TutorID || 'none'}`} className="bg-white border rounded-lg p-4 md:p-6 w-full max-w-xl mx-auto relative">
+                                        <div className="flex flex-col md:flex-row md:items-start justify-between">
+                                            <div className="space-y-2 mb-4 md:mb-0 md:flex-1">
+                                                <p className="font-semibold">Name: <span className="font-normal">{currentTutor?.User?.Name || '________'}</span></p>
+                                                <p className="font-semibold">ID: <span className="font-normal">{currentTutor?.TutorID || '________'}</span></p>
+                                                <p className="font-semibold">Email: <span className="font-normal">{currentTutor?.User?.Email || '________'}</span></p>
+                                                <p className="font-semibold">Specialization: <span className="font-normal">{currentTutor?.Fix || '________'}</span></p>
+                                                <p className="font-semibold">Description:</p>
+                                                <p className="text-sm text-gray-600">{currentTutor?.Description || 'No description available'}</p>
+                                            </div>
+                                            <div className="w-24 h-24 bg-gray-300 rounded-full flex items-center justify-center mx-auto md:mx-0">
+                                                {currentTutor?.User?.Avatar ? (
+                                                    <img
+                                                        src={currentTutor.User.Avatar}
+                                                        alt="Tutor Avatar"
+                                                        className="w-24 h-24 rounded-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-16 h-16 text-gray-700">
+                                                        <path d="M12 2a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm-8 16c0-3.314 3.582-6 8-6s8 2.686 8 6v2H4v-2Z" />
+                                                    </svg>
+                                                )}
+                                            </div>
                                         </div>
-                                        <div className="w-24 h-24 bg-gray-300 rounded-full flex items-center justify-center mx-auto md:mx-0">
-                                            {currentTutor?.User?.Avatar ? (
-                                                <img
-                                                    src={currentTutor.User.Avatar}
-                                                    alt="Tutor Avatar"
-                                                    className="w-24 h-24 rounded-full object-cover"
-                                                />
+                                        
+                                        {/* Current Classes Section */}
+                                        <div className="mt-4 border-t pt-4">
+                                            <p className="font-semibold mb-2">Current Classes:</p>
+                                            {tutorClasses.length > 0 ? (
+                                                <ul className="list-disc pl-5 mt-2 max-h-40 overflow-y-auto">
+                                                    {tutorClasses.map(cls => (
+                                                        <li key={cls.ClassID} className="text-sm flex justify-between items-center py-1">
+                                                            <span>
+                                                                {cls.Name} - ID: {cls.ClassID}
+                                                            </span>
+                                                            <button
+                                                                onClick={() => handleRemoveTutorFromClass(cls.ClassID)}
+                                                                className="text-red-500 text-xs px-2 hover:underline"
+                                                                title="Remove from class"
+                                                            >
+                                                                Remove
+                                                            </button>
+                                                        </li>
+                                                    ))}
+                                                </ul>
                                             ) : (
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-16 h-16 text-gray-700">
-                                                    <path d="M12 2a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm-8 16c0-3.314 3.582-6 8-6s8 2.686 8 6v2H4v-2Z" />
-                                                </svg>
+                                                <p className="text-sm text-gray-500">No classes assigned</p>
                                             )}
                                         </div>
                                     </div>
-                                    
-                                    {/* Current Classes Section */}
-                                    <div className="mt-4 border-t pt-4">
-                                        <p className="font-semibold mb-2">Current Classes:</p>
-                                        {tutorClasses.length > 0 ? (
-                                            <ul className="list-disc pl-5 mt-2 max-h-40 overflow-y-auto">
-                                                {tutorClasses.map(cls => (
-                                                    <li key={cls.ClassID} className="text-sm flex justify-between items-center py-1">
-                                                        <span>
-                                                            {cls.Name} - ID: {cls.ClassID}
-                                                        </span>
-                                                        <button
-                                                            onClick={() => handleRemoveTutorFromClass(cls.ClassID)}
-                                                            className="text-red-500 text-xs px-2 hover:underline"
-                                                            title="Remove from class"
-                                                        >
-                                                            Remove
-                                                        </button>
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        ) : (
-                                            <p className="text-sm text-gray-500">No classes assigned</p>
-                                        )}
+                                    <div className="flex gap-2 mt-4 justify-center">
+                                    <button
+                                        className="px-6 by-2 bg-yellow-600 bg-opacity-20 text-yellow-700 border border-yellow-600 rounded-md transition hover:bg-opacity-30"
+                                        onClick={() => handleEditTutor(currentTutor)}
+                                        disabled={!currentTutor}
+                                    >
+                                        Edit Tutor
+                                    </button>
+                                    <button
+                                        className="px-6 py-2 bg-blue-600 bg-opacity-20 text-blue-700 border border-blue-600 rounded-lg shadow-sm hover:bg-opacity-30 transition-colors"
+                                        onClick={() => setShowTutorClassList(true)}
+                                        disabled={!currentTutor}
+                                    >
+                                        Assign Classes
+                                    </button>
                                     </div>
                                 </div>
-                                <div className="flex gap-2 mt-4 justify-center">
-                                <button
-                                    className="px-6 by-2 bg-yellow-600 bg-opacity-20 text-yellow-700 border border-yellow-600 rounded-md transition hover:bg-opacity-30"
-                                    onClick={() => handleEditTutor(currentTutor)}
-                                    disabled={!currentTutor}
-                                >
-                                    Edit Tutor
-                                </button>
-                                <button
-                                    className="px-6 py-2 bg-blue-600 bg-opacity-20 text-blue-700 border border-blue-600 rounded-lg shadow-sm hover:bg-opacity-30 transition-colors"
-                                    onClick={() => setShowTutorClassList(true)}
-                                    disabled={!currentTutor}
-                                >
-                                    Assign Classes
-                                </button>
-                                </div>
-                            </div>
+                            )}
 
                             {/* Search Bar */}
                             <div className="flex items-center gap-2 mb-4 border rounded-lg p-2 shadow-sm bg-white">
