@@ -20,16 +20,16 @@ const login = async (req, res) => {
     const { email, password } = req.body;
     const { token, user } = await loginUser({ email, password });
     
-    // Set token as HttpOnly cookie
+    // Set token as HttpOnly cookie with production settings
     res.cookie('token', token, {
       httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
+      secure: true,  // Required for sameSite: 'none'
+      sameSite: 'none',  // Allows cross-site requests
       maxAge: 24 * 60 * 60 * 1000,
       path: '/'
     });
     
-    // Also return the token in the response as a fallback
+    // Also return the token in the response
     res.status(200).json({ user, token });
   } catch (error) {
     res.status(400).json({ message: error.message });
