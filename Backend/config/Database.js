@@ -1,23 +1,43 @@
 const { Sequelize } = require("sequelize");
 require("dotenv").config();
 
-const sequelize = new Sequelize(
-  process.env.DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASSWORD, // Match the case in your .env file
-  {
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT, // Add port configuration
+let sequelize;
+
+// Check if we have a DATABASE_URL (for Render deployment)
+if (process.env.DATABASE_URL) {
+  // Use connection string for production
+  sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: "postgres",
     logging: false,
     dialectOptions: {
-      ssl: process.env.DB_SSL === 'true' ? {
+      ssl: {
         require: true,
-        rejectUnauthorized: false // You might need this for Supabase
-      } : false
+        rejectUnauthorized: false
+      },
+      family: 4  // Force IPv4 connections
     }
-  }
-);
+  });
+} else {
+  // Use individual parameters for development
+  sequelize = new Sequelize(
+    process.env.DB_NAME,
+    process.env.DB_USER,
+    process.env.DB_PASSWORD,
+    {
+      host: process.env.DB_HOST,
+      port: process.env.DB_PORT,
+      dialect: "postgres",
+      logging: false,
+      dialectOptions: {
+        ssl: process.env.DB_SSL === 'true' ? {
+          require: true,
+          rejectUnauthorized: false
+        } : false,
+        family: 4  // Force IPv4 connections
+      }
+    }
+  );
+}
 
 // Kiểm tra kết nối (tùy chọn)
 sequelize
@@ -27,15 +47,18 @@ sequelize
   })
   .catch((error) => {
     console.error("❌ Unable to connect to database:", error);
-    console.log("DB_USER:", process.env.DB_USER);
-    console.log(
-      "DB_Password:", // Match the case in your .env file
-      process.env.DB_Password ? "Loaded" : "Not Loaded"
-    );
-    console.log("DB_HOST:", process.env.DB_HOST);
-    console.log("DB_PORT:", process.env.DB_PORT);
-    console.log("DB_NAME:", process.env.DB_NAME);
-    console.log("DB_SSL:", process.env.DB_SSL);
+    
+    // Log connection details for debugging
+    if (process.env.DATABASE_URL) {
+      console.log("Using DATABASE_URL connection string");
+    } else {
+      console.log("DB_USER:", process.env.DB_USER);
+      console.log("DB_PASSWORD:", process.env.DB_PASSWORD ? "Loaded" : "Not Loaded");
+      console.log("DB_HOST:", process.env.DB_HOST);
+      console.log("DB_PORT:", process.env.DB_PORT);
+      console.log("DB_NAME:", process.env.DB_NAME);
+      console.log("DB_SSL:", process.env.DB_SSL);
+    }
   });
 
 module.exports = sequelize;
