@@ -75,11 +75,17 @@ function Sidebar() {
     };
 
     // Handle logout
-    const handleLogoutClick = (e) => {
-        e.preventDefault();
-        logout();
+const handleLogoutClick = async (e) => {
+    e.preventDefault();
+    try {
+        await logout(); // Wait for logout to complete
         navigate('/login');
-    };
+    } catch (error) {
+        console.error("Logout failed:", error);
+        // Still try to navigate to login even if logout API fails
+        navigate('/login');
+    }
+};
 
     const handleSocialClick = (e) => {
         e.preventDefault();
