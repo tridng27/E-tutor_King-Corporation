@@ -68,8 +68,20 @@ function Timetable() {
                 const startDate = format(daysOfWeek[0].date, 'yyyy-MM-dd');
                 const endDate = format(daysOfWeek[6].date, 'yyyy-MM-dd');
                 
-                // Fetch timetables for the selected week using the new method
+                // Fetch timetables for the selected week
                 const timetablesData = await apiService.getAllTimetables(startDate, endDate);
+                
+                // Debug: Log the fetched timetables
+                console.log('Fetched timetables:', timetablesData);
+                
+                // Debug: Check if any timetables match the current week
+                const currentDate = new Date();
+                const matchingTimetables = timetablesData.filter(t => {
+                    const tDate = new Date(t.TimetableDate);
+                    return format(tDate, 'yyyy-MM-dd') >= startDate && 
+                           format(tDate, 'yyyy-MM-dd') <= endDate;
+                });
+                console.log('Matching timetables for current week:', matchingTimetables);
                 
                 // Fetch all classes for the dropdown
                 const classesData = await apiService.getAllClasses();
@@ -86,26 +98,27 @@ function Timetable() {
         };
         
         fetchData();
-    }, [currentWeek]);
+    }, [currentWeek]);    
     
     // Find timetable entry for a specific day and time slot
     const getTimetableForSlot = (dayDate, timeSlot) => {
-        // Convert timeSlot.time to a date object for comparison
-        const getTimeFromSlot = (slotTime) => {
-            const [startTime] = slotTime.split(' - ');
-            const [hours, minutes] = startTime.split(':').map(Number);
-            return new Date(0, 0, 0, hours, minutes);
-        };
+        // Parse the time range from the slot
+        const [startTimeStr] = timeSlot.time.split(' - ');
+        const [hours, minutes] = startTimeStr.split(':').map(Number);
         
         return timetables.find(timetable => {
+            // Format the timetable date to compare with dayDate
             const timetableDate = format(new Date(timetable.TimetableDate), 'yyyy-MM-dd');
-            const timetableTime = new Date(timetable.TimetableSchedule);
-            const slotTime = getTimeFromSlot(timeSlot.time);
             
-            // Compare date and approximate time (within 30 minutes)
-            return timetableDate === dayDate &&
-                   Math.abs(timetableTime.getHours() - slotTime.getHours()) < 1 &&
-                   Math.abs(timetableTime.getMinutes() - slotTime.getMinutes()) < 30;
+            // Get hours and minutes from the timetable schedule
+            const scheduleTime = new Date(timetable.TimetableSchedule);
+            const scheduleHours = scheduleTime.getHours();
+            const scheduleMinutes = scheduleTime.getMinutes();
+            
+            // Compare date and time with more tolerance (within the same hour)
+            return timetableDate === dayDate && 
+                   Math.abs(scheduleHours - hours) <= 1 && 
+                   (Math.abs(scheduleHours - hours) < 1 || Math.abs(scheduleMinutes - minutes) <= 30);
         });
     };
     
