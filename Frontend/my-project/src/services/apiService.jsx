@@ -54,8 +54,8 @@ const apiService = {
   // Detele student (Admin only)
   deleteStudent: (UserID) => apiClient.delete(`/students/${UserID}`).then(res => res.data),
 
-  // Get student performance by student ID
-  getStudentPerformance: (UserID) => apiClient.get(`/students/${UserID}/performance`),
+  // // Get student performance by student ID
+  // getStudentPerformance: (UserID) => apiClient.get(`/students/${UserID}/performance`),
   
   // File upload with multipart/form-data
   uploadFile: (url, formData, config = {}) => {
@@ -350,7 +350,7 @@ const apiService = {
         url: error.config?.url,
         method: error.config?.method,
         params: error.config?.params,
-        data: error.config?.data
+        requestData: error.config?.data
       });
       throw error;
     }
