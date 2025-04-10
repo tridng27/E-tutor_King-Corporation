@@ -29,6 +29,11 @@ const tutorRoutes = require("./routes/tutorRoutes");
 const studentSubjectRoutes = require("./routes/studentSubjectRoutes");
 const subjectRoutes = require("./routes/subjectRoutes");
 
+// Environment variables with fallbacks
+const PORT = process.env.PORT || 5000;
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+const API_BASE_URL = process.env.API_BASE_URL || `http://localhost:${PORT}/api`;
+
 // Import direct message service for socket handling
 const directMessageService = require('./services/directMessageService');
 
@@ -82,7 +87,7 @@ const server = http.createServer(app);
 // Setup Socket.IO ONCE
 const io = socketIo(server, {
   cors: {
-    origin: "http://localhost:5173", // Your frontend URL
+    origin: FRONTEND_URL, // Use environment variable instead of hardcoded URL
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
   }
@@ -170,7 +175,7 @@ dmIo.on('connection', (socket) => {
 app.use(cookieParser()); // Add cookie parser before CORS
 app.use(
   cors({
-    origin: "http://localhost:5173", // Your frontend URL
+    origin: FRONTEND_URL, // Use environment variable instead of hardcoded URL
     credentials: true, // Important for cookies
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -247,11 +252,10 @@ db.sequelize
   .sync({ alter: true })
   .then(() => {
     console.log("Database synced successfully");
-    const PORT = process.env.PORT || 5000;
     server.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
-      console.log(`API URL: http://localhost:${PORT}/api`);
-      console.log(`Frontend URL: http://localhost:5173`);
+      console.log(`API URL: ${API_BASE_URL}`);
+      console.log(`Frontend URL: ${FRONTEND_URL}`);
       console.log(`Socket.IO enabled for real-time messaging`);
       
       // Log email configuration
@@ -262,7 +266,6 @@ db.sequelize
   })
   .catch((err) => {
     console.error("Error syncing database:", err);
-    const PORT = process.env.PORT || 5000;
     server.listen(PORT, () => {
       console.log(`Server is running on port ${PORT} (but database sync failed)`);
     });
