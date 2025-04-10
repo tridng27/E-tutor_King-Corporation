@@ -8,8 +8,8 @@ function Dashboard() {
     const [classData, setClassData] = useState([]);
     const [classStudentCount, setClassStudentCount] = useState([]);
     const [classStudentPercentage, setClassStudentPercentage] = useState([]);
-    const [messageTimelineData, setMessageTimelineData] = useState([]);
-    const [messagesByHourData, setMessagesByHourData] = useState([]);
+    const [messageTimelineData, setMessageTimelineData] = useState([["Date", "Messages"]]);
+    const [messagesByHourData, setMessagesByHourData] = useState([["Hour", "Messages"]]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -61,46 +61,141 @@ function Dashboard() {
 
     const fetchMessageData = async () => {
         try {
-            const response1 = await apiService.get('/auth/me');
-            const userID = response1.data.user.UserID;
-    
-            if (!userID) {
-                console.error("UserID not found");
+            setIsLoading(true);
+            
+            // First get the current user ID
+            const userResponse = await apiService.get('/auth/me');
+            const currentUserID = userResponse.data.user.UserID;
+            
+            if (!currentUserID) {
+                console.error("Current user ID not found");
                 return;
             }
-    
-            const response = await apiService.getConversation(userID);
-            const messages = response.data;
-    
-            // Timeline Data
-            const timelineMap = new Map();
-            messages.forEach(msg => {
-                const date = new Date(msg.Timestamp).toLocaleDateString();
-                timelineMap.set(date, (timelineMap.get(date) || 0) + 1);
-            });
-    
-            const timelineData = [["Date", "Messages"]];
-            timelineMap.forEach((count, date) => {
-                timelineData.push([date, count]);
-            });
-            setMessageTimelineData(timelineData);
-    
-            // Messages by Hour Data
-            const hoursData = [["Hour", "Messages"]];
-            const hoursCount = Array(24).fill(0);
-            messages.forEach(msg => {
-                const hour = new Date(msg.Timestamp).getHours();
-                hoursCount[hour]++;
-            });
-            hoursCount.forEach((count, hour) => {
-                hoursData.push([`${hour}:00`, count]);
-            });
-            setMessagesByHourData(hoursData);
-    
-        } catch (error) {
-            console.error("Error fetching message data:", error);
-            throw error;
+            
+            console.log("Current user ID:", currentUserID);
+            
+            // Try to get all conversations first
+            try {
+                const conversationsResponse = await apiService.getUserConversations();
+                console.log("All conversations:", conversationsResponse);
+                
+                if (conversationsResponse?.success && 
+                    Array.isArray(conversationsResponse.data) && 
+                    conversationsResponse.data.length > 0) {
+                    
+                    // We need to get all messages, not just the latest ones
+                    // Let's collect all partner IDs
+                    const partnerIds = conversationsResponse.data.map(conv => conv.partner.UserID);
+                    console.log("Partner IDs:", partnerIds);
+                    
+                    // Now fetch all messages for each partner
+                    const allMessages = [];
+                    
+                    for (const partnerId of partnerIds) {
+                        try {
+                            // Get conversation with this partner
+                            const partnerConversation = await apiService.get(`/messages/conversation/${partnerId}`);
+                            
+                            if (partnerConversation?.success && 
+                                Array.isArray(partnerConversation.data) && 
+                                partnerConversation.data.length > 0) {
+                                
+                                // Add these messages to our collection
+                                allMessages.push(...partnerConversation.data);
+                            }
+                        } catch (err) {
+                            console.error(`Error fetching conversation with partner ${partnerId}:`, err);
+                        }
+                    }
+                    
+                    console.log("All collected messages:", allMessages.length);
+                    
+                    if (allMessages.length > 0) {
+                        processMessageData(allMessages);
+                    } else {
+                        // If we couldn't get any messages, use the latest messages from conversations
+                        const latestMessages = conversationsResponse.data.map(conv => conv.latestMessage);
+                        console.log("Using latest messages:", latestMessages.length);
+                        processMessageData(latestMessages);
+                    }
+                } else {
+                    // If no conversations, try getting direct conversation
+                    const directMessagesResponse = await apiService.getConversation(currentUserID);
+                    console.log("Direct conversation messages:", directMessagesResponse);
+                    
+                    if (directMessagesResponse?.success && 
+                        Array.isArray(directMessagesResponse.data) && 
+                        directMessagesResponse.data.length > 0) {
+                        
+                        processMessageData(directMessagesResponse.data);
+                    } else {
+                        // If still no messages, set empty chart data
+                        setMessageTimelineData([["Date", "Messages"]]);
+                        setMessagesByHourData([["Hour", "Messages"]]);
+                    }
+                }
+            } catch (err) {
+                console.error("Error fetching conversations:", err);
+                
+                // Try direct conversation as fallback
+                try {
+                    const directMessagesResponse = await apiService.getConversation(currentUserID);
+                    console.log("Direct conversation messages:", directMessagesResponse);
+                    
+                    if (directMessagesResponse?.success && 
+                        Array.isArray(directMessagesResponse.data) && 
+                        directMessagesResponse.data.length > 0) {
+                        
+                        processMessageData(directMessagesResponse.data);
+                    } else {
+                        // If still no messages, set empty chart data
+                        setMessageTimelineData([["Date", "Messages"]]);
+                        setMessagesByHourData([["Hour", "Messages"]]);
+                    }
+                } catch (directErr) {
+                    console.error("Error fetching direct conversation:", directErr);
+                    // Set empty chart data
+                    setMessageTimelineData([["Date", "Messages"]]);
+                    setMessagesByHourData([["Hour", "Messages"]]);
+                }
+            }
+            
+            setError(null);
+        } catch (err) {
+            console.error("Error in message data fetching:", err);
+            // Set empty chart data in case of error
+            setMessageTimelineData([["Date", "Messages"]]);
+            setMessagesByHourData([["Hour", "Messages"]]);
         }
+    };
+    
+    // Helper function to process message data for charts
+    const processMessageData = (messages) => {
+        // Timeline Data
+        const timelineMap = new Map();
+        messages.forEach(msg => {
+            const date = new Date(msg.Timestamp).toLocaleDateString();
+            timelineMap.set(date, (timelineMap.get(date) || 0) + 1);
+        });
+        
+        const timelineData = [["Date", "Messages"]];
+        timelineMap.forEach((count, date) => {
+            timelineData.push([date, count]);
+        });
+        setMessageTimelineData(timelineData);
+        
+        // Messages by Hour Data
+        const hoursData = [["Hour", "Messages"]];
+        const hoursCount = Array(24).fill(0);
+        messages.forEach(msg => {
+            const hour = new Date(msg.Timestamp).getHours();
+            hoursCount[hour]++;
+        });
+        
+        for (let hour = 0; hour < 24; hour++) {
+            hoursData.push([`${hour}:00`, hoursCount[hour]]);
+        }
+        setMessagesByHourData(hoursData);
     };
 
     return (
@@ -229,26 +324,34 @@ function Dashboard() {
                                     </div>
                                     <div className="p-4">
                                         <div className="h-64 md:h-80">
-                                            <Chart
-                                                chartType="LineChart"
-                                                width="100%"
-                                                height="100%"
-                                                data={messageTimelineData}
-                                                options={{
-                                                    curveType: 'function',
-                                                    legend: { position: 'none' },
-                                                    chartArea: { width: '80%', height: '70%' },
-                                                    hAxis: {
-                                                        title: 'Date',
-                                                        slantedText: true,
-                                                        slantedTextAngle: 45
-                                                    },
-                                                    vAxis: {
-                                                        title: 'Number of Messages'
-                                                    },
-                                                    colors: ['#34A853']
-                                                }}
-                                            />
+                                            {messageTimelineData.length > 1 ? (
+                                                <Chart
+                                                    chartType="LineChart"
+                                                    width="100%"
+                                                    height="100%"
+                                                    data={messageTimelineData}
+                                                    options={{
+                                                        curveType: 'function',
+                                                        legend: { position: 'none' },
+                                                        chartArea: { width: '80%', height: '70%' },
+                                                        hAxis: {
+                                                            title: 'Date',
+                                                            slantedText: true,
+                                                            slantedTextAngle: 45
+                                                        },
+                                                        vAxis: {
+                                                            title: 'Number of Messages',
+                                                            minValue: 0,
+                                                            format: '0'
+                                                        },
+                                                        colors: ['#34A853']
+                                                    }}
+                                                />
+                                            ) : (
+                                                <div className="flex justify-center items-center h-full">
+                                                    <p className="text-gray-500">No message data available</p>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -260,23 +363,31 @@ function Dashboard() {
                                     </div>
                                     <div className="p-4">
                                         <div className="h-64 md:h-80">
-                                            <Chart
-                                                chartType="BarChart"
-                                                width="100%"
-                                                height="100%"
-                                                data={messagesByHourData}
-                                                options={{
-                                                    chartArea: { width: '80%', height: '70%' },
-                                                    hAxis: {
-                                                        title: 'Hour of Day',
-                                                    },
-                                                    vAxis: {
-                                                        title: 'Number of Messages'
-                                                    },
-                                                    legend: { position: 'none' },
-                                                    colors: ['#FBBC05']
-                                                }}
-                                            />
+                                            {messagesByHourData.length > 1 ? (
+                                                <Chart
+                                                    chartType="ColumnChart"
+                                                    width="100%"
+                                                    height="100%"
+                                                    data={messagesByHourData}
+                                                    options={{
+                                                        chartArea: { width: '80%', height: '70%' },
+                                                        hAxis: {
+                                                            title: 'Hour of Day',
+                                                        },
+                                                        vAxis: {
+                                                            title: 'Number of Messages',
+                                                            minValue: 0,
+                                                            format: '0'
+                                                        },
+                                                        legend: { position: 'none' },
+                                                        colors: ['#FBBC05']
+                                                    }}
+                                                />
+                                            ) : (
+                                                <div className="flex justify-center items-center h-full">
+                                                    <p className="text-gray-500">No message data available</p>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -292,3 +403,4 @@ function Dashboard() {
 }
 
 export default Dashboard;
+
