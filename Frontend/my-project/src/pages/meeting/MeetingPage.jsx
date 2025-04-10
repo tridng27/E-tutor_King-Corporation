@@ -6,8 +6,8 @@ import { Autoplay } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 
-
-const socket = io("http://localhost:5000/meeting");
+const SOCKET_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const socket = io(`${SOCKET_URL}/meeting`);
 
 function MeetingPage() {
     const { meetingId } = useParams();
