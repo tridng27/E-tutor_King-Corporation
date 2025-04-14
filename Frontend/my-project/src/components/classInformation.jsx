@@ -59,19 +59,16 @@ function ClassInformation({ onClose, onAddClass, onUpdateClass, editingClass }) 
             console.log("Validation failed: Class name is empty");
             return;
         }
-
         if (!selectedTutor && !editingClass) {
             setError("A tutor must be assigned to the class");
             console.log("Validation failed: No tutor selected");
             return;
         }
-
         if (selectedStudents.length === 0 && !editingClass) {
             setError("At least one student must be added to the class");
             console.log("Validation failed: No students selected");
             return;
         }
-
         console.log("Validation passed, proceeding with class creation");
         console.log("Class data:", { name: className, tutor: selectedTutor, students: selectedStudents });
         
@@ -112,25 +109,11 @@ function ClassInformation({ onClose, onAddClass, onUpdateClass, editingClass }) 
                 
                 console.log("Created class with ID:", classId);
                 
-                // Step 2: Assign tutor to class
-                if (selectedTutor) {
-                    try {
-                        console.log(`Step 2: Assigning tutor ${selectedTutor} to class ${classId}`);
-                        const tutorResponse = await apiService.assignTutorToClass(classId, selectedTutor);
-                        console.log("Tutor assignment response:", tutorResponse);
-                        console.log("Tutor assigned successfully");
-                    } catch (tutorError) {
-                        console.error("Error assigning tutor:", tutorError);
-                        console.error("Error details:", tutorError.response?.data || tutorError.message);
-                        setError(`Class created but failed to assign tutor: ${tutorError.message}`);
-                    }
-                }
-                
-                // Step 3: Add students to class
+                // Step 2: Add students to class (MOVED BEFORE TUTOR ASSIGNMENT)
                 let successCount = 0;
                 let failedStudents = [];
                 
-                console.log(`Step 3: Adding ${selectedStudents.length} students to class ${classId}`);
+                console.log(`Step 2: Adding ${selectedStudents.length} students to class ${classId}`);
                 
                 for (const studentId of selectedStudents) {
                     try {
@@ -144,6 +127,20 @@ function ClassInformation({ onClose, onAddClass, onUpdateClass, editingClass }) 
                         console.error(`Error adding student ${studentId}:`, studentError);
                         console.error("Error details:", studentError.response?.data || studentError.message);
                         failedStudents.push(studentId);
+                    }
+                }
+                
+                // Step 3: Assign tutor to class (MOVED AFTER STUDENT ASSIGNMENT)
+                if (selectedTutor) {
+                    try {
+                        console.log(`Step 3: Assigning tutor ${selectedTutor} to class ${classId}`);
+                        const tutorResponse = await apiService.assignTutorToClass(classId, selectedTutor);
+                        console.log("Tutor assignment response:", tutorResponse);
+                        console.log("Tutor assigned successfully");
+                    } catch (tutorError) {
+                        console.error("Error assigning tutor:", tutorError);
+                        console.error("Error details:", tutorError.response?.data || tutorError.message);
+                        setError(`Class created but failed to assign tutor: ${tutorError.message}`);
                     }
                 }
                 
@@ -188,8 +185,8 @@ function ClassInformation({ onClose, onAddClass, onUpdateClass, editingClass }) 
                 <h2 className="text-xl font-semibold text-center mb-4">
                     {editingClass ? "EDIT CLASS" : "ADD CLASS"}
                 </h2>
-                <button 
-                    className="absolute top-4 right-4 text-red-500 text-lg" 
+                <button
+                    className="absolute top-4 right-4 text-red-500 text-lg"
                     onClick={onClose}
                     disabled={isSubmitting} // Disable close button during submission
                 >
@@ -205,7 +202,7 @@ function ClassInformation({ onClose, onAddClass, onUpdateClass, editingClass }) 
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
                         <label className="block text-sm font-medium mb-1">Class Name</label>
-                        <input 
+                        <input
                             type="text"
                             value={className}
                             onChange={(e) => setClassName(e.target.value)}
@@ -214,7 +211,6 @@ function ClassInformation({ onClose, onAddClass, onUpdateClass, editingClass }) 
                             disabled={isSubmitting} // Disable input during submission
                         />
                     </div>
-
                     {!editingClass && (
                         <>
                             <div className="mb-4">
@@ -222,7 +218,7 @@ function ClassInformation({ onClose, onAddClass, onUpdateClass, editingClass }) 
                                 {selectedTutor ? (
                                     <div className="flex justify-between items-center p-2 bg-blue-50 rounded border">
                                         <span>{selectedTutorName || `Tutor ID: ${selectedTutor}`}</span>
-                                        <button 
+                                        <button
                                             type="button"
                                             onClick={() => setShowTutorSelector(true)}
                                             className="text-blue-500 text-sm"
@@ -242,7 +238,6 @@ function ClassInformation({ onClose, onAddClass, onUpdateClass, editingClass }) 
                                     </button>
                                 )}
                             </div>
-
                             <div className="mb-4">
                                 <label className="block text-sm font-medium mb-1">Students ({selectedStudents.length})</label>
                                 <div className="border rounded-md p-2 bg-gray-50 mb-2 max-h-32 overflow-y-auto">
@@ -251,8 +246,8 @@ function ClassInformation({ onClose, onAddClass, onUpdateClass, editingClass }) 
                                             {selectedStudents.map(id => (
                                                 <li key={id} className="text-sm py-1 flex justify-between items-center">
                                                     <span>Student ID: {id}</span>
-                                                    <button 
-                                                        type="button" 
+                                                    <button
+                                                        type="button"
                                                         onClick={() => removeStudent(id)}
                                                         className="text-red-500 text-xs"
                                                         disabled={isSubmitting} // Disable button during submission
@@ -277,18 +272,17 @@ function ClassInformation({ onClose, onAddClass, onUpdateClass, editingClass }) 
                             </div>
                         </>
                     )}
-
                     <div className="flex justify-between mt-4">
-                        <button 
-                            type="button" 
-                            className="px-4 py-2 border rounded-md bg-red-500 hover:bg-red-600 text-white" 
+                        <button
+                            type="button"
+                            className="px-4 py-2 border rounded-md bg-red-500 hover:bg-red-600 text-white"
                             onClick={onClose}
                             disabled={loading || isSubmitting} // Disable button during submission
                         >
                             Cancel
                         </button>
-                        <button 
-                            type="submit" 
+                        <button
+                            type="submit"
                             className="px-4 py-2 rounded-md bg-blue-500 hover:bg-blue-600 text-white disabled:opacity-50"
                             disabled={loading || isSubmitting} // Disable button during submission
                         >
@@ -296,16 +290,14 @@ function ClassInformation({ onClose, onAddClass, onUpdateClass, editingClass }) 
                         </button>
                     </div>
                 </form>
-
                 {showStudentSelector && !isSubmitting && (
-                    <ClassStudentSelector 
+                    <ClassStudentSelector
                         onClose={() => setShowStudentSelector(false)}
                         onConfirm={handleStudentSelection}
                     />
                 )}
-
                 {showTutorSelector && !isSubmitting && (
-                    <ClassTutorSelector 
+                    <ClassTutorSelector
                         onClose={() => setShowTutorSelector(false)}
                         onConfirm={handleTutorSelection}
                     />

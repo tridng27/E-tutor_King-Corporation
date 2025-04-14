@@ -29,34 +29,22 @@ const sendEmail = async (to, subject, html) => {
 };
 
 // Notification templates
-const sendClassAssignmentNotification = async (user, className, role, students = [], sendedBy) => {
+const sendClassAssignmentNotification = async (user, className, role, students = []) => {
   const subject = `You've been assigned to ${className}`;
-  const currentDate = new Date();
-  const formattedDate = currentDate.toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-
+  
   // Generate student list HTML
   let studentListHtml = '';
-  if (!students) {
-    studentListHtml = `<p>There are currently no students assigned to this class.</p>`;
-  }
-  else {
-    // Map each student to an HTML list item
-    const studentListItems = students.map(student => 
-      `<li>${student.name} - ${student.email}</li>`
-    ).join('');
-    
+  if (students.length > 0) {
     studentListHtml = `
-    <div style="margin: 15px 0;">
-      <h3>Students in this class:</h3>
-      <ul style="padding-left: 20px;">
-        ${studentListItems}
-      </ul>
-    </div>`;
+      <div style="margin: 15px 0;">
+        <h3>Students in this class:</h3>
+        <ul style="padding-left: 20px;">
+          ${students.map(student => `<li>${student.Name} (${student.Email})</li>`).join('')}
+        </ul>
+      </div>
+    `;
+  } else {
+    studentListHtml = `<p>There are currently no students assigned to this class.</p>`;
   }
   
   const html = `
@@ -65,7 +53,6 @@ const sendClassAssignmentNotification = async (user, className, role, students =
       <p>Hello ${user.Name},</p>
       <p>You have been assigned as a <strong>${role}</strong> to the class: <strong>${className}</strong>.</p>
       <p>Please log in to your account to view more details.</p>
-      <p>Assignment Date: <strong>${formattedDate}</strong></p>
       ${studentListHtml}
       <p>Thank you,<br>E-tutor King Corporation</p>
     </div>
