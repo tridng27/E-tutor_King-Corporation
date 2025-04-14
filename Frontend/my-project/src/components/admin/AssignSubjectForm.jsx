@@ -15,13 +15,14 @@ function AssignSubjectForm({ studentId, onClose, onSuccess }) {
   const fetchData = async () => {
     try {
       setLoading(true);
-      // Fetch all available subjects
-      const subjectsResponse = await apiService.get('/subjects');
-      setSubjects(subjectsResponse.data);
-
-      // Fetch subjects already assigned to this student
-      const studentSubjectsResponse = await apiService.get(`/studentsubjects/students/${studentId}/subjects`);
-      setStudentSubjects(studentSubjectsResponse.data);
+      
+      // Fetch all available subjects using the getAllSubjects method
+      const subjectsResponse = await apiService.getAllSubjects();
+      setSubjects(subjectsResponse);
+      
+      // Fetch subjects already assigned to this student using the getStudentSubjects method
+      const studentSubjectsResponse = await apiService.getStudentSubjects(studentId);
+      setStudentSubjects(studentSubjectsResponse);
       
       setLoading(false);
     } catch (error) {
@@ -40,7 +41,9 @@ function AssignSubjectForm({ studentId, onClose, onSuccess }) {
 
     try {
       setLoading(true);
-      await apiService.post('/studentsubjects', {
+      
+      // Use the createStudentSubject method instead of direct API call
+      await apiService.createStudentSubject({
         StudentID: studentId,
         SubjectID: selectedSubject
       });
@@ -63,7 +66,10 @@ function AssignSubjectForm({ studentId, onClose, onSuccess }) {
 
     try {
       setLoading(true);
-      await apiService.delete(`/studentsubjects/${studentSubjectId}`);
+      
+      // Use the deleteStudentSubject method instead of direct API call
+      await apiService.deleteStudentSubject(studentSubjectId);
+      
       toast.success('Subject removed successfully');
       fetchData(); // Refresh the data
     } catch (error) {
@@ -80,72 +86,72 @@ function AssignSubjectForm({ studentId, onClose, onSuccess }) {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">  
-    <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
-      <h2 className="text-xl font-bold mb-4">Assign Subject to Student</h2>
-      
-      {/* Current subjects */}
-      <div className="mb-4">
-        <h3 className="font-medium mb-2">Current Subjects:</h3>
-        {loading ? (
-          <p>Loading...</p>
-        ) : studentSubjects.length === 0 ? (
-          <p className="text-gray-500">No subjects assigned yet</p>
-        ) : (
-          <ul className="space-y-2">
-            {studentSubjects.map(ss => (
-              <li key={ss.StudentSubjectID} className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                <span>{ss.Subject?.SubjectName}</span>
-                <button
-                  onClick={() => handleRemoveSubject(ss.StudentSubjectID)}
-                  className="text-red-500 hover:text-red-700"
-                  disabled={loading}
-                >
-                  Remove
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-      
-      {/* Assign new subject form */}
-      <form onSubmit={handleSubmit}>
+      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+        <h2 className="text-xl font-bold mb-4">Assign Subject to Student</h2>
+        
+        {/* Current subjects */}
         <div className="mb-4">
-          <label className="block text-gray-700 mb-2">Select Subject:</label>
-          <select
-            className="w-full p-2 border rounded"
-            value={selectedSubject}
-            onChange={(e) => setSelectedSubject(e.target.value)}
-            disabled={loading || availableSubjects.length === 0}
-          >
-            <option value="">-- Select a subject --</option>
-            {availableSubjects.map(subject => (
-              <option key={subject.SubjectID} value={subject.SubjectID}>
-                {subject.SubjectName}
-              </option>
-            ))}
-          </select>
+          <h3 className="font-medium mb-2">Current Subjects:</h3>
+          {loading ? (
+            <p>Loading...</p>
+          ) : studentSubjects.length === 0 ? (
+            <p className="text-gray-500">No subjects assigned yet</p>
+          ) : (
+            <ul className="space-y-2">
+              {studentSubjects.map(ss => (
+                <li key={ss.StudentSubjectID} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                  <span>{ss.Subject?.SubjectName}</span>
+                  <button
+                    onClick={() => handleRemoveSubject(ss.StudentSubjectID)}
+                    className="text-red-500 hover:text-red-700"
+                    disabled={loading}
+                  >
+                    Remove
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
         
-        <div className="flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 border rounded-md bg-red-500 hover:bg-red-600 text-white"
-            disabled={loading}
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-            disabled={loading || !selectedSubject}
-          >
-            Assign Subject
-          </button>
-        </div>
-      </form>
-    </div>
+        {/* Assign new subject form */}
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label className="block text-gray-700 mb-2">Select Subject:</label>
+            <select
+              className="w-full p-2 border rounded"
+              value={selectedSubject}
+              onChange={(e) => setSelectedSubject(e.target.value)}
+              disabled={loading || availableSubjects.length === 0}
+            >
+              <option value="">-- Select a subject --</option>
+              {availableSubjects.map(subject => (
+                <option key={subject.SubjectID} value={subject.SubjectID}>
+                  {subject.SubjectName}
+                </option>
+              ))}
+            </select>
+          </div>
+          
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 border rounded-md bg-red-500 hover:bg-red-600 text-white"
+              disabled={loading}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+              disabled={loading || !selectedSubject}
+            >
+              Assign Subject
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
