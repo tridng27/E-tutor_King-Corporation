@@ -168,53 +168,70 @@ function Timetable() {
         setShowModal(true);
     };
     
-    // Handle form submission
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+   // Handle form submission
+const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    try {
+        // Create a copy of the timetable data for submission
+        const submissionData = { ...timetableData };
         
-        try {
-            // Create a copy of the timetable data for submission
-            const submissionData = { ...timetableData };
+        // Get the existing timetable entry if it exists
+        const existingTimetable = getTimetableForSlot(selectedSlot.day.formattedDate, selectedSlot.slot);
+        
+        // If this is a new entry (not an edit), ensure the time is in UTC
+        if (!existingTimetable) {
+            // Extract the date part and time part
+            const datePart = selectedSlot.day.formattedDate;
+            const [timeStr] = selectedSlot.slot.time.split(' - ');
+            const [hours, minutes] = timeStr.split(':').map(Number);
             
-            // If this is a new entry (not an edit), ensure the time is in UTC
-            if (!getTimetableForSlot(selectedSlot.day.formattedDate, selectedSlot.slot)) {
-                // Extract the date part and time part
-                const datePart = selectedSlot.day.formattedDate;
-                const [timeStr] = selectedSlot.slot.time.split(' - ');
-                const [hours, minutes] = timeStr.split(':').map(Number);
-                
-                // Create a date in Vietnam time
-                const vietnamDate = new Date(`${datePart}T${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:00`);
-                
-                // Convert to UTC
-                const utcDate = convertToUTC(vietnamDate);
-                
-                // Update the submission data
-                submissionData.TimetableSchedule = utcDate.toISOString();
-            }
+            // Create a date in Vietnam time
+            const vietnamDate = new Date(`${datePart}T${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:00`);
             
-            const timetable = getTimetableForSlot(selectedSlot.day.formattedDate, selectedSlot.slot);
+            // Convert to UTC
+            const utcDate = convertToUTC(vietnamDate);
             
-            if (timetable) {
-                // Update existing timetable entry
-                await apiService.updateTimetable(timetable.TimetableID, submissionData);
-            } else {
-                // Create new timetable entry
-                await apiService.createTimetable(submissionData);
-            }
+            // Update the submission data
+            submissionData.TimetableSchedule = utcDate.toISOString();
+        } else {
+            // For existing entries, ensure we're using the correct time format
+            // Extract the date part from the selected day
+            const datePart = selectedSlot.day.formattedDate;
             
-            // Refresh timetables data
-            const startDate = format(daysOfWeek[0].date, 'yyyy-MM-dd');
-            const endDate = format(daysOfWeek[6].date, 'yyyy-MM-dd');
-            const updatedTimetables = await apiService.getAllTimetables(startDate, endDate);
+            // Extract time from the existing schedule
+            const existingTime = new Date(existingTimetable.TimetableSchedule);
+            const hours = existingTime.getUTCHours();
+            const minutes = existingTime.getUTCMinutes();
             
-            setTimetables(updatedTimetables);
-            setShowModal(false);
-        } catch (err) {
-            console.error('Error saving timetable:', err);
-            alert('Failed to save timetable. Please try again.');
+            // Create a date in UTC format
+            const utcDate = new Date(`${datePart}T${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:00Z`);
+            
+            // Update the submission data
+            submissionData.TimetableSchedule = utcDate.toISOString();
         }
-    };
+        
+        if (existingTimetable) {
+            // Update existing timetable entry
+            await apiService.updateTimetable(existingTimetable.TimetableID, submissionData);
+        } else {
+            // Create new timetable entry
+            await apiService.createTimetable(submissionData);
+        }
+        
+        // Refresh timetables data
+        const startDate = format(daysOfWeek[0].date, 'yyyy-MM-dd');
+        const endDate = format(daysOfWeek[6].date, 'yyyy-MM-dd');
+        const updatedTimetables = await apiService.getAllTimetables(startDate, endDate);
+        
+        setTimetables(updatedTimetables);
+        setShowModal(false);
+    } catch (err) {
+        console.error('Error saving timetable:', err);
+        alert('Failed to save timetable. Please try again.');
+    }
+};
+
     
     // Handle timetable entry deletion
     const handleDelete = async () => {
