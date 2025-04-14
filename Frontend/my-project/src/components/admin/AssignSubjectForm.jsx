@@ -7,6 +7,7 @@ function AssignSubjectForm({ studentId, onClose, onSuccess }) {
   const [selectedSubject, setSelectedSubject] = useState('');
   const [loading, setLoading] = useState(false);
   const [studentSubjects, setStudentSubjects] = useState([]);
+  const [actualStudentID, setActualStudentID] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -16,13 +17,25 @@ function AssignSubjectForm({ studentId, onClose, onSuccess }) {
     try {
       setLoading(true);
       
-      // Fetch all available subjects using the getAllSubjects method
-      const subjectsResponse = await apiService.getAllSubjects();
-      setSubjects(subjectsResponse);
+      // First, get the actual StudentID from the UserID
+      const studentResponse = await apiService.get(`/students/${studentId}`);
+      const studentData = studentResponse.data;
       
-      // Fetch subjects already assigned to this student using the getStudentSubjects method
-      const studentSubjectsResponse = await apiService.getStudentSubjects(studentId);
-      setStudentSubjects(studentSubjectsResponse);
+      // Store the actual StudentID
+      if (studentData && studentData.StudentID) {
+        setActualStudentID(studentData.StudentID);
+        
+        // Now fetch subjects for this StudentID
+        const studentSubjectsResponse = await apiService.get(`/studentsubjects/students/${studentData.StudentID}/subjects`);
+        setStudentSubjects(studentSubjectsResponse.data);
+      } else {
+        console.error('Could not find StudentID for UserID:', studentId);
+        toast.error('Could not find student record');
+      }
+      
+      // Fetch all available subjects
+      const subjectsResponse = await apiService.get('/subjects');
+      setSubjects(subjectsResponse.data);
       
       setLoading(false);
     } catch (error) {
@@ -38,13 +51,16 @@ function AssignSubjectForm({ studentId, onClose, onSuccess }) {
       toast.error('Please select a subject');
       return;
     }
+    
+    if (!actualStudentID) {
+      toast.error('Could not determine StudentID');
+      return;
+    }
 
     try {
       setLoading(true);
-      
-      // Use the createStudentSubject method instead of direct API call
-      await apiService.createStudentSubject({
-        StudentID: studentId,
+      await apiService.post('/studentsubjects', {
+        StudentID: actualStudentID, // Use the actual StudentID, not the UserID
         SubjectID: selectedSubject
       });
       
@@ -66,10 +82,7 @@ function AssignSubjectForm({ studentId, onClose, onSuccess }) {
 
     try {
       setLoading(true);
-      
-      // Use the deleteStudentSubject method instead of direct API call
-      await apiService.deleteStudentSubject(studentSubjectId);
-      
+      await apiService.delete(`/studentsubjects/${studentSubjectId}`);
       toast.success('Subject removed successfully');
       fetchData(); // Refresh the data
     } catch (error) {
@@ -145,7 +158,7 @@ function AssignSubjectForm({ studentId, onClose, onSuccess }) {
             <button
               type="submit"
               className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-              disabled={loading || !selectedSubject}
+              disabled={loading || !selectedSubject || !actualStudentID}
             >
               Assign Subject
             </button>
