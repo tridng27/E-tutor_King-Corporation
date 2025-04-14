@@ -892,7 +892,6 @@ function MeetingPage() {
             )}
             
             {/* Participants list overlay - simplified */}
-            {/* Participants list overlay - simplified */}
 {showParticipants && (
     <div className="absolute right-0 top-16 bg-gray-800 rounded-lg shadow-lg w-64 z-10 mr-4">
         <div className="p-3 border-b border-gray-700 font-medium flex justify-between items-center">

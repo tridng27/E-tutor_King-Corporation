@@ -147,24 +147,23 @@ function Timetable() {
         
         const timetable = getTimetableForSlot(day.formattedDate, slot);
         
-        // Parse the time from the slot (e.g., "8:00 - 9:30" -> "08:00")
-        const timeStr = slot.time.split(' - ')[0];
+        // Extract hours and minutes from the slot time
+        const [timeStr] = slot.time.split(' - ');
         const [hours, minutes] = timeStr.split(':').map(Number);
         
-        // Create a date object for the selected day with the slot's time
-        const selectedDate = new Date(day.formattedDate);
-        selectedDate.setHours(hours, minutes, 0, 0);
+        // Create a date object with the selected day and time in Vietnam time zone
+        const vietnamDateTime = new Date(`${day.formattedDate}T${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:00`);
         
-        // Format the date-time string for the datetime-local input
-        // Format: YYYY-MM-DDThh:mm
-        const formattedDateTime = format(selectedDate, "yyyy-MM-dd'T'HH:mm");
+        // Convert to UTC for storage
+        const utcDateTime = convertToUTC(vietnamDateTime);
+        const timetableTime = utcDateTime.toISOString();
         
         setSelectedSlot({ day, slot });
         setTimetableData({
             ClassID: timetable?.ClassID || '',
             TimetableDate: day.formattedDate,
             TimetableLocation: timetable?.TimetableLocation || 'Online',
-            TimetableSchedule: timetable?.TimetableSchedule || formattedDateTime
+            TimetableSchedule: timetable ? timetable.TimetableSchedule : timetableTime
         });
         setShowModal(true);
     };

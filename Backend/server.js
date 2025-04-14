@@ -69,6 +69,7 @@ const emailService = {
         <h2>Class Assignment Notification</h2>
         <p>Hello ${user.Name},</p>
         <p>You have been assigned as a <strong>${role}</strong> to the class: <strong>${className}</strong>.</p>
+        <p>The students in your class are:</p>
         <p>Please log in to your account to view more details.</p>
         <p>Thank you,<br>E-tutor King Corporation</p>
       </div>

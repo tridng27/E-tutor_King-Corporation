@@ -33,7 +33,7 @@ function SubjectManagement() {
       setError('Failed to load subjects. Please try again later.');
     } finally {
       setLoading(false);
-    }
+    } 
   };
 
   const handleCreateSubject = async (e) => {

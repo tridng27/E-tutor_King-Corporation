@@ -49,7 +49,7 @@ const Post = sequelize.define("Post", {
     defaultValue: DataTypes.NOW
   }
 }, {
-  tableName: "Posts",  // Make sure this matches your table name exactly
+  tableName: "Posts", 
   timestamps: true,
   createdAt: 'CreatedAt',
   updatedAt: 'UpdatedAt'

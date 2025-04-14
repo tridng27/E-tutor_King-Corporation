@@ -293,9 +293,26 @@ exports.getClassesWithoutTutor = async (req, res) => {
 exports.assignTutorToClass = async (req, res) => {
     try {
         const { classId, tutorId } = req.params;
-       
-        // Find the class
+        console.log("ID",classId);
+        
+        const classWithStudents = await Class.findByPk(classId, {
+            include: [{
+                model: Student,
+                include: [{
+                    model: User,
+                    attributes: ['Name', 'Email', 'Birthdate', 'Gender']
+                }]
+            }]
+        });
         const classRecord = await Class.findByPk(classId);
+       // Extract names and emails from students
+        const studentContacts = classWithStudents.Students.map(student => ({
+            name: student.dataValues.User.dataValues.Name,
+            email: student.dataValues.User.dataValues.Email
+        }));
+  
+        console.log("Student contacts:", studentContacts);
+        console.log("Userssssssssss:", req.user);
        
         if (!classRecord) {
             return res.status(404).json({ message: "Class not found" });
@@ -312,6 +329,9 @@ exports.assignTutorToClass = async (req, res) => {
         const tutor = await Tutor.findByPk(tutorId, {
             include: [{ model: User }]  // Include User model to get email
         });
+
+        
+        
        
         if (!tutor) {
             return res.status(404).json({ message: "Tutor not found" });
@@ -320,14 +340,18 @@ exports.assignTutorToClass = async (req, res) => {
         // Assign tutor to class
         await classRecord.update({ TutorID: tutorId });
         
+        
         // Send email notification if tutor has a user with email
         if (tutor.User && tutor.User.Email) {
             try {
                 await sendClassAssignmentNotification(
                     tutor.User, 
                     classRecord.Name.trim(), // Trim whitespace from class name
-                    'Tutor'
+                    'Tutor',
+                    studentContacts,
+                    req.user.name
                 );
+                console.log('Data for class with student:',classWithStudents);
                 console.log(`Email notification sent to tutor ${tutor.User.Email}`);
             } catch (emailError) {
                 console.error("Error sending email notification:", emailError);
@@ -337,7 +361,7 @@ exports.assignTutorToClass = async (req, res) => {
                
         res.status(200).json({
             message: "Tutor assigned to class successfully. Email notification sent.",
-            class: classRecord
+            class: classRecord,
         });
     } catch (error) {
         console.error("Error in assignTutorToClass:", error);

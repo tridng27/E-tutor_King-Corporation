@@ -217,13 +217,13 @@ const apiService = {
 
   deleteUser: async (userId) => {
     try {
-      const response = await apiClient.delete(`/admin/delete/${userId}`);
+      const response = await apiClient.delete(`/admin/users/${userId}`);
       return response.data;
     } catch (error) {
       console.error("Error deleting user:", error);
       throw error;
     }
-  },
+  },  
 
   // Timetable management
   getAllTimetables: async (startDate, endDate) => {
